@@ -74,6 +74,14 @@ export const imagePresets = {
         loading: 'eager',
         placeholder: 'media',
     },
+    /** intro_statement side image, 5 of 12 columns (DEC-44; not in §5.3). */
+    'intro-image': {
+        sizes: '(min-width:1280px) 520px, (min-width:1024px) 40vw, 92vw',
+        aspect: 'aspect-[4/5]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     'segment-tile': {
         sizes: '(min-width:1024px) 25vw, 92vw',
         aspect: 'aspect-video lg:aspect-[3/4]',

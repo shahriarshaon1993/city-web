@@ -12,7 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Local-only UI kit reference (0.2, 0.3) and hero previews (2.1). Registered only when app()->isLocal().
+ * Local-only UI kit reference (0.2, 0.3, project cards 2.2) and hero previews (2.1). Registered only when app()->isLocal().
  */
 class StyleguideController extends Controller
 {
@@ -29,6 +29,7 @@ class StyleguideController extends Controller
                 'interior' => DemoMedia::image('interiors/interiors-01'),
                 'thumbs' => array_map(DemoMedia::image(...), ['projects/projects-02', 'projects/projects-03', 'interiors/interiors-02', 'progress/progress-01']),
             ],
+            'projects' => DemoContent::projectCards(),
             'ogImage' => DemoMedia::ogImage('hero/hero-01'),
             'formatSamples' => $this->formatSamples(),
             'seo' => SeoData::page('Styleguide')->noindex(follow: false)->toArray($request),
@@ -45,7 +46,6 @@ class StyleguideController extends Controller
 
         return Inertia::render('Site/Home', [
             'blocks' => $blocks,
-            'lead' => DemoContent::page('home')['intro'],
             'starts_with_hero' => true,
             'seo' => SeoData::page('Hero: '.$variant)->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
         ]);

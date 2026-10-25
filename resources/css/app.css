@@ -626,3 +626,42 @@
         transform: scale(1.06);
     }
 }
+
+/*
+ * CMP-CARD-01 hover (2.2): lift translateY(-4px), shadow md (fades in on a
+ * pseudo-element so only opacity animates) and MOT-CARD-IMG zoom on
+ * `.media-zoom` images (cards and segment tiles). Fine pointers only, never
+ * under reduced motion (MOT-R01, MOT-R03).
+ */
+.project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    .project-card {
+        transition: transform var(--dur-base) var(--ease-standard);
+    }
+    .project-card::before {
+        transition: opacity var(--dur-base) var(--ease-standard);
+    }
+    .project-card:hover {
+        z-index: var(--z-raised);
+        transform: translateY(-4px);
+    }
+    .project-card:hover::before {
+        opacity: 1;
+    }
+    .media-zoom {
+        transition: transform 600ms var(--ease-standard);
+    }
+    .project-card:hover .media-zoom,
+    .segment-tile:hover .media-zoom {
+        transform: scale(1.04);
+    }
+}

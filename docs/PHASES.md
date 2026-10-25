@@ -12,7 +12,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ✅     |
 | 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ✅     |
 | 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ✅     |
-| 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ⬜     |
+| 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ✅     |
 | 2.3  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.2            | ⬜     |
 | 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.3            | ⬜     |
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ⬜     |
@@ -190,6 +190,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 2.1 · **Read:** spec/page-builder.md CMS-PB-001, CMS-PB-004, block rows 3–7; design/components.md CMP-CARD-01, CMP-STAT-01, §6.5 rows intro_statement, featured_projects, project_grid, segment_tiles, stats_counters; design/layouts.md LAY-HOME; spec/projects.md project types/statuses table, FR-PROJ-009, AC-PROJ-01, AC-PROJ-02; spec/shortlist.md FR-SHORT-001, FR-SHORT-005.
 **Build:** `BlockRenderer` (type → lazy component; `background`, `spacing`, `anchor_id`, `animate`, `is_visible`; first visible block owns the H1). `ProjectCard` variants default/horizontal/mini/featured (one stretched link, heart as a separate button, facts in `<dl>`, price only when shown). `useShortlist` (localStorage `gc.shortlist`, max 20, hidden when storage throws; header count). Blocks intro_statement, featured_projects (Embla carousel 1.15/2.2/3 or grid), project_grid, segment_tiles, stats_counters (final values in HTML; counting comes in 3.1).
 **Test:** home vs LAY-HOME at 360/768/1280/1536; one Tab stop per card link + one per heart; a demo project with `show_price=false` → no price anywhere in view-source; heart survives a reload and updates the header count; in a browser with site storage blocked the hearts disappear and the console has no error.
+
+**Done notes (2026-10-25):**
+- `components/blocks/BlockRenderer.vue` (type → component map; hero eager for LCP, other types `defineAsyncComponent`; skips `is_visible: false`; `first` = index 0 of the visible list). New block types: add to `PageBlock` in `types/blocks.ts` and to the map. Pages render `<BlockRenderer :blocks>` (Home does).
+- `BlockSection.vue` = CMS-PB-001 envelope (background/spacing tokens per DEC-44, `id` = anchor, `data-block`, `data-animate`); slot props `headingTag` (h1 on the first block, else h2) + `headingId`; `labelled=false` when the block has no heading. `BlockHeader.vue` (heading + "View all" + `#actions`), `BlockLinkButton.vue` (BlockLink → `<Link>`/`<a>`).
+- Blocks: `IntroStatementBlock` (`data-split` heading, `data-mask` image for 3.1), `FeaturedProjectsBlock` (Embla, arrows only; scroll-snap strip until Embla starts), `ProjectGridBlock` + shared `ProjectGrid`, `SegmentTilesBlock` (fixed desktop row height, flex-grow hover), `StatsCountersBlock` (`data-counter`/`data-value`/`data-decimals`, aria-hidden number + sr-only twin, `min-width` in ch — 3.1 animates these).
+- `components/site/ProjectCard.vue` variants default/horizontal/mini/featured (parent sets `xl:col-span-2` for featured); `headingAs` prop; hover CSS `.project-card` / `.media-zoom` in `app.css` (3.1/3.2 must also gate it on the motion toggle). Compare checkbox → 8.3, tilt → 3.2.
+- `composables/useShortlist.ts`: module-level store, filled in `onMounted` only (SSR/hydration see empty + `available=false`), `storage` event sync, full list → info toast. `ShortlistHeart.vue` renders only when `available`. 8.3 (PG-20) must reuse it and drop unknown IDs (FR-SHORT-002).
+- `DemoContent::homeBlocks()` = 6 blocks; `projectCards($featuredOnly, $segment, $lifecycle, $limit)`; 6 demo projects featured (mega menu still takes 3). Stats figures are placeholders. 404 popular projects use the `mini` card.
+- Open: unlayered `.theme-dark { background-color }` in `app.css` beats utilities — check the hero text wrapper (2.1) for a teal box; don't rely on `bg-transparent` over `.theme-dark`.
 
 ### 2.3 — Home blocks II
 

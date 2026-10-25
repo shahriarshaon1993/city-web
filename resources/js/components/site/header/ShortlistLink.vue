@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-// CMP-HEAD-01 shortlist heart. `count` comes from the shortlist store
-// (FR-SHORT, 2.2); the URL becomes Wayfinder's `shortlist()` in 8.3.
+// CMP-HEAD-01 shortlist heart. `count` comes from useShortlist (FR-SHORT-001);
+// the URL becomes Wayfinder's `shortlist()` in 8.3.
 const props = defineProps<{
     count: number;
     onMedia: boolean;

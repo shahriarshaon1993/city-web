@@ -2,8 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { Search } from '@lucide/vue';
 import { useId } from 'vue';
-import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
-import { Badge } from '@/components/ui/badge';
+import ProjectCard from '@/components/site/ProjectCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,8 +11,8 @@ import SiteLayout from '@/layouts/SiteLayout.vue';
 import type { ErrorPageProps } from '@/types/site';
 
 // PG-26 / LAY-ERROR, rendered by App\Support\Errors\ErrorPage with the real
-// status code. 500/503 use the logo-only layout. Popular projects use a
-// simple card until ProjectCard (CMP-CARD-01) arrives in 2.2.
+// status code. 500/503 use the logo-only layout. Popular projects are
+// CMP-CARD-01 `mini` cards.
 defineOptions({
     layout: (props: ErrorPageProps) =>
         props.minimal ? MinimalLayout : SiteLayout,
@@ -97,35 +96,7 @@ const popularId = useId();
             <h2 :id="popularId" class="text-h3">{{ popular.heading }}</h2>
             <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <li v-for="project in popular.projects" :key="project.id">
-                    <Link
-                        :href="project.url"
-                        class="group flex flex-col gap-3 rounded-lg"
-                    >
-                        <ResponsiveImage
-                            :image="project.cover"
-                            preset="project-card"
-                            class="overflow-hidden rounded-lg"
-                        />
-                        <span class="flex flex-col gap-1">
-                            <span
-                                class="font-display text-h4 group-hover:text-primary"
-                            >
-                                {{ project.name }}
-                            </span>
-                            <span class="text-muted-foreground">
-                                {{ project.location.area }},
-                                {{ project.location.city }}
-                            </span>
-                        </span>
-                        <Badge
-                            variant="lifecycle"
-                            :value="project.lifecycle"
-                            size="sm"
-                            class="self-start"
-                        >
-                            {{ project.lifecycle_label }}
-                        </Badge>
-                    </Link>
+                    <ProjectCard :project="project" variant="mini" />
                 </li>
             </ul>
         </section>

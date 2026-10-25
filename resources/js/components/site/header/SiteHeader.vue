@@ -7,6 +7,7 @@ import MobileMenu from '@/components/site/header/MobileMenu.vue';
 import ShortlistLink from '@/components/site/header/ShortlistLink.vue';
 import { Button } from '@/components/ui/button';
 import { useHeadroom } from '@/composables/useHeadroom';
+import { useShortlist } from '@/composables/useShortlist';
 import { formatPhone } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
@@ -40,8 +41,8 @@ const transparent = computed(
     () => props.overHero && !scrolled.value && megaOpen.value === '',
 );
 
-// Shortlist store arrives in 2.2 (FR-SHORT); the slot is wired now.
-const shortlistCount = ref(0);
+// FR-SHORT-001 count badge.
+const { count: shortlistCount } = useShortlist();
 
 function currentPath(): string {
     return page.url.split(/[?#]/)[0];

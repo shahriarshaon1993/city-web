@@ -1,8 +1,14 @@
 // Page-builder blocks (CMS-PB-001, DM-BLOCK), shaped like the Part B block
-// resources (ARC-002). 2.2 adds the other block types to `PageBlock`.
+// resources (ARC-002): editor-only fields (manual IDs, preset filters, limit)
+// are resolved server-side by the block data loaders and not sent.
 
 import type { ProjectSearchOptions } from '@/types/search';
-import type { MediaImage, MediaVideo } from '@/types/site';
+import type {
+    MediaImage,
+    MediaVideo,
+    ProjectCard,
+    ProjectSegment,
+} from '@/types/site';
 
 export type BlockBackground =
     | 'default'
@@ -16,6 +22,8 @@ export type BlockSpacing = 'none' | 'sm' | 'md' | 'lg';
 export type Block<Type extends string, Data> = {
     id: number;
     type: Type;
+    /** Hidden blocks are normally dropped server-side; previews may send them. */
+    is_visible: boolean;
     anchor_id: string | null;
     background: BlockBackground;
     spacing: BlockSpacing;
@@ -66,4 +74,85 @@ export type HeroBlockData = {
 
 export type HeroBlock = Block<'hero', HeroBlockData>;
 
-export type PageBlock = HeroBlock;
+/** Block 3, CMP-BLK-INTRO. */
+export type IntroStatementBlockData = {
+    eyebrow: string | null;
+    heading: string;
+    /** Sanitised rich text (≤ 120 words). */
+    body: string | null;
+    cta: BlockLink | null;
+    image: MediaImage | null;
+};
+
+/** Block 4, CMP-BLK-FEATURED. */
+export type FeaturedProjectsBlockData = {
+    heading: string;
+    source: 'featured' | 'manual' | 'segment' | 'status';
+    layout: 'carousel' | 'grid';
+    projects: ProjectCard[];
+    /** Listing for the source (all, segment or status); null for `manual`. */
+    view_all: BlockLink | null;
+};
+
+/** Block 5, CMP-BLK-GRID. */
+export type ProjectGridBlockData = {
+    heading: string | null;
+    projects: ProjectCard[];
+    /** Present when "show View all" is on: the preset's listing URL. */
+    view_all: BlockLink | null;
+};
+
+export type SegmentTile = {
+    segment: ProjectSegment;
+    /** Defaults to the segment label. */
+    label: string;
+    description: string | null;
+    image: MediaImage | null;
+    /** The segment's facet page (FR-SRCH-008). */
+    url: string;
+};
+
+/** Block 6, CMP-BLK-SEGMENTS: 2–4 tiles. */
+export type SegmentTilesBlockData = {
+    heading: string | null;
+    tiles: SegmentTile[];
+};
+
+export type StatItem = {
+    value: number;
+    /** ≤ 4 chars, e.g. "+", "M sft". */
+    suffix: string | null;
+    label: string;
+    decimals: 0 | 1;
+};
+
+/** Block 7, CMP-BLK-STATS (CMP-STAT-01): 2–6 items. */
+export type StatsCountersBlockData = {
+    heading: string | null;
+    items: StatItem[];
+};
+
+export type IntroStatementBlock = Block<
+    'intro_statement',
+    IntroStatementBlockData
+>;
+export type FeaturedProjectsBlock = Block<
+    'featured_projects',
+    FeaturedProjectsBlockData
+>;
+export type ProjectGridBlock = Block<'project_grid', ProjectGridBlockData>;
+export type SegmentTilesBlock = Block<'segment_tiles', SegmentTilesBlockData>;
+export type StatsCountersBlock = Block<
+    'stats_counters',
+    StatsCountersBlockData
+>;
+
+export type PageBlock =
+    | HeroBlock
+    | IntroStatementBlock
+    | FeaturedProjectsBlock
+    | ProjectGridBlock
+    | SegmentTilesBlock
+    | StatsCountersBlock;
+
+export type PageBlockType = PageBlock['type'];

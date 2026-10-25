@@ -9,6 +9,7 @@ import {
 } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import EmptyState from '@/components/site/EmptyState.vue';
+import ProjectCard from '@/components/site/ProjectCard.vue';
 import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
 import SkeletonShape from '@/components/site/SkeletonShape.vue';
 import {
@@ -58,7 +59,7 @@ import {
     formatSftRange,
 } from '@/lib/format';
 import { notify } from '@/lib/toast';
-import type { MediaImage } from '@/types/site';
+import type { MediaImage, ProjectCard as ProjectCardData } from '@/types/site';
 
 // Local-only UI kit reference (phases 0.2–0.3). Sample copy here is developer
 // tooling, not site content, so it is not props-driven.
@@ -93,6 +94,7 @@ const props = defineProps<{
         interior: MediaImage | null;
         thumbs: (MediaImage | null)[];
     };
+    projects: ProjectCardData[];
     ogImage: string | null;
     formatSamples: FormatSample[];
 }>();
@@ -1187,6 +1189,46 @@ const faqs = [
                         </figure>
                     </div>
                 </template>
+            </section>
+
+            <!-- Project cards (CMP-CARD-01, 2.2) -->
+            <section aria-labelledby="sg-cards" class="flex flex-col gap-6">
+                <h2 id="sg-cards" class="font-display text-h2">
+                    Project cards
+                </h2>
+                <p class="text-muted-foreground">
+                    Default (all demo projects; three hide their price),
+                    featured (spans 2 columns ≥ 1280), horizontal and mini.
+                </p>
+                <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <li v-for="project in projects" :key="project.id">
+                        <ProjectCard :project="project" />
+                    </li>
+                </ul>
+                <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <li v-if="projects[0]" class="xl:col-span-2">
+                        <ProjectCard
+                            :project="projects[0]"
+                            variant="featured"
+                        />
+                    </li>
+                    <li v-if="projects[1]">
+                        <ProjectCard :project="projects[1]" />
+                    </li>
+                </ul>
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <ProjectCard
+                        v-for="project in projects.slice(2, 4)"
+                        :key="project.id"
+                        :project="project"
+                        variant="horizontal"
+                    />
+                </div>
+                <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <li v-for="project in projects.slice(4)" :key="project.id">
+                        <ProjectCard :project="project" variant="mini" />
+                    </li>
+                </ul>
             </section>
 
             <!-- Formatters -->

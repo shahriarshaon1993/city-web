@@ -20,7 +20,6 @@ class HomeController extends Controller
 
         return Inertia::render('Site/Home', [
             'blocks' => $blocks,
-            'lead' => DemoContent::page('home')['intro'],
             // CMP-HEAD-01: the header starts transparent over a first-block hero.
             'starts_with_hero' => true,
             'seo' => SeoData::home()->lcpFromBlocks($blocks)->toArray($request),

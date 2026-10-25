@@ -195,11 +195,6 @@ final class DemoContent
      * @var array<string, DemoPage>
      */
     private const array PAGES = [
-        'home' => [
-            'title' => 'Gemcon City',
-            'intro' => 'The home page blocks below the hero (featured projects, segments, stats, news) arrive in phases 2.2 and 2.3.',
-            'description' => '',
-        ],
         'about' => [
             'title' => 'About us',
             'intro' => 'Our story, values and the people behind every project. This page is built in phase 6.',
@@ -223,11 +218,11 @@ final class DemoContent
         ['slug' => 'gemcon-lakeview', 'name' => 'Gemcon Lakeview', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Bashundhara R/A', 'image' => 'projects/projects-01', 'size' => [1650, 2100], 'beds' => [3, 4], 'baths' => [3, 4], 'katha' => null, 'price' => 14_500_000, 'price_visible' => true],
         ['slug' => 'gemcon-orchid-heights', 'name' => 'Gemcon Orchid Heights', 'segment' => 'residential', 'lifecycle' => 'upcoming', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Gulshan', 'image' => 'projects/projects-02', 'size' => [2400, 3200], 'beds' => [4, 4], 'baths' => [4, 5], 'katha' => null, 'price' => 42_000_000, 'price_visible' => false],
         ['slug' => 'gemcon-trade-centre', 'name' => 'Gemcon Trade Centre', 'segment' => 'commercial', 'lifecycle' => 'ongoing', 'booking_state' => 'limited_units', 'featured' => true, 'area' => 'Banani', 'image' => 'projects/projects-03', 'size' => [850, 5200], 'beds' => [null, null], 'baths' => [null, null], 'katha' => null, 'price' => 9_500_000, 'price_visible' => true],
-        ['slug' => 'gemcon-greenfield', 'name' => 'Gemcon Greenfield', 'segment' => 'residential', 'lifecycle' => 'ready', 'booking_state' => 'limited_units', 'featured' => false, 'area' => 'Uttara', 'image' => 'projects/projects-04', 'size' => [1250, 1450], 'beds' => [3, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 8_500_000, 'price_visible' => true],
-        ['slug' => 'gemcon-riverside-plots', 'name' => 'Gemcon Riverside Plots', 'segment' => 'land', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'Mirpur', 'image' => 'projects/projects-05', 'size' => [null, null], 'beds' => [null, null], 'baths' => [null, null], 'katha' => 5, 'price' => 12_500_000, 'price_visible' => true],
+        ['slug' => 'gemcon-greenfield', 'name' => 'Gemcon Greenfield', 'segment' => 'residential', 'lifecycle' => 'ready', 'booking_state' => 'limited_units', 'featured' => true, 'area' => 'Uttara', 'image' => 'projects/projects-04', 'size' => [1250, 1450], 'beds' => [3, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 8_500_000, 'price_visible' => true],
+        ['slug' => 'gemcon-riverside-plots', 'name' => 'Gemcon Riverside Plots', 'segment' => 'land', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Mirpur', 'image' => 'projects/projects-05', 'size' => [null, null], 'beds' => [null, null], 'baths' => [null, null], 'katha' => 5, 'price' => 12_500_000, 'price_visible' => true],
         ['slug' => 'gemcon-crescent', 'name' => 'Gemcon Crescent', 'segment' => 'mixed_use', 'lifecycle' => 'upcoming', 'booking_state' => 'none', 'featured' => false, 'area' => 'Dhanmondi', 'image' => 'projects/projects-06', 'size' => [1100, 2600], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => null, 'price_visible' => false],
         ['slug' => 'gemcon-palm-court', 'name' => 'Gemcon Palm Court', 'segment' => 'residential', 'lifecycle' => 'handed_over', 'booking_state' => 'sold_out', 'featured' => false, 'area' => 'Baridhara', 'image' => 'projects/projects-07', 'size' => [2800, 2800], 'beds' => [4, 4], 'baths' => [5, 5], 'katha' => null, 'price' => null, 'price_visible' => false],
-        ['slug' => 'gemcon-maple-residency', 'name' => 'Gemcon Maple Residency', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'Mohammadpur', 'image' => 'projects/projects-08', 'size' => [1050, 1350], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 6_800_000, 'price_visible' => true],
+        ['slug' => 'gemcon-maple-residency', 'name' => 'Gemcon Maple Residency', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Mohammadpur', 'image' => 'projects/projects-08', 'size' => [1050, 1350], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 6_800_000, 'price_visible' => true],
     ];
 
     private const array SEGMENT_LABELS = ['residential' => 'Residential', 'commercial' => 'Commercial', 'mixed_use' => 'Mixed-use', 'land' => 'Land'];
@@ -235,6 +230,14 @@ final class DemoContent
     private const array LIFECYCLE_LABELS = ['upcoming' => 'Upcoming', 'ongoing' => 'Ongoing', 'ready' => 'Ready', 'handed_over' => 'Handed over'];
 
     private const array BOOKING_LABELS = ['booking_open' => 'Booking open', 'limited_units' => 'Limited units', 'sold_out' => 'Sold out'];
+
+    /** Mega menu `auto:segments` descriptions, reused by the segment tiles. */
+    private const array SEGMENT_DESCRIPTIONS = [
+        'residential' => 'Apartments for families',
+        'commercial' => 'Offices and retail spaces',
+        'mixed_use' => 'Homes above shops and offices',
+        'land' => 'Plots with clear titles',
+    ];
 
     private static int $menuItemId = 0;
 
@@ -381,15 +384,62 @@ final class DemoContent
     }
 
     /**
-     * The home page blocks (DM-BLOCK shape, types/blocks.ts). Only the hero
-     * exists so far; 2.2/2.3 add the rest of LAY-HOME. `$variant` switches
-     * the hero for the local previews at /styleguide/hero/{variant}.
+     * The home page blocks (DM-BLOCK shape, types/blocks.ts) in LAY-HOME
+     * order; 2.3 adds progress, testimonials, partners, news and the CTA band.
+     * Project lists are resolved here the way the Part B block data loaders
+     * will (ARC-002). `$variant` switches the hero for the local previews at
+     * /styleguide/hero/{variant}.
      *
      * @return list<array<string, mixed>>
      */
     public static function homeBlocks(string $variant = 'image'): array
     {
-        return [self::block(1, 'hero', self::hero($variant))];
+        return [
+            self::block(1, 'hero', self::hero($variant)),
+            self::block(2, 'intro_statement', [
+                'eyebrow' => 'About Gemcon City',
+                'heading' => 'We build the homes we would want to live in.',
+                'body' => '<p>For two decades Gemcon City has delivered apartments, workplaces and plots across Dhaka with clear titles, RAJUK-approved designs and handovers on the dates we promise.</p><p>Every project is engineered for the long run, and our after-sales team stays with you long after the keys change hands.</p>',
+                'cta' => ['label' => 'Our story', 'url' => '/about', 'new_tab' => false],
+                'image' => DemoMedia::image('interiors/interiors-01'),
+            ], spacing: 'lg'),
+            self::block(3, 'featured_projects', [
+                'heading' => 'Featured projects',
+                'source' => 'featured',
+                'layout' => 'carousel',
+                'projects' => self::projectCards(featuredOnly: true, limit: 6),
+                'view_all' => ['label' => 'View all projects', 'url' => '/projects', 'new_tab' => false],
+            ], background: 'muted'),
+            self::block(4, 'segment_tiles', [
+                'heading' => 'Find the right fit',
+                'tiles' => array_map(
+                    fn (string $segment, string $image): array => [
+                        'segment' => $segment,
+                        'label' => self::SEGMENT_LABELS[$segment],
+                        'description' => self::SEGMENT_DESCRIPTIONS[$segment],
+                        'image' => DemoMedia::image($image),
+                        'url' => '/projects/type/'.str_replace('_', '-', $segment),
+                    ],
+                    array_keys(self::SEGMENT_LABELS),
+                    ['projects/projects-01', 'projects/projects-03', 'projects/projects-06', 'projects/projects-05'],
+                ),
+            ]),
+            // Placeholder figures until the client's arrive.
+            self::block(5, 'stats_counters', [
+                'heading' => 'Built on a track record',
+                'items' => [
+                    ['value' => 20, 'suffix' => '+', 'label' => 'Years of experience', 'decimals' => 0],
+                    ['value' => 48, 'suffix' => null, 'label' => 'Projects handed over', 'decimals' => 0],
+                    ['value' => 3.2, 'suffix' => 'M sft', 'label' => 'Space delivered', 'decimals' => 1],
+                    ['value' => 2500, 'suffix' => '+', 'label' => 'Families at home', 'decimals' => 0],
+                ],
+            ], background: 'brand'),
+            self::block(6, 'project_grid', [
+                'heading' => 'Ongoing projects',
+                'projects' => self::projectCards(lifecycle: 'ongoing', limit: 6),
+                'view_all' => ['label' => 'View all ongoing projects', 'url' => '/projects/status/ongoing', 'new_tab' => false],
+            ]),
+        ];
     }
 
     /**
@@ -445,17 +495,24 @@ final class DemoContent
     }
 
     /**
-     * Project cards (ProjectCard in types/site.ts), optionally featured only.
+     * Project cards (ProjectCard in types/site.ts), filtered like the
+     * featured_projects / project_grid presets (spec/page-builder.md rows 4–5).
      *
      * @return list<array<string, mixed>>
      */
-    public static function projectCards(bool $featuredOnly = false): array
+    public static function projectCards(bool $featuredOnly = false, ?string $segment = null, ?string $lifecycle = null, ?int $limit = null): array
     {
         $cards = [];
 
         foreach (self::PROJECTS as $index => $row) {
-            if ($featuredOnly && ! $row['featured']) {
+            if (($featuredOnly && ! $row['featured'])
+                || ($segment !== null && $row['segment'] !== $segment)
+                || ($lifecycle !== null && $row['lifecycle'] !== $lifecycle)) {
                 continue;
+            }
+
+            if ($limit !== null && count($cards) >= $limit) {
+                break;
             }
 
             $cards[] = [
@@ -500,10 +557,10 @@ final class DemoContent
         $item = self::menuItem(...);
 
         $segments = [
-            $item('Residential', '/projects/type/residential', description: 'Apartments for families', icon: 'house'),
-            $item('Commercial', '/projects/type/commercial', description: 'Offices and retail spaces', icon: 'building'),
-            $item('Mixed-use', '/projects/type/mixed-use', description: 'Homes above shops and offices', icon: 'layers'),
-            $item('Land', '/projects/type/land', description: 'Plots with clear titles', icon: 'land-plot'),
+            $item('Residential', '/projects/type/residential', description: self::SEGMENT_DESCRIPTIONS['residential'], icon: 'house'),
+            $item('Commercial', '/projects/type/commercial', description: self::SEGMENT_DESCRIPTIONS['commercial'], icon: 'building'),
+            $item('Mixed-use', '/projects/type/mixed-use', description: self::SEGMENT_DESCRIPTIONS['mixed_use'], icon: 'layers'),
+            $item('Land', '/projects/type/land', description: self::SEGMENT_DESCRIPTIONS['land'], icon: 'land-plot'),
         ];
 
         $statuses = [
@@ -630,19 +687,20 @@ final class DemoContent
     }
 
     /**
-     * DM-BLOCK envelope (CMS-PB-001).
+     * DM-BLOCK envelope (CMS-PB-001). The hero is edge to edge (`none`).
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private static function block(int $id, string $type, array $data): array
+    private static function block(int $id, string $type, array $data, string $background = 'default', ?string $spacing = null): array
     {
         return [
             'id' => $id,
             'type' => $type,
+            'is_visible' => true,
             'anchor_id' => null,
-            'background' => 'default',
-            'spacing' => 'none',
+            'background' => $background,
+            'spacing' => $spacing ?? ($type === 'hero' ? 'none' : 'md'),
             'animate' => true,
             'data' => $data,
         ];
