@@ -29,6 +29,21 @@ const components: Record<PageBlockType, Component> = {
     stats_counters: defineAsyncComponent(
         () => import('@/components/blocks/StatsCountersBlock.vue'),
     ),
+    progress_highlight: defineAsyncComponent(
+        () => import('@/components/blocks/ProgressHighlightBlock.vue'),
+    ),
+    testimonials: defineAsyncComponent(
+        () => import('@/components/blocks/TestimonialsBlock.vue'),
+    ),
+    partners_marquee: defineAsyncComponent(
+        () => import('@/components/blocks/PartnersMarqueeBlock.vue'),
+    ),
+    latest_news: defineAsyncComponent(
+        () => import('@/components/blocks/LatestNewsBlock.vue'),
+    ),
+    cta_band: defineAsyncComponent(
+        () => import('@/components/blocks/CtaBandBlock.vue'),
+    ),
 };
 
 const visible = computed(() =>

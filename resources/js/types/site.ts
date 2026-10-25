@@ -76,6 +76,66 @@ export type ProjectCard = {
     price_note: string | null;
 };
 
+/** CMP-NEWS-01 (NewsCardResource). */
+export type NewsCard = {
+    id: number;
+    slug: string;
+    url: string;
+    title: string;
+    excerpt: string;
+    cover: MediaImage | null;
+    category: { name: string; slug: string; url: string };
+    /** ISO date. */
+    published_at: string;
+    /** FR-NEWS-004: shown on PG-14 only, never on home. */
+    read_minutes: number;
+};
+
+/** CMP-TEST-01 (TestimonialResource, FR-SOC-001): text only, no rating. */
+export type Testimonial = {
+    id: number;
+    quote: string;
+    person_name: string;
+    designation: string | null;
+    project: { name: string; url: string } | null;
+    /** Square ≥ 400 px; null shows the initials (DEC-47). */
+    photo: MediaImage | null;
+    is_nrb: boolean;
+};
+
+/** PartnerResource (FR-SOC-002). An SVG logo has empty `sources` (DEC-47). */
+export type Partner = {
+    id: number;
+    name: string;
+    logo: MediaImage | null;
+    /** Rendered with `rel="noopener nofollow"`. */
+    url: string | null;
+    category: 'bank' | 'supplier' | 'consultant' | 'group_company';
+};
+
+export type ProgressStage =
+    | 'foundation'
+    | 'structure'
+    | 'finishing'
+    | 'complete';
+
+/** CMP-PROG-01 summary: a project's latest DM-PROG update. */
+export type ProgressSummary = {
+    project: {
+        id: number;
+        name: string;
+        url: string;
+        location: { area: string; city: string };
+    };
+    percent: number;
+    stage: ProgressStage;
+    stage_label: string;
+    /** ISO date (month precision). */
+    reported_on: string;
+    note: string | null;
+    photo: MediaImage | null;
+};
+
 export type Robots = 'index,follow' | 'noindex,follow' | 'noindex,nofollow';
 
 /** One `<link rel="preload" as="image">` (HERO-030/031). */

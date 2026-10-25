@@ -131,7 +131,9 @@ const MOBILE_MEDIA = '(max-width: 767px)';
                 :srcset="image.sources.avif"
                 :sizes="config.sizes"
             />
+            <!-- An SVG has no raster sources: `fallback` is the SVG itself (DEC-47). -->
             <source
+                v-if="image.sources.webp"
                 type="image/webp"
                 :srcset="image.sources.webp"
                 :sizes="config.sizes"

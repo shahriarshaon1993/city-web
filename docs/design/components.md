@@ -1,5 +1,7 @@
 # Components — foundations, header/nav, hero/search, listings/detail, block components (DESIGN §6.1–6.5)
 
+> **Visual direction:** `direction.md` is the source of truth for the public site's look (DEC-49) and wins over this file where they differ — e.g. type weights, card, button, badge and block designs. Behaviour, accessibility and motion rules here still apply.
+
 > Verbatim from DESIGN.md v1.0.0 (25 Oct 2026). IDs and wording unchanged. `§` references to REQUIREMENT/DESIGN resolve through the section map in `CLAUDE.md`.
 
 ## 6. Component specifications

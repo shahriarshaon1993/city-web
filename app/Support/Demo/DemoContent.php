@@ -2,6 +2,8 @@
 
 namespace App\Support\Demo;
 
+use InvalidArgumentException;
+
 /**
  * Part A content source (DEC-29): site settings, menus and page copy shaped
  * like the Part B API Resources (ARC-002, resources/js/types/site.ts).
@@ -239,6 +241,72 @@ final class DemoContent
         'land' => 'Plots with clear titles',
     ];
 
+    /** DM-PROG stages (spec/projects.md) with their labels. */
+    private const array PROGRESS_STAGES = ['foundation' => 'Foundation', 'structure' => 'Structure', 'finishing' => 'Finishing', 'complete' => 'Complete'];
+
+    /**
+     * Latest DM-PROG update of the projects in the home progress_highlight
+     * block; placeholder figures until the client's reports arrive.
+     *
+     * @var list<array{project: string, percent: int, stage: string, reported_on: string, note: string, photo: string}>
+     */
+    private const array PROGRESS = [
+        ['project' => 'gemcon-trade-centre', 'percent' => 81, 'stage' => 'finishing', 'reported_on' => '2026-10-01', 'note' => 'Curtain wall glazing is complete up to level 14; lift installation has started in the east core.', 'photo' => 'progress/progress-01'],
+        ['project' => 'gemcon-lakeview', 'percent' => 64, 'stage' => 'structure', 'reported_on' => '2026-09-01', 'note' => 'Roof slab of Tower B is cast. Brickwork and electrical conduits are under way on levels 1–9.', 'photo' => 'progress/progress-02'],
+        ['project' => 'gemcon-maple-residency', 'percent' => 18, 'stage' => 'foundation', 'reported_on' => '2026-08-01', 'note' => 'Piling is finished and the raft foundation is being poured in three sections.', 'photo' => 'progress/progress-03'],
+    ];
+
+    /**
+     * DM-TEST rows (FR-SOC-001): plain-text quotes, no rating. Fictional
+     * placeholders; no photos until the client supplies them (DEC-47).
+     *
+     * @var list<array{quote: string, person_name: string, designation: string|null, project: string|null, is_nrb: bool}>
+     */
+    private const array TESTIMONIALS = [
+        ['quote' => 'We booked from Toronto without ever visiting the site. The monthly progress photos and a sales team that answered every email at odd hours made the decision easy. The flat was handed over on the promised date.', 'person_name' => 'Farhana Rahman', 'designation' => 'Software engineer, Toronto', 'project' => 'gemcon-greenfield', 'is_nrb' => true],
+        ['quote' => 'Clear papers, a RAJUK-approved plan and no surprises in the final bill. That is rare in this market.', 'person_name' => 'Mahmudul Hasan', 'designation' => 'Apartment owner', 'project' => 'gemcon-palm-court', 'is_nrb' => false],
+        ['quote' => 'We gave our family land in a joint venture. Gemcon explained every clause, kept us updated at each stage and delivered our share of flats exactly as agreed.', 'person_name' => 'Nasreen Akter', 'designation' => 'Landowner', 'project' => null, 'is_nrb' => false],
+        ['quote' => 'Our office floor at the Trade Centre was ready for fit-out a month early. The building management team is quick and professional.', 'person_name' => 'Tanvir Ahmed', 'designation' => 'Managing director, logistics firm', 'project' => 'gemcon-trade-centre', 'is_nrb' => false],
+        ['quote' => 'After-sales service is what sold us on a second apartment. Small snags after handover were fixed within a week, without us having to chase anyone.', 'person_name' => 'Shirin Sultana', 'designation' => 'Homeowner since 2019', 'project' => 'gemcon-greenfield', 'is_nrb' => false],
+        ['quote' => 'Buying from Dubai felt risky until our first video site visit. The engineer walked us through the structure floor by floor and answered every question.', 'person_name' => 'Kamrul Islam', 'designation' => 'Engineer, Dubai', 'project' => 'gemcon-lakeview', 'is_nrb' => true],
+    ];
+
+    /**
+     * DM-PART rows (FR-SOC-002); the logos are the fictional wordmarks of
+     * `demo:images --placeholders` (DEC-47), in the same order.
+     *
+     * @var list<array{0: string, 1: string}>
+     */
+    private const array PARTNERS = [
+        ['Tallgrass Bank', 'bank'],
+        ['Ironleaf Steel', 'supplier'],
+        ['Brightmortar', 'supplier'],
+        ['Clearpane Glass', 'supplier'],
+        ['Fieldline Consultants', 'consultant'],
+        ['Kestrel Finance', 'bank'],
+        ['Northcourt Cables', 'supplier'],
+        ['Saltmarsh Tiles', 'supplier'],
+        ['Orbitwell Lifts', 'supplier'],
+        ['Redbrick Group', 'group_company'],
+    ];
+
+    /** DM-PCAT defaults (FR-NEWS-002): slug => name. */
+    private const array POST_CATEGORIES = ['news' => 'News', 'press-releases' => 'Press releases', 'buying-guides' => 'Buying guides', 'construction-updates' => 'Construction updates', 'events' => 'Events'];
+
+    /**
+     * DM-POST rows for news cards (CMP-NEWS-01), newest first; placeholders.
+     *
+     * @var list<array{slug: string, title: string, excerpt: string, category: string, published_at: string, read_minutes: int, cover: string}>
+     */
+    private const array POSTS = [
+        ['slug' => 'gemcon-trade-centre-tops-out', 'title' => 'Gemcon Trade Centre tops out at 18 floors in Banani', 'excerpt' => 'The final roof slab was cast this month, keeping the commercial tower on track for handover in mid-2027.', 'category' => 'construction-updates', 'published_at' => '2026-10-18', 'read_minutes' => 3, 'cover' => 'news/news-01'],
+        ['slug' => 'buying-an-apartment-from-abroad', 'title' => 'Buying an apartment in Dhaka from abroad: a step-by-step guide for NRBs', 'excerpt' => 'Power of attorney, remittance rules and site visits by video. Everything you need before booking from overseas.', 'category' => 'buying-guides', 'published_at' => '2026-10-02', 'read_minutes' => 7, 'cover' => 'news/news-02'],
+        ['slug' => 'rehab-fair-2026', 'title' => 'Meet us at the REHAB Fair 2026', 'excerpt' => 'Visit our pavilion for fair-only booking offers on Gemcon Lakeview and Gemcon Maple Residency.', 'category' => 'events', 'published_at' => '2026-09-21', 'read_minutes' => 2, 'cover' => 'news/news-03'],
+        ['slug' => 'gemcon-orchid-heights-launch', 'title' => 'Gemcon Orchid Heights launches in Gulshan', 'excerpt' => 'Twenty-four four-bedroom residences on a quiet lakeside plot, with bookings now open.', 'category' => 'press-releases', 'published_at' => '2026-09-05', 'read_minutes' => 4, 'cover' => 'news/news-04'],
+        ['slug' => 'understanding-rajuk-approval', 'title' => 'What a RAJUK approval tells you about a project', 'excerpt' => 'How to read an approval letter and which documents to ask for before you sign.', 'category' => 'buying-guides', 'published_at' => '2026-08-17', 'read_minutes' => 6, 'cover' => 'news/news-05'],
+        ['slug' => 'handover-gemcon-palm-court', 'title' => 'Keys handed over at Gemcon Palm Court', 'excerpt' => 'Families moved into all 32 apartments of our Baridhara project this summer.', 'category' => 'news', 'published_at' => '2026-07-29', 'read_minutes' => 3, 'cover' => 'news/news-06'],
+    ];
+
     private static int $menuItemId = 0;
 
     /**
@@ -385,9 +453,8 @@ final class DemoContent
 
     /**
      * The home page blocks (DM-BLOCK shape, types/blocks.ts) in LAY-HOME
-     * order; 2.4 adds progress, testimonials, partners, news and the CTA band.
-     * Project lists are resolved here the way the Part B block data loaders
-     * will (ARC-002). `$variant` switches the hero for the local previews at
+     * order. Project, testimonial, partner and post lists are resolved here
+     * the way the Part B block data loaders will (ARC-002). `$variant` switches the hero for the local previews at
      * /styleguide/hero/{variant}.
      *
      * @return list<array<string, mixed>>
@@ -439,7 +506,170 @@ final class DemoContent
                 'projects' => self::projectCards(lifecycle: 'ongoing', limit: 6),
                 'view_all' => ['label' => 'View all ongoing projects', 'url' => '/projects/status/ongoing', 'new_tab' => false],
             ]),
+            self::block(7, 'progress_highlight', [
+                'heading' => 'Construction progress',
+                'stages' => array_map(
+                    fn (string $value, string $label): array => ['value' => $value, 'label' => $label],
+                    array_keys(self::PROGRESS_STAGES),
+                    self::PROGRESS_STAGES,
+                ),
+                'items' => self::progressSummaries(),
+            ], background: 'muted'),
+            self::block(8, 'testimonials', [
+                'heading' => 'In our buyers’ words',
+                'layout' => 'carousel',
+                'items' => self::testimonials(),
+            ]),
+            self::block(9, 'partners_marquee', [
+                'heading' => 'Banks and partners we work with',
+                'speed' => 'normal',
+                'direction' => 'left',
+                'partners' => self::partners(),
+            ], spacing: 'sm'),
+            self::block(10, 'latest_news', [
+                'heading' => 'Latest news',
+                'posts' => self::newsCards(limit: 3),
+                'view_all' => ['label' => 'All news', 'url' => '/news', 'new_tab' => false],
+            ], background: 'muted'),
+            self::block(11, 'cta_band', [
+                'heading' => 'Own land in Dhaka? Let’s build on it together.',
+                'text' => 'Our joint-venture model gives landowners a fair share of the finished building, clear agreements and updates at every stage.',
+                'primary_cta' => ['label' => 'Talk to our land team', 'url' => '/landowner', 'new_tab' => false],
+                'secondary_cta' => ['label' => 'Call the hotline', 'url' => 'tel:'.self::SETTINGS['contact']['hotline'], 'new_tab' => false],
+                'style' => 'gradient',
+                'image' => null,
+            ], background: 'dark', spacing: 'lg'),
         ];
+    }
+
+    /**
+     * News cards (NewsCardResource, types/site.ts), newest first.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function newsCards(?string $category = null, ?int $limit = null): array
+    {
+        $posts = array_slice(array_values(array_filter(
+            self::POSTS,
+            fn (array $post): bool => $category === null || $post['category'] === $category,
+        )), 0, $limit);
+
+        return array_map(
+            fn (array $post, int $index): array => [
+                'id' => $index + 1,
+                'slug' => $post['slug'],
+                'url' => '/news/'.$post['slug'],
+                'title' => $post['title'],
+                'excerpt' => $post['excerpt'],
+                'cover' => DemoMedia::image($post['cover']),
+                'category' => [
+                    'name' => self::POST_CATEGORIES[$post['category']],
+                    'slug' => $post['category'],
+                    'url' => '/news/category/'.$post['category'],
+                ],
+                'published_at' => $post['published_at'],
+                'read_minutes' => $post['read_minutes'],
+            ],
+            $posts,
+            array_keys($posts),
+        );
+    }
+
+    /**
+     * Testimonials (TestimonialResource) in sort order, optionally the `nrb` source only.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function testimonials(bool $nrbOnly = false): array
+    {
+        $cards = [];
+
+        foreach (self::TESTIMONIALS as $index => $row) {
+            if ($nrbOnly && ! $row['is_nrb']) {
+                continue;
+            }
+
+            $project = $row['project'] === null ? null : self::projectRow($row['project']);
+
+            $cards[] = [
+                'id' => $index + 1,
+                'quote' => $row['quote'],
+                'person_name' => $row['person_name'],
+                'designation' => $row['designation'],
+                'project' => $project === null ? null : ['name' => $project['name'], 'url' => '/projects/'.$project['slug']],
+                'photo' => null,
+                'is_nrb' => $row['is_nrb'],
+            ];
+        }
+
+        return $cards;
+    }
+
+    /**
+     * Partners (PartnerResource) in sort order.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function partners(): array
+    {
+        return array_map(
+            fn (array $partner, int $index): array => [
+                'id' => $index + 1,
+                'name' => $partner[0],
+                'logo' => DemoMedia::image(sprintf('partners/partners-%02d', $index + 1)),
+                'url' => null,
+                'category' => $partner[1],
+            ],
+            self::PARTNERS,
+            array_keys(self::PARTNERS),
+        );
+    }
+
+    /**
+     * CMP-PROG-01 summaries: the latest progress update of each project.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function progressSummaries(): array
+    {
+        $summaries = [];
+
+        foreach (self::PROGRESS as $update) {
+            $project = self::projectRow($update['project']);
+
+            $summaries[] = [
+                'project' => [
+                    'id' => $project['id'],
+                    'name' => $project['name'],
+                    'url' => '/projects/'.$project['slug'],
+                    'location' => ['area' => $project['area'], 'city' => 'Dhaka'],
+                ],
+                'percent' => $update['percent'],
+                'stage' => $update['stage'],
+                'stage_label' => self::PROGRESS_STAGES[$update['stage']],
+                'reported_on' => $update['reported_on'],
+                'note' => $update['note'],
+                'photo' => DemoMedia::image($update['photo']),
+            ];
+        }
+
+        return $summaries;
+    }
+
+    /**
+     * A PROJECTS row by slug, with its card ID.
+     *
+     * @return array{id: int, slug: string, name: string, area: string}
+     */
+    private static function projectRow(string $slug): array
+    {
+        foreach (self::PROJECTS as $index => $row) {
+            if ($row['slug'] === $slug) {
+                return ['id' => $index + 1, 'slug' => $row['slug'], 'name' => $row['name'], 'area' => $row['area']];
+            }
+        }
+
+        throw new InvalidArgumentException("Unknown demo project {$slug}.");
     }
 
     /**

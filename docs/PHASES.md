@@ -1,7 +1,7 @@
 # Build Phases
 
 Status: ⬜ not started · 🔧 in progress · 🧪 built, awaiting manual test · ✅ done
-Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card only.
+Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card only — plus `docs/design/direction.md` in full for any card that renders public UI (DEC-49).
 
 | ID   | Sub-phase                                                                  | Deps           | Status |
 | ---- | -------------------------------------------------------------------------- | -------------- | ------ |
@@ -14,7 +14,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ✅     |
 | 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ✅     |
 | 2.3  | Design refresh — premium direction (type, shape, card, demo photos)        | 2.2            | ✅     |
-| 2.4  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.3            | ⬜     |
+| 2.4  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.3            | ✅     |
 | 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ⬜     |
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ⬜     |
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ⬜     |
@@ -222,6 +222,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 2.3 · **Read:** spec/page-builder.md block rows 8–12; design/components.md CMP-PROG-01 (summary use), CMP-TEST-01, CMP-MARQ-01, CMP-NEWS-01, CMP-CTA-01, §6.5 rows progress_highlight, testimonials, partners_marquee, latest_news, cta_band; design/motion.md MOT-MARQUEE, MOT-GRAD, MOT-PULSE; spec/social.md FR-SOC-001, FR-SOC-002, AC-SOC-01; spec/news.md FR-NEWS-004.
 **Build:** progress_highlight, testimonials (carousel/grid, `<figure><blockquote>`), partners_marquee (CSS, duplicate track `aria-hidden` + `inert`, pause on hover/focus-within, pause button), latest_news + `NewsCard` (no read time on home), cta_band (brand/gradient/image; animated mesh paused off-screen).
 **Test:** full home review against LAY-HOME at all widths; marquee pauses on hover and when tabbing into it; the accessibility tree lists each partner once; with reduced motion the marquee is a static grid and the gradient static.
+
+**Done notes (2026-10-26):**
+- Blocks `ProgressHighlightBlock` (hairline rows of `site/ProgressSummary`), `TestimonialsBlock` (`site/TestimonialCard` variants `feature`/`card`), `PartnersMarqueeBlock`, `LatestNewsBlock` (lead + compact rows; `site/NewsCard` variants default/lead/compact/featured — 8.1 reuses it, pass `showReadTime` on PG-14), `CtaBandBlock` (centred, owner kept it). Look = DEC-48; visual rules now live in `design/direction.md` (DEC-49).
+- `useCarousel` (Embla + arrows state, `selected`/`count`) + `CarouselArrows` — featured projects was refactored onto them; reuse for any new carousel. `useOffscreen` sets `data-offscreen` to pause CSS loops (marquee, `.cta-mesh`, `.progress-pulse`).
+- `BlockSection` gained `width="full"` and `sectionClass`. New presets `progress-card`, `avatar`, `cta-band` (DEC-47), `news-lead`, `news-thumb` (DEC-48).
+- SVG media (DEC-47): `sources.webp === ''` → `ResponsiveImage` renders a plain `<img>`; `demo:images` copies `*.svg`, `--placeholders` writes 10 fictional partner wordmarks. 11.1 must emit the same shape for SVG uploads.
+- `DemoContent`: public `newsCards()`, `testimonials($nrbOnly)`, `partners()`; demo progress/testimonials/posts are placeholders.
+- 3.1 must also stop the marquee, mesh and pulse under the footer "Reduce motion" toggle (today only `prefers-reduced-motion`), and count up `[data-counter]` in ProgressSummary too.
 
 ## Phase 3 — Motion system
 

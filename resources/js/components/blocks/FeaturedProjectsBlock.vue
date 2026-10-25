@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight } from '@lucide/vue';
-import type { EmblaCarouselType } from 'embla-carousel';
-import emblaCarouselVue from 'embla-carousel-vue';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import BlockHeader from '@/components/blocks/BlockHeader.vue';
 import BlockSection from '@/components/blocks/BlockSection.vue';
+import CarouselArrows from '@/components/blocks/CarouselArrows.vue';
 import ProjectGrid from '@/components/blocks/ProjectGrid.vue';
 import ProjectCard from '@/components/site/ProjectCard.vue';
-import { Button } from '@/components/ui/button';
+import { useCarousel } from '@/composables/useCarousel';
 import type { FeaturedProjectsBlock } from '@/types/blocks';
 
 // CMP-BLK-FEATURED: CMP-CARD-01 carousel (1.15 / 2.2 / 3 per view) or grid,
@@ -21,39 +19,7 @@ const props = defineProps<{
 
 const carousel = computed(() => props.block.data.layout === 'carousel');
 
-const [viewport, api] = emblaCarouselVue({
-    align: 'start',
-    containScroll: 'trimSnaps',
-    slidesToScroll: 'auto',
-});
-
-const canPrevious = ref(false);
-const canNext = ref(false);
-
-function update(embla: EmblaCarouselType): void {
-    canPrevious.value = embla.canScrollPrev();
-    canNext.value = embla.canScrollNext();
-}
-
-watch(api, (embla) => {
-    if (embla) {
-        update(embla);
-        embla.on('select', update).on('reInit', update);
-    }
-});
-
-// Respects reduced motion: Embla jumps instead of animating.
-function scroll(direction: 'previous' | 'next'): void {
-    const instant = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-    ).matches;
-
-    if (direction === 'previous') {
-        api.value?.scrollPrev(instant);
-    } else {
-        api.value?.scrollNext(instant);
-    }
-}
+const { viewport, api, canPrevious, canNext, scroll } = useCarousel();
 </script>
 
 <template>
@@ -73,28 +39,13 @@ function scroll(direction: 'previous' | 'next'): void {
                 v-if="carousel && api && (canPrevious || canNext)"
                 #actions
             >
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    class="rounded-full"
-                    aria-label="Previous projects"
-                    :disabled="!canPrevious"
-                    @click="scroll('previous')"
-                >
-                    <ChevronLeft class="size-5" aria-hidden="true" />
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    class="rounded-full"
-                    aria-label="Next projects"
-                    :disabled="!canNext"
-                    @click="scroll('next')"
-                >
-                    <ChevronRight class="size-5" aria-hidden="true" />
-                </Button>
+                <CarouselArrows
+                    :can-previous="canPrevious"
+                    :can-next="canNext"
+                    previous-label="Previous projects"
+                    next-label="Next projects"
+                    @scroll="scroll"
+                />
             </template>
         </BlockHeader>
 

@@ -6,8 +6,13 @@ import type { ProjectSearchOptions } from '@/types/search';
 import type {
     MediaImage,
     MediaVideo,
+    NewsCard,
+    Partner,
+    ProgressStage,
+    ProgressSummary,
     ProjectCard,
     ProjectSegment,
+    Testimonial,
 } from '@/types/site';
 
 export type BlockBackground =
@@ -132,6 +137,49 @@ export type StatsCountersBlockData = {
     items: StatItem[];
 };
 
+/** Block 8, CMP-BLK-PROGRESS: 1–3 CMP-PROG-01 summaries. */
+export type ProgressHighlightBlockData = {
+    heading: string;
+    /** The four DM-PROG stages in order, for the segmented bar. */
+    stages: { value: ProgressStage; label: string }[];
+    items: ProgressSummary[];
+};
+
+/** Block 9, CMP-BLK-TESTIMONIALS; the source and limit are resolved server-side. */
+export type TestimonialsBlockData = {
+    heading: string | null;
+    layout: 'carousel' | 'grid';
+    items: Testimonial[];
+};
+
+/** Block 10, CMP-BLK-MARQUEE (MOT-MARQUEE: slow 60 s, normal 40 s per loop). */
+export type PartnersMarqueeBlockData = {
+    heading: string | null;
+    speed: 'slow' | 'normal';
+    direction: 'left' | 'right';
+    partners: Partner[];
+};
+
+/** Block 11, CMP-BLK-NEWS: 3 or 6 newest posts. */
+export type LatestNewsBlockData = {
+    heading: string | null;
+    posts: NewsCard[];
+    /** The news index, or the category archive when filtered. */
+    view_all: BlockLink | null;
+};
+
+/** Block 12, CMP-BLK-CTA (CMP-CTA-01). */
+export type CtaBandBlockData = {
+    /** ≤ 70 chars. */
+    heading: string;
+    text: string | null;
+    primary_cta: BlockLink;
+    secondary_cta: BlockLink | null;
+    style: 'brand' | 'gradient' | 'image';
+    /** `image` style only. */
+    image: MediaImage | null;
+};
+
 export type IntroStatementBlock = Block<
     'intro_statement',
     IntroStatementBlockData
@@ -147,12 +195,29 @@ export type StatsCountersBlock = Block<
     StatsCountersBlockData
 >;
 
+export type ProgressHighlightBlock = Block<
+    'progress_highlight',
+    ProgressHighlightBlockData
+>;
+export type TestimonialsBlock = Block<'testimonials', TestimonialsBlockData>;
+export type PartnersMarqueeBlock = Block<
+    'partners_marquee',
+    PartnersMarqueeBlockData
+>;
+export type LatestNewsBlock = Block<'latest_news', LatestNewsBlockData>;
+export type CtaBandBlock = Block<'cta_band', CtaBandBlockData>;
+
 export type PageBlock =
     | HeroBlock
     | IntroStatementBlock
     | FeaturedProjectsBlock
     | ProjectGridBlock
     | SegmentTilesBlock
-    | StatsCountersBlock;
+    | StatsCountersBlock
+    | ProgressHighlightBlock
+    | TestimonialsBlock
+    | PartnersMarqueeBlock
+    | LatestNewsBlock
+    | CtaBandBlock;
 
 export type PageBlockType = PageBlock['type'];

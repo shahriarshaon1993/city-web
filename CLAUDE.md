@@ -6,9 +6,9 @@ Public real-estate website + admin for Gemcon City Limited (Bangladesh). Laravel
 
 ## Session commands (the user types these)
 
-- **`start X.Y`** — 1) Read the status table at the top of `docs/PHASES.md` and ONLY card `### X.Y` (Grep `^### X.Y ` then Read that range). Every dependency must be ✅; if not, stop and say so. 2) Read only the docs listed in the card's **Read** line — and inside big files only the named sections (Grep the heading/ID, Read with offset/limit). 3) Check `docs/DECISIONS.md` (short) for overrides. 4) If the card says "owner approves …", list the packages with versions and wait for a yes before installing. 5) Implement. 6) Run the checks below. 7) Reply with: what was built (files), anything deviating from the docs, and the card's manual **Test** checklist expanded into concrete clickable steps (URLs, widths, DevTools settings). Set the card status to 🧪 (awaiting test).
+- **`start X.Y`** — 1) Read the status table at the top of `docs/PHASES.md` and ONLY card `### X.Y` (Grep `^### X.Y ` then Read that range). Every dependency must be ✅; if not, stop and say so. 2) If the card renders any public UI, read `docs/design/direction.md` **in full** first (the visual source of truth, DEC-49) and build to it wherever an older CMP-*/foundations description looks different. Then read only the docs listed in the card's **Read** line — and inside big files only the named sections (Grep the heading/ID, Read with offset/limit). 3) Check `docs/DECISIONS.md` (short) for overrides. 4) If the card says "owner approves …", list the packages with versions and wait for a yes before installing. 5) Implement. 6) Run the checks below. 7) Reply with: what was built (files), anything deviating from the docs, and the card's manual **Test** checklist expanded into concrete clickable steps (URLs, widths, DevTools settings). Set the card status to 🧪 (awaiting test).
 - **`fix X.Y: <problem>`** — fix a bug found while testing X.Y. Keep status 🧪.
-- **`done X.Y`** — set status ✅, add a ≤10-line **Done notes** block under the card (key files/classes, deviations, things later phases must know), append any new decision to `docs/DECISIONS.md`, then `git add -A && git commit -m "Phase X.Y: <title>"`.
+- **`done X.Y`** — set status ✅, add a ≤10-line **Done notes** block under the card (key files/classes, deviations, things later phases must know), append any new decision to `docs/DECISIONS.md` (and fold any approved visual change into `docs/design/direction.md`), then `git add -A && git commit -m "Phase X.Y: <title>"`.
 - **`status`** — print the status table summary and the next startable sub-phase.
 
 ## Docs (the source of truth — never guess)
@@ -34,6 +34,7 @@ Public real-estate website + admin for Gemcon City Limited (Bangladesh). Laravel
 | `docs/spec/architecture.md` | Pinned stack §12.1, library choices, folder structure, ARC-001…017 |
 | `docs/spec/nfr-ops.md` | NFR-*, QA-* (overridden by DEC-26), DEP-* |
 | `docs/spec/phase-map.md` | Original delivery plan M0–M7 (reference only) |
+| `docs/design/direction.md` | **Visual source of truth for the public site (DEC-49):** premium direction — type weights, surfaces, shape, hairlines, layout pattern catalogue, card/button/carousel patterns, the outdated style to avoid, what it supersedes. Wins over the other design files |
 | `docs/design/foundations.md` | Principles DP, colour + contrast TOK-C, type scale, spacing/grid/z-index, icons, imagery + `sizes` table, placeholders, **token CSS (§13)** |
 | `docs/design/components.md` | CMP-* public components and CMP-BLK-* block components |
 | `docs/design/layouts.md` | LAY-* page layouts (D/T/M) and seeded block orders |
@@ -44,7 +45,7 @@ Public real-estate website + admin for Gemcon City Limited (Bangladesh). Laravel
 **Section map** — the docs still cite the original files (DEC-30); resolve them like this:
 REQUIREMENT §1–4 + §7 intro → `spec/overview.md` · §5 → `pages.md` · §6 → `hero.md` · §7.1 → `projects.md` · §7.2 → `search.md` · §7.3 → `locations.md` · §7.4 → `leads.md` · §7.5 → `news.md` · §7.6 → `social.md` · §7.7 → `careers.md` · §7.8–7.9 → `shortlist.md` · §8 intro + §8.1 → `page-builder.md` · §8.2, 8.3, 8.5–8.7 → `cms.md` · §8.4 → `media.md` · §9.1–9.3 → `seo.md` · §9.4 → `structured-data.md` · §9.5–9.7 → `performance-a11y.md` · §10 → `admin.md` · §11 → `database.md` (entities in the module files) · §12 → `architecture.md` · §13–15 → `nfr-ops.md` · §16 → `phase-map.md` · §17–18 → `decisions.md`.
 DESIGN §1–5 + §13 → `design/foundations.md` · §6.1–6.5 → `components.md` · §6.6 + §12 → `admin.md` · §7 → `layouts.md` · §8 → `motion.md` · §9–11 → `patterns.md`.
-Behaviour conflict → spec wins; look/interaction → design wins. Missing or contradictory info → **ask the user**, then record the answer in DECISIONS.md. Never silently pick. `docs/REQUIREMENT.md` and `docs/DESIGN.md` are never read again once deleted (DEC-30).
+Behaviour conflict → spec wins; look/interaction → `design/direction.md`, then the other design files. Missing or contradictory info → **ask the user**, then record the answer in DECISIONS.md. Never silently pick. `docs/REQUIREMENT.md` and `docs/DESIGN.md` are never read again once deleted (DEC-30).
 
 ## Golden rules (most-violated)
 
@@ -62,6 +63,7 @@ Behaviour conflict → spec wins; look/interaction → design wins. Missing or c
 12. **Accessibility is part of done:** keyboard operable, visible focus, labels, targets ≥ 44 px on public pages, live announcements on navigation (SEO-A11Y-*, A11Y-D*).
 13. **No paid APIs** (BG-06); third parties load late and behind consent (SEO-PERF-013).
 14. Cite rule IDs (FR-…, CMP-…, MOT-…) in comments where the logic lives. Keep comments sparse.
+15. **Premium visual direction, every session** (DEC-49, `design/direction.md`): Manrope 300/400/500 only, hairlines instead of boxed/shadowed cards, `rounded-xl` images / `rounded-md` buttons, overline metadata instead of chips, white/greige/dark-teal surfaces, varied editorial layouts (never a stack of identical card grids). Never fall back to the "outdated style" list in its §8. An owner-approved visual change updates `direction.md` in the same session.
 
 ## Checks before reporting a sub-phase (no test suite — DEC-26)
 

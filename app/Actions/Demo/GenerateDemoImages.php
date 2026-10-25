@@ -20,15 +20,18 @@ use RuntimeException;
  * "credit": "…", "decorative": false}. The `hero` group uses the HERO-011
  * profile; "{name}-mobile" files there are portrait mobile crops (HERO-013).
  * The `video` group holds hero videos, copied as they are (CopyDemoVideos).
+ * SVG files (partner logos) are copied as they are too, without raster
+ * conversions: `sources` stay empty and `fallback` is the SVG (DEC-47).
  *
  * @phpstan-import-type ManifestEntry from DemoMedia
+ * @phpstan-import-type Rendition from DemoMedia
  */
 final class GenerateDemoImages
 {
     /** Bump after changing the conversion rules to re-encode everything. */
     private const int RULES_VERSION = 1;
 
-    private const array EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+    private const array EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'svg'];
 
     public function __construct(
         private readonly ConvertDemoImage $convert,
@@ -86,11 +89,23 @@ final class GenerateDemoImages
                     && ($previous[$key]['dir'] ?? null) === $dir
                     && File::isDirectory(DemoMedia::outputPath($dir));
 
-                $renditions = $reusable
-                    ? Arr::only($previous[$key], ['width', 'height', 'dominant_color', 'sources', 'fallback', 'og'])
-                    : $this->convert->handle($file->getPathname(), DemoMedia::outputPath($dir), $dir, $group === 'hero', $info['focal'], $withAvif);
+                $isSvg = strtolower($file->getExtension()) === 'svg';
 
-                $this->checkSize($key, $group, $renditions['width'], $renditions['height'], $warnings);
+                $renditions = match (true) {
+                    $reusable => Arr::only($previous[$key], ['width', 'height', 'dominant_color', 'sources', 'fallback', 'og']),
+                    $isSvg => $this->copySvg($file->getPathname(), DemoMedia::outputPath($dir), $dir),
+                    default => $this->convert->handle($file->getPathname(), DemoMedia::outputPath($dir), $dir, $group === 'hero', $info['focal'], $withAvif),
+                };
+
+                if ($renditions === null) {
+                    $warnings[] = "{$key}: the SVG has no viewBox; skipped.";
+
+                    continue;
+                }
+
+                if (! $isSvg) {
+                    $this->checkSize($key, $group, $renditions['width'], $renditions['height'], $warnings);
+                }
 
                 /** @var ManifestEntry $entry */
                 $entry = ['dir' => $dir, 'hash' => $hash, ...$info, ...$renditions];
@@ -201,6 +216,33 @@ final class GenerateDemoImages
         hash_update($context, $focal['x'].','.$focal['y'].'|'.self::RULES_VERSION.'|'.($withAvif ? 'avif' : ''));
 
         return substr(hash_final($context), 0, 8);
+    }
+
+    /**
+     * Copies an SVG unchanged; its size is the viewBox (DEC-47).
+     *
+     * @return array{width: int, height: int, dominant_color: null, sources: array{avif: list<Rendition>, webp: list<Rendition>, jpeg: list<Rendition>}, fallback: string, og: string}|null
+     */
+    private function copySvg(string $sourcePath, string $outputDir, string $relativeDir): ?array
+    {
+        $viewBox = preg_match('/viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"/', File::get($sourcePath), $match);
+
+        if ($viewBox !== 1) {
+            return null;
+        }
+
+        File::ensureDirectoryExists($outputDir);
+        File::copy($sourcePath, $outputDir.'/original.svg');
+        $path = $relativeDir.'/original.svg';
+
+        return [
+            'width' => (int) round((float) $match[1]),
+            'height' => (int) round((float) $match[2]),
+            'dominant_color' => null,
+            'sources' => ['avif' => [], 'webp' => [], 'jpeg' => []],
+            'fallback' => $path,
+            'og' => $path,
+        ];
     }
 
     /**

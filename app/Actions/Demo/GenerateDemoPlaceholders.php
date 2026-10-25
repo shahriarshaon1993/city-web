@@ -11,6 +11,7 @@ use RuntimeException;
  * Draws labelled placeholder photos into storage/app/demo-src/{group}/ until
  * the client's photos arrive (owner, 0.3). Existing files are never
  * overwritten; each image marks its focal point so crops can be checked.
+ * Partner logos are fictional SVG wordmarks (DEC-47), never real brands.
  */
 final class GenerateDemoPlaceholders
 {
@@ -23,6 +24,20 @@ final class GenerateDemoPlaceholders
         'news' => ['count' => 6, 'width' => 2000, 'height' => 1250],
         'team' => ['count' => 6, 'width' => 1200, 'height' => 1500],
         'progress' => ['count' => 4, 'width' => 2000, 'height' => 1500],
+    ];
+
+    /** Fictional partner wordmarks: name, mark colour, mark shape (DEC-47). */
+    private const array PARTNERS = [
+        ['Tallgrass Bank', '#027685', 'hexagon'],
+        ['Ironleaf Steel', '#46413f', 'square'],
+        ['Brightmortar', '#b8432c', 'triangle'],
+        ['Clearpane Glass', '#3392a1', 'circle'],
+        ['Fieldline Consultants', '#01464f', 'triangle'],
+        ['Kestrel Finance', '#ec6b51', 'circle'],
+        ['Northcourt Cables', '#5c5755', 'hexagon'],
+        ['Saltmarsh Tiles', '#055a66', 'square'],
+        ['Orbitwell Lifts', '#027685', 'circle'],
+        ['Redbrick Group', '#b8432c', 'hexagon'],
     ];
 
     /** HERO-013 portrait crop, one per hero image. */
@@ -84,7 +99,67 @@ final class GenerateDemoPlaceholders
             File::put($metaPath, (string) json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
+        return [...$written, ...$this->partnerLogos()];
+    }
+
+    /**
+     * Writes the missing partner wordmarks as SVG (FR-SOC-002) and their alt text.
+     *
+     * @return list<string> files written, relative to storage/app/demo-src
+     */
+    private function partnerLogos(): array
+    {
+        $dir = DemoMedia::sourcePath('partners');
+        File::ensureDirectoryExists($dir);
+
+        $metaPath = $dir.'/meta.json';
+        $existing = File::exists($metaPath) ? json_decode(File::get($metaPath), true) : [];
+        /** @var array<string, array<string, mixed>> $meta */
+        $meta = is_array($existing) ? $existing : [];
+        $written = [];
+
+        foreach (self::PARTNERS as $index => [$name, $colour, $shape]) {
+            $file = sprintf('partners-%02d', $index + 1);
+
+            if (File::glob($dir.'/'.$file.'.*') === []) {
+                File::put("{$dir}/{$file}.svg", $this->wordmark($name, $colour, $shape));
+                $written[] = "partners/{$file}.svg";
+            }
+
+            $meta[$file] ??= [
+                'alt' => $name.' (placeholder logo)',
+                'focal' => [50, 50],
+                'caption' => null,
+                'credit' => 'Placeholder logo',
+                'decorative' => false,
+            ];
+        }
+
+        File::put($metaPath, (string) json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
         return $written;
+    }
+
+    /**
+     * A transparent logo: geometric mark plus the name in a wide sans.
+     */
+    private function wordmark(string $name, string $colour, string $shape): string
+    {
+        $mark = match ($shape) {
+            'hexagon' => '<path d="M28 6 47 17v22L28 50 9 39V17z" fill="'.$colour.'"/>',
+            'triangle' => '<path d="M28 8 50 48H6z" fill="'.$colour.'"/>',
+            'circle' => '<circle cx="28" cy="28" r="21" fill="'.$colour.'"/><circle cx="28" cy="28" r="9" fill="#fff"/>',
+            default => '<rect x="8" y="8" width="40" height="40" rx="6" fill="'.$colour.'"/>',
+        };
+        $width = 76 + (int) ceil(mb_strlen($name) * 15.5);
+        $text = htmlspecialchars($name, ENT_XML1);
+
+        return <<<SVG
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {$width} 56" width="{$width}" height="56">
+              {$mark}
+              <text x="64" y="37" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-size="26" font-weight="600" letter-spacing="-0.3" fill="#231f1e">{$text}</text>
+            </svg>
+            SVG;
     }
 
     /**

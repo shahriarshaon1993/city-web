@@ -7,16 +7,24 @@ import type { BlockBackground, BlockSpacing, PageBlock } from '@/types/blocks';
 // `spacing`, `anchor_id`, `animate`. Dark backgrounds switch to the dark token
 // scope (design/foundations.md §2.3). The heading is the H1 only on the first
 // block, otherwise an H2 (CMS-PB-004); the slot gets the tag and its id.
+// `full` drops the container (edge-to-edge content such as the marquee);
+// `sectionClass` styles the <section> itself (e.g. the CTA band's layers).
 const props = withDefaults(
     defineProps<{
         block: PageBlock;
         first: boolean;
         /** False when the block has no heading: the section stays unnamed. */
         labelled?: boolean;
-        width?: 'content' | 'wide';
+        width?: 'content' | 'wide' | 'full';
         class?: string;
+        sectionClass?: string;
     }>(),
-    { labelled: true, width: 'content', class: undefined },
+    {
+        labelled: true,
+        width: 'content',
+        class: undefined,
+        sectionClass: undefined,
+    },
 );
 
 const headingId = useId();
@@ -49,14 +57,17 @@ const spacings: Record<BlockSpacing, string> = {
                 'scroll-mt-20',
                 backgrounds[block.background],
                 spacings[block.spacing],
+                sectionClass,
             )
         "
     >
         <div
             :class="
                 cn(
-                    'mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10',
-                    width === 'wide' ? 'max-w-wide' : 'max-w-content',
+                    width !== 'full' &&
+                        'mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10',
+                    width === 'wide' && 'max-w-wide',
+                    width === 'content' && 'max-w-content',
                     props.class,
                 )
             "

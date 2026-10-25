@@ -68,6 +68,22 @@ export const imagePresets = {
         loading: 'lazy',
         placeholder: 'media',
     },
+    /** latest_news lead story, 7 of 12 columns (DEC-48; not in §5.3). */
+    'news-lead': {
+        sizes: '(min-width:1280px) 720px, (min-width:1024px) 58vw, 92vw',
+        aspect: 'aspect-[16/10]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** Compact news row thumbnail (DEC-48; not in §5.3). */
+    'news-thumb': {
+        sizes: '(min-width:640px) 176px, 112px',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     'article-cover': {
         sizes: '(min-width:1024px) 960px, 100vw',
         aspect: 'aspect-video',
@@ -79,6 +95,30 @@ export const imagePresets = {
     'intro-image': {
         sizes: '(min-width:1280px) 520px, (min-width:1024px) 40vw, 92vw',
         aspect: 'aspect-[4/5]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** progress_highlight photo, up to 3 per row (DEC-47; not in §5.3). */
+    'progress-card': {
+        sizes: '(min-width:1280px) 400px, (min-width:768px) 45vw, 92vw',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** Testimonial person, 48 px circle (DEC-47; not in §5.3). */
+    avatar: {
+        sizes: '48px',
+        aspect: 'aspect-square',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** cta_band `image` style background (DEC-47; not in §5.3). */
+    'cta-band': {
+        sizes: '100vw',
+        aspect: 'fill',
         fit: 'cover',
         loading: 'lazy',
         placeholder: 'media',
