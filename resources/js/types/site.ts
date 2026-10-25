@@ -118,8 +118,11 @@ export type MenuItem = {
     label: string;
     url: string;
     new_tab: boolean;
+    /** Lucide name from the allowlist in `lib/icons.ts`. */
     icon: string | null;
     description: string | null;
+    /** `auto:locations` only: published projects in the area (CMS-NAV-003). */
+    count: number | null;
     children: MenuItem[];
     /** CMS-NAV-003: header items only. */
     mega: MegaColumn[] | null;
@@ -199,4 +202,10 @@ export type SiteShared = {
             marketing: boolean;
         } | null;
     };
+};
+
+/** Per-page props the public layout reads besides the shared ones. */
+export type SitePageProps = SiteShared & {
+    /** CMP-HEAD-01: the first block is a hero, so the header may start transparent. */
+    starts_with_hero?: boolean;
 };

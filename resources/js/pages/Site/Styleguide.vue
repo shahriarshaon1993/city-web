@@ -37,7 +37,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Toaster } from '@/components/ui/sonner';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
@@ -45,7 +44,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
@@ -55,6 +53,7 @@ import {
     formatDate,
     formatKatha,
     formatMonth,
+    formatPhone,
     formatSft,
     formatSftRange,
 } from '@/lib/format';
@@ -73,6 +72,7 @@ const formatters = {
     formatKatha,
     formatDate,
     formatMonth,
+    formatPhone,
 };
 
 type FormatSample = {
@@ -391,950 +391,851 @@ const faqs = [
 </script>
 
 <template>
-    <TooltipProvider>
-        <div class="min-h-svh bg-background">
-            <header class="theme-dark bg-(image:--gradient-dusk)">
-                <div
-                    class="mx-auto max-w-content px-4 py-12 sm:px-6 lg:px-8 xl:px-10"
-                >
-                    <p class="text-overline text-primary uppercase">
-                        Phases 0.2–0.3 · local only
-                    </p>
-                    <h1 class="mt-2 font-display text-h1">
-                        UI kit &amp; tokens
-                    </h1>
-                    <p class="mt-3 max-w-prose text-lead text-muted-foreground">
-                        design/foundations.md §2–§5, §13 and CMP-BTN, BADGE,
-                        FORM, TABS, ACC, TOAST, EMPTY, SKEL; images and
-                        formatters (ARC-016, ARC-017).
-                    </p>
-                </div>
-            </header>
-
-            <main
-                id="content"
-                tabindex="-1"
-                class="mx-auto flex max-w-content flex-col gap-16 px-4 py-12 sm:px-6 lg:px-8 xl:px-10"
+    <div class="bg-background">
+        <div class="theme-dark bg-(image:--gradient-dusk)">
+            <div
+                class="mx-auto max-w-content px-4 py-12 sm:px-6 lg:px-8 xl:px-10"
             >
-                <!-- Colour scales -->
-                <section
-                    aria-labelledby="sg-colours"
-                    class="flex flex-col gap-6"
+                <p class="text-overline text-primary uppercase">
+                    Phases 0.2–0.3 · local only
+                </p>
+                <h1 class="mt-2 font-display text-h1">UI kit &amp; tokens</h1>
+                <p class="mt-3 max-w-prose text-lead text-muted-foreground">
+                    design/foundations.md §2–§5, §13 and CMP-BTN, BADGE, FORM,
+                    TABS, ACC, TOAST, EMPTY, SKEL; images and formatters
+                    (ARC-016, ARC-017).
+                </p>
+            </div>
+        </div>
+
+        <div
+            class="mx-auto flex max-w-content flex-col gap-16 px-4 py-12 sm:px-6 lg:px-8 xl:px-10"
+        >
+            <!-- Colour scales -->
+            <section aria-labelledby="sg-colours" class="flex flex-col gap-6">
+                <h2 id="sg-colours" class="font-display text-h2">
+                    Colour scales
+                </h2>
+                <div
+                    v-for="scale in scales"
+                    :key="scale.name"
+                    class="flex flex-col gap-2"
                 >
-                    <h2 id="sg-colours" class="font-display text-h2">
-                        Colour scales
-                    </h2>
-                    <div
-                        v-for="scale in scales"
-                        :key="scale.name"
-                        class="flex flex-col gap-2"
+                    <h3 class="font-display text-h4 capitalize">
+                        {{ scale.name }}
+                    </h3>
+                    <ul
+                        class="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-11"
                     >
-                        <h3 class="font-display text-h4 capitalize">
-                            {{ scale.name }}
-                        </h3>
-                        <ul
-                            class="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-11"
+                        <li
+                            v-for="(hex, i) in scale.hex"
+                            :key="hex + i"
+                            class="flex flex-col gap-1"
                         >
-                            <li
-                                v-for="(hex, i) in scale.hex"
-                                :key="hex + i"
-                                class="flex flex-col gap-1"
-                            >
-                                <span
-                                    class="h-12 rounded-md border"
-                                    :style="{
-                                        background: `var(--${scale.name}-${steps[i]})`,
-                                    }"
-                                />
-                                <span class="text-xs font-medium">
-                                    {{ steps[i] }}
-                                </span>
-                                <span
-                                    class="font-mono text-xs text-muted-foreground"
-                                >
-                                    {{ hex }}
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <h3 class="font-display text-h4">Gradients</h3>
-                        <ul class="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                            <li
-                                v-for="gradient in gradients"
-                                :key="gradient"
-                                class="flex h-24 items-end rounded-lg p-3 text-sm font-semibold text-white"
+                            <span
+                                class="h-12 rounded-md border"
                                 :style="{
-                                    background: `var(--gradient-${gradient})`,
+                                    background: `var(--${scale.name}-${steps[i]})`,
+                                }"
+                            />
+                            <span class="text-xs font-medium">
+                                {{ steps[i] }}
+                            </span>
+                            <span
+                                class="font-mono text-xs text-muted-foreground"
+                            >
+                                {{ hex }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <h3 class="font-display text-h4">Gradients</h3>
+                    <ul class="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                        <li
+                            v-for="gradient in gradients"
+                            :key="gradient"
+                            class="flex h-24 items-end rounded-lg p-3 text-sm font-semibold text-white"
+                            :style="{
+                                background: `var(--gradient-${gradient})`,
+                            }"
+                        >
+                            --gradient-{{ gradient }}
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Semantic tokens -->
+            <section aria-labelledby="sg-semantic" class="flex flex-col gap-6">
+                <h2 id="sg-semantic" class="font-display text-h2">
+                    Semantic tokens
+                </h2>
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <div
+                        v-for="theme in themes"
+                        :key="theme"
+                        :class="[
+                            'flex flex-col gap-3 rounded-xl border bg-background p-4 text-foreground sm:p-6',
+                            theme === 'dark' && 'theme-dark',
+                        ]"
+                    >
+                        <h3 class="font-display text-h4">
+                            {{
+                                theme === 'light'
+                                    ? 'Light (:root)'
+                                    : '.theme-dark'
+                            }}
+                        </h3>
+                        <ul class="grid gap-2 sm:grid-cols-2">
+                            <li
+                                v-for="[bg, fg] in semanticTokens"
+                                :key="bg"
+                                class="flex min-h-11 items-center rounded-md border px-3 text-sm font-medium"
+                                :style="{
+                                    background: `var(--${bg})`,
+                                    color: `var(--${fg})`,
                                 }"
                             >
-                                --gradient-{{ gradient }}
+                                --{{ bg }}
+                            </li>
+                        </ul>
+                        <ul class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            <li
+                                v-for="token in lineTokens"
+                                :key="token"
+                                class="flex flex-col gap-1 text-xs"
+                            >
+                                <span
+                                    class="h-8 rounded-md border-2"
+                                    :style="{
+                                        borderColor: `var(--${token})`,
+                                    }"
+                                />
+                                --{{ token }}
                             </li>
                         </ul>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <!-- Semantic tokens -->
-                <section
-                    aria-labelledby="sg-semantic"
-                    class="flex flex-col gap-6"
-                >
-                    <h2 id="sg-semantic" class="font-display text-h2">
-                        Semantic tokens
-                    </h2>
-                    <div class="grid gap-6 lg:grid-cols-2">
-                        <div
-                            v-for="theme in themes"
-                            :key="theme"
-                            :class="[
-                                'flex flex-col gap-3 rounded-xl border bg-background p-4 text-foreground sm:p-6',
-                                theme === 'dark' && 'theme-dark',
-                            ]"
-                        >
-                            <h3 class="font-display text-h4">
-                                {{
-                                    theme === 'light'
-                                        ? 'Light (:root)'
-                                        : '.theme-dark'
-                                }}
-                            </h3>
-                            <ul class="grid gap-2 sm:grid-cols-2">
-                                <li
-                                    v-for="[bg, fg] in semanticTokens"
-                                    :key="bg"
-                                    class="flex min-h-11 items-center rounded-md border px-3 text-sm font-medium"
-                                    :style="{
-                                        background: `var(--${bg})`,
-                                        color: `var(--${fg})`,
-                                    }"
-                                >
-                                    --{{ bg }}
-                                </li>
-                            </ul>
-                            <ul class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                <li
-                                    v-for="token in lineTokens"
-                                    :key="token"
-                                    class="flex flex-col gap-1 text-xs"
-                                >
-                                    <span
-                                        class="h-8 rounded-md border-2"
-                                        :style="{
-                                            borderColor: `var(--${token})`,
-                                        }"
-                                    />
-                                    --{{ token }}
-                                </li>
-                            </ul>
-                        </div>
+            <!-- Type -->
+            <section aria-labelledby="sg-type" class="flex flex-col gap-6">
+                <h2 id="sg-type" class="font-display text-h2">Type scale</h2>
+                <dl class="flex flex-col divide-y">
+                    <div
+                        v-for="item in typeScale"
+                        :key="item.token"
+                        class="grid gap-1 py-4 md:grid-cols-[10rem_1fr] md:items-baseline md:gap-6"
+                    >
+                        <dt class="font-mono text-xs text-muted-foreground">
+                            {{ item.token }}
+                        </dt>
+                        <dd :class="item.cls">{{ item.sample }}</dd>
                     </div>
-                </section>
-
-                <!-- Type -->
-                <section aria-labelledby="sg-type" class="flex flex-col gap-6">
-                    <h2 id="sg-type" class="font-display text-h2">
-                        Type scale
-                    </h2>
-                    <dl class="flex flex-col divide-y">
-                        <div
-                            v-for="item in typeScale"
-                            :key="item.token"
-                            class="grid gap-1 py-4 md:grid-cols-[10rem_1fr] md:items-baseline md:gap-6"
-                        >
-                            <dt class="font-mono text-xs text-muted-foreground">
-                                {{ item.token }}
-                            </dt>
-                            <dd :class="item.cls">{{ item.sample }}</dd>
-                        </div>
-                    </dl>
-                    <div class="grid gap-6 md:grid-cols-2">
-                        <div class="flex flex-col gap-3">
-                            <h3 class="font-display text-h4">Radius</h3>
-                            <ul class="flex flex-wrap gap-3">
-                                <li
-                                    v-for="r in radii"
-                                    :key="r"
-                                    class="flex size-16 items-center justify-center border-2 border-primary bg-secondary text-xs"
-                                    :style="{
-                                        borderRadius:
-                                            r === 'full'
-                                                ? '9999px'
-                                                : `var(--radius-${r})`,
-                                    }"
-                                >
-                                    {{ r }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="flex flex-col gap-3">
-                            <h3 class="font-display text-h4">Shadows</h3>
-                            <ul class="flex flex-wrap gap-4">
-                                <li
-                                    v-for="s in shadows"
-                                    :key="s"
-                                    class="flex size-16 items-center justify-center rounded-lg bg-card text-xs"
-                                    :style="{ boxShadow: `var(--shadow-${s})` }"
-                                >
-                                    {{ s }}
-                                </li>
-                            </ul>
-                        </div>
+                </dl>
+                <div class="grid gap-6 md:grid-cols-2">
+                    <div class="flex flex-col gap-3">
+                        <h3 class="font-display text-h4">Radius</h3>
+                        <ul class="flex flex-wrap gap-3">
+                            <li
+                                v-for="r in radii"
+                                :key="r"
+                                class="flex size-16 items-center justify-center border-2 border-primary bg-secondary text-xs"
+                                :style="{
+                                    borderRadius:
+                                        r === 'full'
+                                            ? '9999px'
+                                            : `var(--radius-${r})`,
+                                }"
+                            >
+                                {{ r }}
+                            </li>
+                        </ul>
                     </div>
-                </section>
+                    <div class="flex flex-col gap-3">
+                        <h3 class="font-display text-h4">Shadows</h3>
+                        <ul class="flex flex-wrap gap-4">
+                            <li
+                                v-for="s in shadows"
+                                :key="s"
+                                class="flex size-16 items-center justify-center rounded-lg bg-card text-xs"
+                                :style="{ boxShadow: `var(--shadow-${s})` }"
+                            >
+                                {{ s }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-                <!-- Buttons -->
-                <section
-                    aria-labelledby="sg-buttons"
-                    class="flex flex-col gap-6"
+            <!-- Buttons -->
+            <section aria-labelledby="sg-buttons" class="flex flex-col gap-6">
+                <h2 id="sg-buttons" class="font-display text-h2">Buttons</h2>
+                <div class="flex flex-wrap items-center gap-3">
+                    <label class="flex items-center gap-3 text-sm">
+                        <Switch v-model="loading" />
+                        Loading state on every button
+                    </label>
+                </div>
+                <div
+                    v-for="variant in buttonVariantList"
+                    :key="variant"
+                    class="flex flex-col gap-2"
                 >
-                    <h2 id="sg-buttons" class="font-display text-h2">
-                        Buttons
-                    </h2>
+                    <h3 class="font-mono text-xs text-muted-foreground">
+                        {{ variant }}
+                    </h3>
                     <div class="flex flex-wrap items-center gap-3">
-                        <label class="flex items-center gap-3 text-sm">
-                            <Switch v-model="loading" />
-                            Loading state on every button
-                        </label>
+                        <Button :variant="variant" size="sm" :loading="loading">
+                            Small
+                        </Button>
+                        <Button :variant="variant" :loading="loading">
+                            Medium
+                        </Button>
+                        <Button :variant="variant" size="lg" :loading="loading">
+                            <template #icon><CalendarCheck /></template>
+                            Book a visit
+                        </Button>
+                        <Button :variant="variant" :loading="loading">
+                            View projects
+                            <ArrowRight />
+                        </Button>
+                        <Button :variant="variant" disabled>Disabled</Button>
                     </div>
-                    <div
-                        v-for="variant in buttonVariantList"
-                        :key="variant"
-                        class="flex flex-col gap-2"
-                    >
-                        <h3 class="font-mono text-xs text-muted-foreground">
-                            {{ variant }}
-                        </h3>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <Button
-                                :variant="variant"
-                                size="sm"
-                                :loading="loading"
-                            >
-                                Small
-                            </Button>
-                            <Button :variant="variant" :loading="loading">
-                                Medium
-                            </Button>
-                            <Button
-                                :variant="variant"
-                                size="lg"
-                                :loading="loading"
-                            >
-                                <template #icon><CalendarCheck /></template>
-                                Book a visit
-                            </Button>
-                            <Button :variant="variant" :loading="loading">
-                                View projects
-                                <ArrowRight />
-                            </Button>
-                            <Button :variant="variant" disabled
-                                >Disabled</Button
-                            >
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <h3 class="font-mono text-xs text-muted-foreground">
-                            icon (44 px) · icon-sm (36 px, admin only)
-                        </h3>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <Tooltip>
-                                <TooltipTrigger as-child>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        aria-label="Add to shortlist"
-                                    >
-                                        <Heart />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent
-                                    >Add to shortlist</TooltipContent
+                </div>
+                <div class="flex flex-col gap-2">
+                    <h3 class="font-mono text-xs text-muted-foreground">
+                        icon (44 px) · icon-sm (36 px, admin only)
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    aria-label="Add to shortlist"
                                 >
-                            </Tooltip>
-                            <Tooltip>
-                                <TooltipTrigger as-child>
-                                    <Button size="icon" aria-label="Call us">
-                                        <Phone />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Call us</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                                <TooltipTrigger as-child>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        aria-label="Search"
-                                    >
-                                        <Search />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Search</TooltipContent>
-                            </Tooltip>
-                        </div>
+                                    <Heart />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Add to shortlist</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <Button size="icon" aria-label="Call us">
+                                    <Phone />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Call us</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    aria-label="Search"
+                                >
+                                    <Search />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Search</TooltipContent>
+                        </Tooltip>
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <h3 class="font-mono text-xs text-muted-foreground">
-                            on-media · loading keeps width
-                        </h3>
-                        <div
-                            class="flex flex-wrap items-center gap-3 rounded-xl bg-stone-600 bg-(image:--gradient-hero-left) p-6"
-                        >
-                            <Button variant="on-media" :loading="loading">
-                                Watch the film
-                            </Button>
-                            <Button
-                                variant="on-media"
-                                size="lg"
-                                :loading="loading"
-                            >
-                                <template #icon><CalendarCheck /></template>
-                                Book a visit
-                            </Button>
-                        </div>
-                        <form
-                            class="flex max-w-sm flex-col gap-3"
-                            @submit.prevent="fakeSubmit"
-                        >
-                            <Button
-                                type="submit"
-                                class="w-full sm:w-fit"
-                                :loading="sendingDemo"
-                            >
-                                Send enquiry (2 s loading)
-                            </Button>
-                        </form>
-                    </div>
-                </section>
-
-                <!-- Badges -->
-                <section
-                    aria-labelledby="sg-badges"
-                    class="flex flex-col gap-6"
-                >
-                    <h2 id="sg-badges" class="font-display text-h2">Badges</h2>
-                    <div class="flex flex-wrap gap-2">
-                        <Badge
-                            v-for="badge in badges"
-                            :key="badge.label"
-                            :variant="badge.variant"
-                            :value="badge.value"
-                        >
-                            {{ badge.label }}
-                        </Badge>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <Badge
-                            v-for="badge in badges.slice(0, 8)"
-                            :key="badge.label"
-                            :variant="badge.variant"
-                            :value="badge.value"
-                            size="md"
-                            dot
-                        >
-                            {{ badge.label }}
-                        </Badge>
-                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <h3 class="font-mono text-xs text-muted-foreground">
+                        on-media · loading keeps width
+                    </h3>
                     <div
-                        class="flex flex-wrap gap-2 rounded-xl bg-(image:--gradient-brand) p-6"
+                        class="flex flex-wrap items-center gap-3 rounded-xl bg-stone-600 bg-(image:--gradient-hero-left) p-6"
                     >
-                        <Badge
-                            v-for="badge in badges.slice(0, 8)"
-                            :key="badge.label"
-                            :variant="badge.variant"
-                            :value="badge.value"
-                            on-media
-                        >
-                            {{ badge.label }}
-                        </Badge>
+                        <Button variant="on-media" :loading="loading">
+                            Watch the film
+                        </Button>
+                        <Button variant="on-media" size="lg" :loading="loading">
+                            <template #icon><CalendarCheck /></template>
+                            Book a visit
+                        </Button>
                     </div>
-                </section>
-
-                <!-- Controls -->
-                <section
-                    aria-labelledby="sg-controls"
-                    class="flex flex-col gap-6"
-                >
-                    <h2 id="sg-controls" class="font-display text-h2">
-                        Form controls
-                    </h2>
-                    <div class="grid gap-6 xl:grid-cols-2">
-                        <div
-                            v-for="theme in themes"
-                            :key="theme"
-                            :class="[
-                                'flex flex-col gap-6 rounded-xl border bg-card p-4 text-card-foreground sm:p-6',
-                                theme === 'dark' && 'theme-dark bg-card',
-                            ]"
+                    <form
+                        class="flex max-w-sm flex-col gap-3"
+                        @submit.prevent="fakeSubmit"
+                    >
+                        <Button
+                            type="submit"
+                            class="w-full sm:w-fit"
+                            :loading="sendingDemo"
                         >
-                            <h3 class="font-display text-h4">
-                                {{
-                                    theme === 'light' ? 'Light' : '.theme-dark'
-                                }}
-                            </h3>
+                            Send enquiry (2 s loading)
+                        </Button>
+                    </form>
+                </div>
+            </section>
 
-                            <div class="grid gap-5 md:grid-cols-2">
-                                <div class="flex flex-col gap-2">
-                                    <Label :for="`${theme}-name`" required>
-                                        Full name
-                                    </Label>
-                                    <Input
-                                        :id="`${theme}-name`"
-                                        autocomplete="name"
-                                        aria-required="true"
-                                        placeholder="Your name"
-                                    />
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <Label :for="`${theme}-phone`" required>
-                                        Phone
-                                    </Label>
-                                    <Input
-                                        :id="`${theme}-phone`"
-                                        type="tel"
-                                        autocomplete="tel"
-                                        aria-required="true"
-                                        aria-invalid="true"
-                                        :aria-describedby="`${theme}-phone-error`"
-                                        default-value="0171"
-                                    />
-                                    <p
-                                        :id="`${theme}-phone-error`"
-                                        class="flex items-center gap-1.5 text-xs text-destructive"
-                                    >
-                                        <CircleAlert
-                                            class="size-3.5 shrink-0"
+            <!-- Badges -->
+            <section aria-labelledby="sg-badges" class="flex flex-col gap-6">
+                <h2 id="sg-badges" class="font-display text-h2">Badges</h2>
+                <div class="flex flex-wrap gap-2">
+                    <Badge
+                        v-for="badge in badges"
+                        :key="badge.label"
+                        :variant="badge.variant"
+                        :value="badge.value"
+                    >
+                        {{ badge.label }}
+                    </Badge>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <Badge
+                        v-for="badge in badges.slice(0, 8)"
+                        :key="badge.label"
+                        :variant="badge.variant"
+                        :value="badge.value"
+                        size="md"
+                        dot
+                    >
+                        {{ badge.label }}
+                    </Badge>
+                </div>
+                <div
+                    class="flex flex-wrap gap-2 rounded-xl bg-(image:--gradient-brand) p-6"
+                >
+                    <Badge
+                        v-for="badge in badges.slice(0, 8)"
+                        :key="badge.label"
+                        :variant="badge.variant"
+                        :value="badge.value"
+                        on-media
+                    >
+                        {{ badge.label }}
+                    </Badge>
+                </div>
+            </section>
+
+            <!-- Controls -->
+            <section aria-labelledby="sg-controls" class="flex flex-col gap-6">
+                <h2 id="sg-controls" class="font-display text-h2">
+                    Form controls
+                </h2>
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div
+                        v-for="theme in themes"
+                        :key="theme"
+                        :class="[
+                            'flex flex-col gap-6 rounded-xl border bg-card p-4 text-card-foreground sm:p-6',
+                            theme === 'dark' && 'theme-dark bg-card',
+                        ]"
+                    >
+                        <h3 class="font-display text-h4">
+                            {{ theme === 'light' ? 'Light' : '.theme-dark' }}
+                        </h3>
+
+                        <div class="grid gap-5 md:grid-cols-2">
+                            <div class="flex flex-col gap-2">
+                                <Label :for="`${theme}-name`" required>
+                                    Full name
+                                </Label>
+                                <Input
+                                    :id="`${theme}-name`"
+                                    autocomplete="name"
+                                    aria-required="true"
+                                    placeholder="Your name"
+                                />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <Label :for="`${theme}-phone`" required>
+                                    Phone
+                                </Label>
+                                <Input
+                                    :id="`${theme}-phone`"
+                                    type="tel"
+                                    autocomplete="tel"
+                                    aria-required="true"
+                                    aria-invalid="true"
+                                    :aria-describedby="`${theme}-phone-error`"
+                                    default-value="0171"
+                                />
+                                <p
+                                    :id="`${theme}-phone-error`"
+                                    class="flex items-center gap-1.5 text-xs text-destructive"
+                                >
+                                    <CircleAlert class="size-3.5 shrink-0" />
+                                    Enter an 11-digit mobile number.
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <Label :for="`${theme}-email`">Email</Label>
+                                <Input
+                                    :id="`${theme}-email`"
+                                    type="email"
+                                    autocomplete="email"
+                                    :aria-describedby="`${theme}-email-help`"
+                                />
+                                <p
+                                    :id="`${theme}-email-help`"
+                                    class="text-xs text-muted-foreground"
+                                >
+                                    We reply within one working day.
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <Label :for="`${theme}-area`">Area</Label>
+                                <Select>
+                                    <SelectTrigger :id="`${theme}-area`">
+                                        <SelectValue
+                                            placeholder="Choose an area"
                                         />
-                                        Enter an 11-digit mobile number.
-                                    </p>
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <Label :for="`${theme}-email`">Email</Label>
-                                    <Input
-                                        :id="`${theme}-email`"
-                                        type="email"
-                                        autocomplete="email"
-                                        :aria-describedby="`${theme}-email-help`"
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="bashundhara">
+                                            Bashundhara
+                                        </SelectItem>
+                                        <SelectItem value="uttara"
+                                            >Uttara</SelectItem
+                                        >
+                                        <SelectItem value="mirpur"
+                                            >Mirpur</SelectItem
+                                        >
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <Label :for="`${theme}-disabled`"
+                                    >Disabled</Label
+                                >
+                                <Input
+                                    :id="`${theme}-disabled`"
+                                    disabled
+                                    default-value="Not editable"
+                                />
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <Label :for="`${theme}-readonly`"
+                                    >Read-only</Label
+                                >
+                                <Input
+                                    :id="`${theme}-readonly`"
+                                    readonly
+                                    default-value="GC-2026-0012"
+                                />
+                            </div>
+                            <div class="flex flex-col gap-2 md:col-span-2">
+                                <Label :for="`${theme}-message`">Message</Label>
+                                <Textarea
+                                    :id="`${theme}-message`"
+                                    placeholder="Tell us what you are looking for"
+                                />
+                            </div>
+                        </div>
+
+                        <fieldset class="flex flex-col gap-3">
+                            <legend class="mb-3 text-sm font-medium">
+                                Checkboxes
+                            </legend>
+                            <div class="flex items-center gap-3">
+                                <Checkbox :id="`${theme}-cb1`" />
+                                <Label :for="`${theme}-cb1`">Unchecked</Label>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <Checkbox
+                                    :id="`${theme}-cb2`"
+                                    :default-value="true"
+                                />
+                                <Label :for="`${theme}-cb2`">Checked</Label>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <Checkbox
+                                    :id="`${theme}-cb3`"
+                                    default-value="indeterminate"
+                                />
+                                <Label :for="`${theme}-cb3`"
+                                    >Indeterminate</Label
+                                >
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <Checkbox :id="`${theme}-cb4`" disabled />
+                                <Label :for="`${theme}-cb4`">Disabled</Label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="flex flex-col gap-3">
+                            <legend class="mb-3 text-sm font-medium">
+                                Preferred contact time
+                            </legend>
+                            <RadioGroup default-value="morning">
+                                <div class="flex items-center gap-3">
+                                    <RadioGroupItem
+                                        :id="`${theme}-r1`"
+                                        value="morning"
                                     />
-                                    <p
-                                        :id="`${theme}-email-help`"
-                                        class="text-xs text-muted-foreground"
-                                    >
-                                        We reply within one working day.
-                                    </p>
+                                    <Label :for="`${theme}-r1`">Morning</Label>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <Label :for="`${theme}-area`">Area</Label>
-                                    <Select>
-                                        <SelectTrigger :id="`${theme}-area`">
-                                            <SelectValue
-                                                placeholder="Choose an area"
-                                            />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="bashundhara">
-                                                Bashundhara
-                                            </SelectItem>
-                                            <SelectItem value="uttara"
-                                                >Uttara</SelectItem
-                                            >
-                                            <SelectItem value="mirpur"
-                                                >Mirpur</SelectItem
-                                            >
-                                        </SelectContent>
-                                    </Select>
+                                <div class="flex items-center gap-3">
+                                    <RadioGroupItem
+                                        :id="`${theme}-r2`"
+                                        value="evening"
+                                    />
+                                    <Label :for="`${theme}-r2`">Evening</Label>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <Label :for="`${theme}-disabled`"
-                                        >Disabled</Label
-                                    >
-                                    <Input
-                                        :id="`${theme}-disabled`"
+                                <div class="flex items-center gap-3">
+                                    <RadioGroupItem
+                                        :id="`${theme}-r3`"
+                                        value="any"
                                         disabled
-                                        default-value="Not editable"
                                     />
+                                    <Label :for="`${theme}-r3`">Disabled</Label>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <Label :for="`${theme}-readonly`"
-                                        >Read-only</Label
-                                    >
-                                    <Input
-                                        :id="`${theme}-readonly`"
-                                        readonly
-                                        default-value="GC-2026-0012"
-                                    />
-                                </div>
-                                <div class="flex flex-col gap-2 md:col-span-2">
-                                    <Label :for="`${theme}-message`"
-                                        >Message</Label
-                                    >
-                                    <Textarea
-                                        :id="`${theme}-message`"
-                                        placeholder="Tell us what you are looking for"
-                                    />
-                                </div>
+                            </RadioGroup>
+                        </fieldset>
+
+                        <div class="flex flex-wrap items-center gap-6">
+                            <div class="flex items-center gap-3">
+                                <Switch
+                                    :id="`${theme}-sw1`"
+                                    :default-value="true"
+                                />
+                                <Label :for="`${theme}-sw1`">Newsletter</Label>
                             </div>
-
-                            <fieldset class="flex flex-col gap-3">
-                                <legend class="mb-3 text-sm font-medium">
-                                    Checkboxes
-                                </legend>
-                                <div class="flex items-center gap-3">
-                                    <Checkbox :id="`${theme}-cb1`" />
-                                    <Label :for="`${theme}-cb1`"
-                                        >Unchecked</Label
-                                    >
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <Checkbox
-                                        :id="`${theme}-cb2`"
-                                        :default-value="true"
-                                    />
-                                    <Label :for="`${theme}-cb2`">Checked</Label>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <Checkbox
-                                        :id="`${theme}-cb3`"
-                                        default-value="indeterminate"
-                                    />
-                                    <Label :for="`${theme}-cb3`"
-                                        >Indeterminate</Label
-                                    >
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <Checkbox :id="`${theme}-cb4`" disabled />
-                                    <Label :for="`${theme}-cb4`"
-                                        >Disabled</Label
-                                    >
-                                </div>
-                            </fieldset>
-
-                            <fieldset class="flex flex-col gap-3">
-                                <legend class="mb-3 text-sm font-medium">
-                                    Preferred contact time
-                                </legend>
-                                <RadioGroup default-value="morning">
-                                    <div class="flex items-center gap-3">
-                                        <RadioGroupItem
-                                            :id="`${theme}-r1`"
-                                            value="morning"
-                                        />
-                                        <Label :for="`${theme}-r1`"
-                                            >Morning</Label
-                                        >
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <RadioGroupItem
-                                            :id="`${theme}-r2`"
-                                            value="evening"
-                                        />
-                                        <Label :for="`${theme}-r2`"
-                                            >Evening</Label
-                                        >
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <RadioGroupItem
-                                            :id="`${theme}-r3`"
-                                            value="any"
-                                            disabled
-                                        />
-                                        <Label :for="`${theme}-r3`"
-                                            >Disabled</Label
-                                        >
-                                    </div>
-                                </RadioGroup>
-                            </fieldset>
-
-                            <div class="flex flex-wrap items-center gap-6">
-                                <div class="flex items-center gap-3">
-                                    <Switch
-                                        :id="`${theme}-sw1`"
-                                        :default-value="true"
-                                    />
-                                    <Label :for="`${theme}-sw1`"
-                                        >Newsletter</Label
-                                    >
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <Switch :id="`${theme}-sw2`" disabled />
-                                    <Label :for="`${theme}-sw2`"
-                                        >Disabled</Label
-                                    >
-                                </div>
-                            </div>
-
-                            <ToggleGroup
-                                type="single"
-                                variant="outline"
-                                default-value="3"
-                                aria-label="Bedrooms"
-                            >
-                                <ToggleGroupItem value="2"
-                                    >2 bed</ToggleGroupItem
-                                >
-                                <ToggleGroupItem value="3"
-                                    >3 bed</ToggleGroupItem
-                                >
-                                <ToggleGroupItem value="4"
-                                    >4 bed</ToggleGroupItem
-                                >
-                            </ToggleGroup>
-
-                            <div class="flex flex-wrap gap-3">
-                                <Button>Primary</Button>
-                                <Button variant="accent">Enquire</Button>
-                                <Button variant="outline">Outline</Button>
-                                <Popover>
-                                    <PopoverTrigger as-child>
-                                        <Button variant="ghost">Popover</Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent class="text-sm">
-                                        Popovers use the --popover tokens.
-                                    </PopoverContent>
-                                </Popover>
+                            <div class="flex items-center gap-3">
+                                <Switch :id="`${theme}-sw2`" disabled />
+                                <Label :for="`${theme}-sw2`">Disabled</Label>
                             </div>
                         </div>
-                    </div>
-                </section>
 
-                <!-- Tabs & accordion -->
-                <section aria-labelledby="sg-tabs" class="flex flex-col gap-6">
-                    <h2 id="sg-tabs" class="font-display text-h2">
-                        Tabs &amp; accordion
-                    </h2>
-                    <Tabs default-value="overview">
-                        <TabsList aria-label="Project sections">
-                            <TabsTrigger value="overview">Overview</TabsTrigger>
-                            <TabsTrigger value="amenities"
-                                >Amenities</TabsTrigger
-                            >
-                            <TabsTrigger value="plans">Floor plans</TabsTrigger>
-                            <TabsTrigger value="location" disabled>
-                                Location
-                            </TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="overview" class="py-4 text-body">
-                            Overview panel — arrow keys move between tabs,
-                            Home/End jump.
-                        </TabsContent>
-                        <TabsContent value="amenities" class="py-4 text-body">
-                            Amenities panel.
-                        </TabsContent>
-                        <TabsContent value="plans" class="py-4 text-body">
-                            Floor plans panel.
-                        </TabsContent>
-                    </Tabs>
-                    <Tabs default-value="all">
-                        <TabsList variant="pill" aria-label="Filter projects">
-                            <TabsTrigger value="all">All</TabsTrigger>
-                            <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-                            <TabsTrigger value="ready">Ready</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                    <Accordion
-                        type="single"
-                        collapsible
-                        default-value="faq-0"
-                        class="max-w-narrow"
-                    >
-                        <AccordionItem
-                            v-for="(faq, i) in faqs"
-                            :key="faq.q"
-                            :value="`faq-${i}`"
+                        <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            default-value="3"
+                            aria-label="Bedrooms"
                         >
-                            <AccordionTrigger>{{ faq.q }}</AccordionTrigger>
-                            <AccordionContent>{{ faq.a }}</AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-                </section>
+                            <ToggleGroupItem value="2">2 bed</ToggleGroupItem>
+                            <ToggleGroupItem value="3">3 bed</ToggleGroupItem>
+                            <ToggleGroupItem value="4">4 bed</ToggleGroupItem>
+                        </ToggleGroup>
 
-                <!-- Toasts -->
-                <section
-                    aria-labelledby="sg-toasts"
-                    class="flex flex-col gap-6"
+                        <div class="flex flex-wrap gap-3">
+                            <Button>Primary</Button>
+                            <Button variant="accent">Enquire</Button>
+                            <Button variant="outline">Outline</Button>
+                            <Popover>
+                                <PopoverTrigger as-child>
+                                    <Button variant="ghost">Popover</Button>
+                                </PopoverTrigger>
+                                <PopoverContent class="text-sm">
+                                    Popovers use the --popover tokens.
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs & accordion -->
+            <section aria-labelledby="sg-tabs" class="flex flex-col gap-6">
+                <h2 id="sg-tabs" class="font-display text-h2">
+                    Tabs &amp; accordion
+                </h2>
+                <Tabs default-value="overview">
+                    <TabsList aria-label="Project sections">
+                        <TabsTrigger value="overview">Overview</TabsTrigger>
+                        <TabsTrigger value="amenities">Amenities</TabsTrigger>
+                        <TabsTrigger value="plans">Floor plans</TabsTrigger>
+                        <TabsTrigger value="location" disabled>
+                            Location
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview" class="py-4 text-body">
+                        Overview panel — arrow keys move between tabs, Home/End
+                        jump.
+                    </TabsContent>
+                    <TabsContent value="amenities" class="py-4 text-body">
+                        Amenities panel.
+                    </TabsContent>
+                    <TabsContent value="plans" class="py-4 text-body">
+                        Floor plans panel.
+                    </TabsContent>
+                </Tabs>
+                <Tabs default-value="all">
+                    <TabsList variant="pill" aria-label="Filter projects">
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
+                        <TabsTrigger value="ready">Ready</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                <Accordion
+                    type="single"
+                    collapsible
+                    default-value="faq-0"
+                    class="max-w-narrow"
                 >
-                    <h2 id="sg-toasts" class="font-display text-h2">Toasts</h2>
-                    <div class="flex flex-wrap gap-3">
-                        <Button
-                            variant="outline"
-                            @click="
-                                notify.success('Enquiry sent', {
-                                    description:
-                                        'We will call you within one working day.',
-                                })
-                            "
-                        >
-                            Success (4 s)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            @click="notify.info('Added to shortlist')"
-                        >
-                            Info (4 s)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            @click="notify.warning('Only 3 units left')"
-                        >
-                            Warning (6 s)
-                        </Button>
-                        <Button
-                            variant="outline"
-                            @click="
-                                notify.error('Could not send', {
-                                    description:
-                                        'Check your connection and try again.',
-                                })
-                            "
-                        >
-                            Error (stays)
-                        </Button>
-                        <Button variant="outline" @click="toastWithUndo">
-                            With action
-                        </Button>
-                    </div>
-                </section>
-
-                <!-- Empty & skeleton -->
-                <section aria-labelledby="sg-empty" class="flex flex-col gap-6">
-                    <h2 id="sg-empty" class="font-display text-h2">
-                        Empty states &amp; skeletons
-                    </h2>
-                    <div class="grid gap-6 md:grid-cols-3">
-                        <EmptyState
-                            variant="no-results"
-                            class="rounded-xl border"
-                            title="No projects match"
-                            body="Try removing a filter or widening the price range."
-                        >
-                            <Button variant="outline">Clear filters</Button>
-                        </EmptyState>
-                        <EmptyState
-                            class="rounded-xl border"
-                            title="No enquiries yet"
-                            body="New enquiries from the website appear here."
-                        >
-                            <Button>Add a lead</Button>
-                        </EmptyState>
-                        <EmptyState
-                            variant="error"
-                            class="rounded-xl border"
-                            title="Could not load"
-                            body="Something went wrong on our side."
-                        >
-                            <Button variant="outline">Retry</Button>
-                        </EmptyState>
-                    </div>
-                    <div
-                        class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-                        aria-busy="true"
+                    <AccordionItem
+                        v-for="(faq, i) in faqs"
+                        :key="faq.q"
+                        :value="`faq-${i}`"
                     >
-                        <SkeletonShape shape="project-card" />
-                        <SkeletonShape shape="news-card" />
-                        <div class="flex flex-col gap-4">
-                            <SkeletonShape shape="kpi-card" />
-                            <SkeletonShape shape="media-tile" class="w-32" />
-                        </div>
-                        <div class="rounded-lg border">
-                            <SkeletonShape
-                                v-for="n in 4"
-                                :key="n"
-                                shape="table-row"
+                        <AccordionTrigger>{{ faq.q }}</AccordionTrigger>
+                        <AccordionContent>{{ faq.a }}</AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </section>
+
+            <!-- Toasts -->
+            <section aria-labelledby="sg-toasts" class="flex flex-col gap-6">
+                <h2 id="sg-toasts" class="font-display text-h2">Toasts</h2>
+                <div class="flex flex-wrap gap-3">
+                    <Button
+                        variant="outline"
+                        @click="
+                            notify.success('Enquiry sent', {
+                                description:
+                                    'We will call you within one working day.',
+                            })
+                        "
+                    >
+                        Success (4 s)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        @click="notify.info('Added to shortlist')"
+                    >
+                        Info (4 s)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        @click="notify.warning('Only 3 units left')"
+                    >
+                        Warning (6 s)
+                    </Button>
+                    <Button
+                        variant="outline"
+                        @click="
+                            notify.error('Could not send', {
+                                description:
+                                    'Check your connection and try again.',
+                            })
+                        "
+                    >
+                        Error (stays)
+                    </Button>
+                    <Button variant="outline" @click="toastWithUndo">
+                        With action
+                    </Button>
+                </div>
+            </section>
+
+            <!-- Empty & skeleton -->
+            <section aria-labelledby="sg-empty" class="flex flex-col gap-6">
+                <h2 id="sg-empty" class="font-display text-h2">
+                    Empty states &amp; skeletons
+                </h2>
+                <div class="grid gap-6 md:grid-cols-3">
+                    <EmptyState
+                        variant="no-results"
+                        class="rounded-xl border"
+                        title="No projects match"
+                        body="Try removing a filter or widening the price range."
+                    >
+                        <Button variant="outline">Clear filters</Button>
+                    </EmptyState>
+                    <EmptyState
+                        class="rounded-xl border"
+                        title="No enquiries yet"
+                        body="New enquiries from the website appear here."
+                    >
+                        <Button>Add a lead</Button>
+                    </EmptyState>
+                    <EmptyState
+                        variant="error"
+                        class="rounded-xl border"
+                        title="Could not load"
+                        body="Something went wrong on our side."
+                    >
+                        <Button variant="outline">Retry</Button>
+                    </EmptyState>
+                </div>
+                <div
+                    class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+                    aria-busy="true"
+                >
+                    <SkeletonShape shape="project-card" />
+                    <SkeletonShape shape="news-card" />
+                    <div class="flex flex-col gap-4">
+                        <SkeletonShape shape="kpi-card" />
+                        <SkeletonShape shape="media-tile" class="w-32" />
+                    </div>
+                    <div class="rounded-lg border">
+                        <SkeletonShape
+                            v-for="n in 4"
+                            :key="n"
+                            shape="table-row"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            <!-- Images -->
+            <section aria-labelledby="sg-images" class="flex flex-col gap-6">
+                <h2 id="sg-images" class="font-display text-h2">Images</h2>
+                <EmptyState
+                    v-if="!images.hero"
+                    class="rounded-xl border"
+                    title="No demo images yet"
+                    body="Run php artisan demo:images --placeholders, then reload."
+                />
+                <template v-else>
+                    <figure class="flex flex-col gap-2">
+                        <div
+                            class="relative h-96 overflow-hidden rounded-xl md:h-128"
+                        >
+                            <ResponsiveImage
+                                :image="images.hero"
+                                :mobile="images.hero_mobile"
+                                preset="hero"
+                                priority
                             />
                         </div>
-                    </div>
-                </section>
-
-                <!-- Images -->
-                <section
-                    aria-labelledby="sg-images"
-                    class="flex flex-col gap-6"
-                >
-                    <h2 id="sg-images" class="font-display text-h2">Images</h2>
-                    <EmptyState
-                        v-if="!images.hero"
-                        class="rounded-xl border"
-                        title="No demo images yet"
-                        body="Run php artisan demo:images --placeholders, then reload."
-                    />
-                    <template v-else>
+                        <figcaption class="text-body text-muted-foreground">
+                            <code>hero</code> · eager ·
+                            <code>fetchpriority="high"</code> (the page's only
+                            one) · portrait crop below 768 px
+                        </figcaption>
+                    </figure>
+                    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                         <figure class="flex flex-col gap-2">
-                            <div
-                                class="relative h-96 overflow-hidden rounded-xl md:h-128"
-                            >
+                            <ResponsiveImage
+                                :image="images.project"
+                                preset="project-card"
+                                class="rounded-lg"
+                            />
+                            <figcaption class="text-body text-muted-foreground">
+                                <code>project-card</code> 4:3 · lazy
+                            </figcaption>
+                        </figure>
+                        <figure class="flex flex-col gap-2">
+                            <ResponsiveImage
+                                :image="images.news"
+                                preset="news-card"
+                                class="rounded-lg"
+                            />
+                            <figcaption class="text-body text-muted-foreground">
+                                <code>news-card</code> 16:10 · lazy
+                            </figcaption>
+                        </figure>
+                        <figure class="flex flex-col gap-2">
+                            <ResponsiveImage
+                                :image="images.location"
+                                preset="segment-tile"
+                                class="rounded-lg"
+                            />
+                            <figcaption class="text-body text-muted-foreground">
+                                <code>segment-tile</code> 16:9 → 3:4 at 1024 px
+                            </figcaption>
+                        </figure>
+                        <figure class="flex flex-col gap-2">
+                            <ResponsiveImage
+                                :image="images.portrait"
+                                preset="team-portrait"
+                                class="rounded-lg"
+                            />
+                            <figcaption class="text-body text-muted-foreground">
+                                <code>team-portrait</code> 4:5 · focal 50,35
+                            </figcaption>
+                        </figure>
+                        <figure class="flex flex-col gap-2">
+                            <ResponsiveImage
+                                :image="images.interior"
+                                preset="floor-plan"
+                                class="rounded-lg"
+                            />
+                            <figcaption class="text-body text-muted-foreground">
+                                <code>floor-plan</code> intrinsic · contain
+                            </figcaption>
+                        </figure>
+                        <figure class="flex flex-col gap-2">
+                            <ResponsiveImage
+                                :image="null"
+                                preset="project-card"
+                                class="rounded-lg"
+                            />
+                            <figcaption class="text-body text-muted-foreground">
+                                No image: placeholder only
+                            </figcaption>
+                        </figure>
+                        <figure class="flex flex-col gap-2 sm:col-span-2">
+                            <div class="grid grid-cols-4 gap-2">
                                 <ResponsiveImage
-                                    :image="images.hero"
-                                    :mobile="images.hero_mobile"
-                                    preset="hero"
-                                    priority
+                                    v-for="(thumb, index) in images.thumbs"
+                                    :key="index"
+                                    :image="thumb"
+                                    preset="gallery-thumb"
+                                    class="rounded-md"
                                 />
                             </div>
                             <figcaption class="text-body text-muted-foreground">
-                                <code>hero</code> · eager ·
-                                <code>fetchpriority="high"</code> (the page's
-                                only one) · portrait crop below 768 px
+                                <code>gallery-thumb</code> 1:1 ·
+                                <code>sizes="160px"</code>
+                                <template v-if="ogImage">
+                                    ·
+                                    <a
+                                        :href="ogImage"
+                                        class="text-primary underline"
+                                        >og.jpg 1200×630</a
+                                    >
+                                </template>
                             </figcaption>
                         </figure>
-                        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                            <figure class="flex flex-col gap-2">
-                                <ResponsiveImage
-                                    :image="images.project"
-                                    preset="project-card"
-                                    class="rounded-lg"
-                                />
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    <code>project-card</code> 4:3 · lazy
-                                </figcaption>
-                            </figure>
-                            <figure class="flex flex-col gap-2">
-                                <ResponsiveImage
-                                    :image="images.news"
-                                    preset="news-card"
-                                    class="rounded-lg"
-                                />
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    <code>news-card</code> 16:10 · lazy
-                                </figcaption>
-                            </figure>
-                            <figure class="flex flex-col gap-2">
-                                <ResponsiveImage
-                                    :image="images.location"
-                                    preset="segment-tile"
-                                    class="rounded-lg"
-                                />
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    <code>segment-tile</code> 16:9 → 3:4 at 1024
-                                    px
-                                </figcaption>
-                            </figure>
-                            <figure class="flex flex-col gap-2">
-                                <ResponsiveImage
-                                    :image="images.portrait"
-                                    preset="team-portrait"
-                                    class="rounded-lg"
-                                />
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    <code>team-portrait</code> 4:5 · focal 50,35
-                                </figcaption>
-                            </figure>
-                            <figure class="flex flex-col gap-2">
-                                <ResponsiveImage
-                                    :image="images.interior"
-                                    preset="floor-plan"
-                                    class="rounded-lg"
-                                />
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    <code>floor-plan</code> intrinsic · contain
-                                </figcaption>
-                            </figure>
-                            <figure class="flex flex-col gap-2">
-                                <ResponsiveImage
-                                    :image="null"
-                                    preset="project-card"
-                                    class="rounded-lg"
-                                />
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    No image: placeholder only
-                                </figcaption>
-                            </figure>
-                            <figure class="flex flex-col gap-2 sm:col-span-2">
-                                <div class="grid grid-cols-4 gap-2">
-                                    <ResponsiveImage
-                                        v-for="(thumb, index) in images.thumbs"
-                                        :key="index"
-                                        :image="thumb"
-                                        preset="gallery-thumb"
-                                        class="rounded-md"
-                                    />
-                                </div>
-                                <figcaption
-                                    class="text-body text-muted-foreground"
-                                >
-                                    <code>gallery-thumb</code> 1:1 ·
-                                    <code>sizes="160px"</code>
-                                    <template v-if="ogImage">
-                                        ·
-                                        <a
-                                            :href="ogImage"
-                                            class="text-primary underline"
-                                            >og.jpg 1200×630</a
-                                        >
-                                    </template>
-                                </figcaption>
-                            </figure>
-                        </div>
-                    </template>
-                </section>
-
-                <!-- Formatters -->
-                <section
-                    aria-labelledby="sg-format"
-                    class="flex flex-col gap-6"
-                >
-                    <h2 id="sg-format" class="font-display text-h2">
-                        Formatters
-                    </h2>
-                    <div class="overflow-x-auto rounded-lg border">
-                        <table class="w-full text-left text-body">
-                            <thead class="bg-muted">
-                                <tr>
-                                    <th scope="col" class="px-3 py-2">Call</th>
-                                    <th scope="col" class="px-3 py-2">Spec</th>
-                                    <th scope="col" class="px-3 py-2">PHP</th>
-                                    <th scope="col" class="px-3 py-2">TS</th>
-                                    <th scope="col" class="px-3 py-2">Match</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="row in formatRows"
-                                    :key="row.call"
-                                    class="border-t"
-                                >
-                                    <td class="px-3 py-2">
-                                        <code>{{ row.call }}</code>
-                                    </td>
-                                    <td class="px-3 py-2 text-muted-foreground">
-                                        {{ row.expected ?? '—' }}
-                                    </td>
-                                    <td class="px-3 py-2">{{ row.php }}</td>
-                                    <td class="px-3 py-2">{{ row.ts }}</td>
-                                    <td class="px-3 py-2">
-                                        <Badge
-                                            :variant="
-                                                row.matches
-                                                    ? 'lifecycle'
-                                                    : 'booking'
-                                            "
-                                            :value="
-                                                row.matches
-                                                    ? 'ready'
-                                                    : 'sold_out'
-                                            "
-                                        >
-                                            {{ row.matches ? 'Yes' : 'No' }}
-                                        </Badge>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
-                </section>
-            </main>
+                </template>
+            </section>
 
-            <Toaster />
+            <!-- Formatters -->
+            <section aria-labelledby="sg-format" class="flex flex-col gap-6">
+                <h2 id="sg-format" class="font-display text-h2">Formatters</h2>
+                <div class="overflow-x-auto rounded-lg border">
+                    <table class="w-full text-left text-body">
+                        <thead class="bg-muted">
+                            <tr>
+                                <th scope="col" class="px-3 py-2">Call</th>
+                                <th scope="col" class="px-3 py-2">Spec</th>
+                                <th scope="col" class="px-3 py-2">PHP</th>
+                                <th scope="col" class="px-3 py-2">TS</th>
+                                <th scope="col" class="px-3 py-2">Match</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="row in formatRows"
+                                :key="row.call"
+                                class="border-t"
+                            >
+                                <td class="px-3 py-2">
+                                    <code>{{ row.call }}</code>
+                                </td>
+                                <td class="px-3 py-2 text-muted-foreground">
+                                    {{ row.expected ?? '—' }}
+                                </td>
+                                <td class="px-3 py-2">{{ row.php }}</td>
+                                <td class="px-3 py-2">{{ row.ts }}</td>
+                                <td class="px-3 py-2">
+                                    <Badge
+                                        :variant="
+                                            row.matches
+                                                ? 'lifecycle'
+                                                : 'booking'
+                                        "
+                                        :value="
+                                            row.matches ? 'ready' : 'sold_out'
+                                        "
+                                    >
+                                        {{ row.matches ? 'Yes' : 'No' }}
+                                    </Badge>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-    </TooltipProvider>
+    </div>
 </template>

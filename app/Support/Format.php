@@ -130,6 +130,19 @@ final class Format
     }
 
     /**
+     * Display form of an E.164 number: Bangladeshi "+880 9600-000000"
+     * (DEC-40); other numbers unchanged.
+     */
+    public static function phone(string $e164): string
+    {
+        if (preg_match('/^\+880(\d{4})(\d{6})$/', $e164, $parts) === 1) {
+            return '+880'.self::NBSP.$parts[1].'-'.$parts[2];
+        }
+
+        return $e164;
+    }
+
+    /**
      * @return array{0: string, 1: 'lakh'|'crore'|null}
      */
     private static function compactParts(int|float $amount): array

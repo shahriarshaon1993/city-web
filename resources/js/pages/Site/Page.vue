@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-16">
+    <div class="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-16">
         <h1 class="font-display text-5xl font-extrabold tracking-tight">
             {{ title }}
         </h1>
@@ -23,5 +23,5 @@ defineProps<{
                 Home
             </Link>
         </p>
-    </main>
+    </div>
 </template>

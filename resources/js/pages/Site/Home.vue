@@ -5,7 +5,8 @@ import { about } from '@/routes';
 import type { LcpImage } from '@/types/site';
 
 // Stub until the home blocks of 2.x. The hero image is the page's LCP image
-// (preloaded by the root view, HERO-030).
+// (preloaded by the root view, HERO-030); the header sits over it
+// (`starts_with_hero`). The tall body lets the headroom header be tested.
 defineProps<{
     title: string;
     lead: string;
@@ -14,8 +15,8 @@ defineProps<{
 </script>
 
 <template>
-    <main>
-        <div class="h-[60svh] min-h-80">
+    <div>
+        <div class="h-[85svh] min-h-80">
             <ResponsiveImage
                 :image="hero.image"
                 :mobile="hero.mobile"
@@ -23,7 +24,7 @@ defineProps<{
                 priority
             />
         </div>
-        <div class="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-16">
+        <div class="mx-auto flex min-h-svh max-w-3xl flex-col gap-4 px-6 py-16">
             <h1 class="font-display text-5xl font-extrabold tracking-tight">
                 {{ title }}
             </h1>
@@ -37,5 +38,5 @@ defineProps<{
                 </Link>
             </p>
         </div>
-    </main>
+    </div>
 </template>

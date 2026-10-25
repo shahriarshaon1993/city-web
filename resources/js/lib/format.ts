@@ -111,6 +111,13 @@ export function formatMonth(value: string | Date): string {
     return `${MONTHS[month - 1]} ${year}`;
 }
 
+/** Display form of an E.164 number: Bangladeshi "+880 9600-000000" (DEC-40); other numbers unchanged. */
+export function formatPhone(e164: string): string {
+    const parts = /^\+880(\d{4})(\d{6})$/.exec(e164);
+
+    return parts === null ? e164 : `+880${NBSP}${parts[1]}-${parts[2]}`;
+}
+
 function compactParts(amount: number): [string, CompactUnit] {
     const hundredthsOfLakh = Math.round(amount / 1_000);
 

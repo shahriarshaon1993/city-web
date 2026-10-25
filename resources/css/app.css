@@ -222,6 +222,9 @@
     --dur-slow: 480ms;
     --dur-reveal: 900ms;
     --dur-mask: 1200ms;
+    --stagger-tight: 60ms;
+    --stagger-base: 90ms;
+    --stagger-text: 80ms;
 }
 
 /* Static theme values: Tailwind emits these as :root variables AND generates utilities (rounded-lg, shadow-md, ease-out-expo, max-w-content) */
@@ -511,5 +514,75 @@
     }
     to {
         background-position: -50% 0;
+    }
+}
+
+/*
+ * MOT-MEGA / MOT-MENU, CSS-only until the GSAP timelines of 3.2. Transform
+ * and opacity only (MOT-R01); none of it runs under reduced motion (MOT-R03).
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .mega-content {
+        transform-origin: top;
+    }
+    .mega-content[data-state='open'] {
+        animation: mega-in var(--dur-base) var(--ease-out-expo) both;
+    }
+    .mega-content[data-state='closed'] {
+        animation: mega-out var(--dur-fast) var(--ease-standard) both;
+    }
+    .mega-content[data-state='open'] .mega-column {
+        animation: mega-column-in var(--dur-base) var(--ease-out-expo) both;
+        animation-delay: calc(var(--i, 0) * 40ms);
+    }
+    .mobile-menu[data-state='open'] {
+        animation: menu-in 420ms var(--ease-out-expo) both;
+    }
+    .mobile-menu[data-state='closed'] {
+        animation: menu-out var(--dur-base) var(--ease-in-out) both;
+    }
+    .mobile-menu[data-state='open'] .mobile-menu-link {
+        animation: menu-link-in 420ms var(--ease-out-expo) both;
+        animation-delay: calc(120ms + var(--i, 0) * var(--stagger-tight));
+    }
+}
+
+@keyframes mega-in {
+    from {
+        opacity: 0;
+        transform: scaleY(0.96);
+    }
+}
+
+@keyframes mega-out {
+    to {
+        opacity: 0;
+        transform: scaleY(0.98);
+    }
+}
+
+@keyframes mega-column-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+@keyframes menu-in {
+    from {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes menu-out {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes menu-link-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
     }
 }

@@ -25,6 +25,8 @@ class HomeController extends Controller
             'title' => $page['title'],
             'lead' => $page['intro'],
             'hero' => ['image' => $hero, 'mobile' => $heroMobile],
+            // CMP-HEAD-01: the header starts transparent over a first-block hero.
+            'starts_with_hero' => true,
             'seo' => SeoData::home()->lcp($hero, $heroMobile)->toArray($request),
         ]);
     }

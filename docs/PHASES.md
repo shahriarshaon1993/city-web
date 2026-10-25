@@ -9,7 +9,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 0.2  | Design tokens & UI kit I (buttons, badges, controls, styleguide)           | 0.1            | ✅     |
 | 0.3  | Images, formatters & props contract                                        | 0.2            | ✅     |
 | 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ✅     |
-| 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ⬜     |
+| 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ✅     |
 | 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ⬜     |
 | 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ⬜     |
 | 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ⬜     |
@@ -140,6 +140,16 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 0.4 · **Read:** design/components.md CMP-HEAD-01, CMP-NAV-02, CMP-NAV-03, CMP-MODAL-01; design/foundations.md §4 (containers, gutters, z-index); design/patterns.md A11Y-D02, A11Y-D03, A11Y-D05, §10; spec/cms.md CMS-NAV-001..004 (menu shape only); spec/architecture.md ARC-010.
 **Build:** `layouts/SiteLayout.vue` (persistent), skip link, `<main id="content" tabindex="-1">`. `SiteHeader`: transparent/solid/hidden (headroom), `transparent_on_hero`, hotline ≥ 1280, shortlist heart count slot, Enquire accent button. Mega menu (NavigationMenu) with `auto:segments`, `auto:locations`, `auto:featured_projects` and link columns from demo menus. Mobile menu sheet in the dark scope: accordion children, hotline/WhatsApp/Enquire, social. Motion here is CSS only (GSAP timeline arrives in 3.2).
 **Test:** mega menu opens on hover (intent delay) and click/Enter, arrows move, Esc and outside click close; header transparent over a dummy hero, solid after 24 px, hides scrolling down > 120 px and returns on scroll up; at 390 px the menu traps focus, Esc closes, body does not scroll; the first Tab shows the skip link.
+
+**Done notes (2026-10-25):**
+- `layouts/SiteLayout.vue` owns `TooltipProvider`, `SkipLink`, `SiteHeader`, `<main id="content" tabindex="-1">` and `<Toaster />`; pages must not render `<main>` (or a second `<header>`). Main gets `pt-16 lg:pt-20` unless the header is over a hero. 1.2 adds the footer, mobile bar and route focus here.
+- Transparent header = page prop `starts_with_hero: true` (type `SitePageProps`) + `site.header.transparent_on_hero`; only `Site\HomeController` sets it so far. Part B derives it from the first block.
+- `components/site/header/`: `SiteHeader` (headroom via `composables/useHeadroom.ts`; pinned while focus is inside or a menu is open; `sticky=false` → absolute, no hiding), `DesktopNav` (Reka NavigationMenu, no viewport; list wrapper forced static so the mega panel spans the container; extra 150 ms close timer = 300 ms), `MegaPanel`, `MobileMenu` (Reka Dialog + Accordion, closes on `page.url` change and at ≥ 1024), `ShortlistLink` (`count` hard-wired to 0 — 2.2 connects the store; URL `/shortlist` until 8.3 adds the Wayfinder route).
+- Menu/mega motion is CSS in `app.css` (`.mega-content`, `.mega-column`, `.mobile-menu`, `.mobile-menu-link` with `--i`), only under `prefers-reduced-motion: no-preference`; 3.1/3.2 must also gate it on the motion setting/footer toggle and swap in GSAP.
+- `MenuItem.count` (auto:locations) and `icon` (allowlist `lib/icons.ts`); `components/site/SocialIcon.vue` (facebook/instagram/linkedin/youtube/x/whatsapp) — reuse in the 1.2 footer.
+- `DemoContent::projectCards($featuredOnly)` — 8 demo cards (2 with hidden price → `price_from_bdt` null); reuse for 2.2 and 4.x.
+- DEC-40: header ≤ 6 items (Contact in `mobile_extra`), `mega-card` preset, `formatPhone`/`Format::phone`, `logo_light` = white logo for dark surfaces.
+- Overlays use the z tokens (`z-(--z-header|overlay|drawer|dropdown)`); shadcn tooltips/sheets default to `z-50` — pass the token class.
 
 ### 1.2 — Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages
 

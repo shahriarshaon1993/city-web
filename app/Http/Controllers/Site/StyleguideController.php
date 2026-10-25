@@ -59,6 +59,8 @@ class StyleguideController extends Controller
             ['formatDate', ['2026-10-25T05:00:00.000000Z'], '25 Oct 2026'],
             ['formatDate', ['2026-10-25T19:30:00.000000Z'], null],
             ['formatMonth', ['2027-12-01'], null],
+            ['formatPhone', ['+8809600000000'], '+880 9600-000000'],
+            ['formatPhone', ['+14155550100'], '+14155550100'],
         ];
 
         $php = [
@@ -70,6 +72,7 @@ class StyleguideController extends Controller
             'formatKatha' => Format::katha(...),
             'formatDate' => Format::date(...),
             'formatMonth' => Format::month(...),
+            'formatPhone' => Format::phone(...),
         ];
 
         return array_values(array_map(fn (array $sample): array => [

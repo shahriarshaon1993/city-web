@@ -15,6 +15,7 @@ namespace App\Support\Demo;
  *     new_tab: bool,
  *     icon: string|null,
  *     description: string|null,
+ *     count: int|null,
  *     children: list<array<string, mixed>>,
  *     mega: list<array<string, mixed>>|null
  * }
@@ -98,6 +99,30 @@ final class DemoContent
             'description' => 'Gemcon City Limited is a Bangladeshi real estate developer, part of Gemcon Group, building apartments, commercial spaces and land projects since its founding.',
         ],
     ];
+
+    /**
+     * Demo projects for ProjectCardResource rows (CMP-CARD-01); placeholder
+     * names until the client's list arrives. Prices of `price_visible: false`
+     * rows never leave the server (AC-PROJ-01).
+     *
+     * @var list<array{slug: string, name: string, segment: string, lifecycle: string, booking_state: string, featured: bool, area: string, image: string, size: array{0: int|null, 1: int|null}, beds: array{0: int|null, 1: int|null}, baths: array{0: int|null, 1: int|null}, katha: int|float|null, price: int|null, price_visible: bool}>
+     */
+    private const array PROJECTS = [
+        ['slug' => 'gemcon-lakeview', 'name' => 'Gemcon Lakeview', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Bashundhara R/A', 'image' => 'projects/projects-01', 'size' => [1650, 2100], 'beds' => [3, 4], 'baths' => [3, 4], 'katha' => null, 'price' => 14_500_000, 'price_visible' => true],
+        ['slug' => 'gemcon-orchid-heights', 'name' => 'Gemcon Orchid Heights', 'segment' => 'residential', 'lifecycle' => 'upcoming', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Gulshan', 'image' => 'projects/projects-02', 'size' => [2400, 3200], 'beds' => [4, 4], 'baths' => [4, 5], 'katha' => null, 'price' => 42_000_000, 'price_visible' => false],
+        ['slug' => 'gemcon-trade-centre', 'name' => 'Gemcon Trade Centre', 'segment' => 'commercial', 'lifecycle' => 'ongoing', 'booking_state' => 'limited_units', 'featured' => true, 'area' => 'Banani', 'image' => 'projects/projects-03', 'size' => [850, 5200], 'beds' => [null, null], 'baths' => [null, null], 'katha' => null, 'price' => 9_500_000, 'price_visible' => true],
+        ['slug' => 'gemcon-greenfield', 'name' => 'Gemcon Greenfield', 'segment' => 'residential', 'lifecycle' => 'ready', 'booking_state' => 'limited_units', 'featured' => false, 'area' => 'Uttara', 'image' => 'projects/projects-04', 'size' => [1250, 1450], 'beds' => [3, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 8_500_000, 'price_visible' => true],
+        ['slug' => 'gemcon-riverside-plots', 'name' => 'Gemcon Riverside Plots', 'segment' => 'land', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'Mirpur', 'image' => 'projects/projects-05', 'size' => [null, null], 'beds' => [null, null], 'baths' => [null, null], 'katha' => 5, 'price' => 12_500_000, 'price_visible' => true],
+        ['slug' => 'gemcon-crescent', 'name' => 'Gemcon Crescent', 'segment' => 'mixed_use', 'lifecycle' => 'upcoming', 'booking_state' => 'none', 'featured' => false, 'area' => 'Dhanmondi', 'image' => 'projects/projects-06', 'size' => [1100, 2600], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => null, 'price_visible' => false],
+        ['slug' => 'gemcon-palm-court', 'name' => 'Gemcon Palm Court', 'segment' => 'residential', 'lifecycle' => 'handed_over', 'booking_state' => 'sold_out', 'featured' => false, 'area' => 'Baridhara', 'image' => 'projects/projects-07', 'size' => [2800, 2800], 'beds' => [4, 4], 'baths' => [5, 5], 'katha' => null, 'price' => null, 'price_visible' => false],
+        ['slug' => 'gemcon-maple-residency', 'name' => 'Gemcon Maple Residency', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'Mohammadpur', 'image' => 'projects/projects-08', 'size' => [1050, 1350], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 6_800_000, 'price_visible' => true],
+    ];
+
+    private const array SEGMENT_LABELS = ['residential' => 'Residential', 'commercial' => 'Commercial', 'mixed_use' => 'Mixed-use', 'land' => 'Land'];
+
+    private const array LIFECYCLE_LABELS = ['upcoming' => 'Upcoming', 'ongoing' => 'Ongoing', 'ready' => 'Ready', 'handed_over' => 'Handed over'];
+
+    private const array BOOKING_LABELS = ['booking_open' => 'Booking open', 'limited_units' => 'Limited units', 'sold_out' => 'Sold out'];
 
     private static int $menuItemId = 0;
 
@@ -184,6 +209,49 @@ final class DemoContent
     }
 
     /**
+     * Project cards (ProjectCard in types/site.ts), optionally featured only.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function projectCards(bool $featuredOnly = false): array
+    {
+        $cards = [];
+
+        foreach (self::PROJECTS as $index => $row) {
+            if ($featuredOnly && ! $row['featured']) {
+                continue;
+            }
+
+            $cards[] = [
+                'id' => $index + 1,
+                'slug' => $row['slug'],
+                'url' => '/projects/'.$row['slug'],
+                'name' => $row['name'],
+                'segment' => $row['segment'],
+                'segment_label' => self::SEGMENT_LABELS[$row['segment']],
+                'lifecycle' => $row['lifecycle'],
+                'lifecycle_label' => self::LIFECYCLE_LABELS[$row['lifecycle']],
+                'booking_state' => $row['booking_state'],
+                'booking_label' => self::BOOKING_LABELS[$row['booking_state']] ?? null,
+                'is_featured' => $row['featured'],
+                'location' => ['area' => $row['area'], 'city' => 'Dhaka'],
+                'cover' => DemoMedia::image($row['image']),
+                'size_min_sft' => $row['size'][0],
+                'size_max_sft' => $row['size'][1],
+                'beds_min' => $row['beds'][0],
+                'beds_max' => $row['beds'][1],
+                'baths_min' => $row['baths'][0],
+                'baths_max' => $row['baths'][1],
+                'land_katha' => $row['katha'],
+                'price_from_bdt' => $row['price_visible'] ? $row['price'] : null,
+                'price_note' => $row['price_visible'] ? null : 'Price on request',
+            ];
+        }
+
+        return $cards;
+    }
+
+    /**
      * The `menus` shared prop, keyed by CMS-NAV-001 menu key. URLs are
      * root-relative paths of the sitemap (spec/pages.md §5.1); the pages
      * behind them arrive in later phases.
@@ -196,10 +264,10 @@ final class DemoContent
         $item = self::menuItem(...);
 
         $segments = [
-            $item('Residential', '/projects/type/residential', description: 'Apartments for families'),
-            $item('Commercial', '/projects/type/commercial', description: 'Offices and retail spaces'),
-            $item('Mixed-use', '/projects/type/mixed-use', description: 'Homes above shops and offices'),
-            $item('Land', '/projects/type/land', description: 'Plots with clear titles'),
+            $item('Residential', '/projects/type/residential', description: 'Apartments for families', icon: 'house'),
+            $item('Commercial', '/projects/type/commercial', description: 'Offices and retail spaces', icon: 'building'),
+            $item('Mixed-use', '/projects/type/mixed-use', description: 'Homes above shops and offices', icon: 'layers'),
+            $item('Land', '/projects/type/land', description: 'Plots with clear titles', icon: 'land-plot'),
         ];
 
         $statuses = [
@@ -210,27 +278,29 @@ final class DemoContent
             $item('All projects', '/projects'),
         ];
 
+        // `auto:locations`: top 8 areas by project count (CMS-NAV-003).
         $locations = array_map(
-            fn (array $area): array => $item($area[0], '/locations/'.$area[1]),
+            fn (array $area): array => $item($area[0], '/locations/'.$area[1], count: $area[2]),
             [
-                ['Bashundhara R/A', 'bashundhara-ra'],
-                ['Gulshan', 'gulshan'],
-                ['Banani', 'banani'],
-                ['Baridhara', 'baridhara'],
-                ['Dhanmondi', 'dhanmondi'],
-                ['Uttara', 'uttara'],
-                ['Mirpur', 'mirpur'],
-                ['Mohammadpur', 'mohammadpur'],
+                ['Bashundhara R/A', 'bashundhara-ra', 6],
+                ['Gulshan', 'gulshan', 5],
+                ['Banani', 'banani', 4],
+                ['Baridhara', 'baridhara', 3],
+                ['Dhanmondi', 'dhanmondi', 3],
+                ['Uttara', 'uttara', 2],
+                ['Mirpur', 'mirpur', 2],
+                ['Mohammadpur', 'mohammadpur', 1],
             ],
         );
 
-        // CMS-NAV-003 `auto:featured_projects` is added in 1.1 with the demo project cards.
+        // Contact is not a header item: the Enquire button links there (DEC-40).
         // Facet URL slugs `mixed-use` / `handed-over` (enum values use underscores): awaiting owner confirmation.
         $header = [
             $item('Projects', '/projects', mega: [
                 ['kind' => 'segments', 'heading' => 'By type', 'items' => $segments],
                 ['kind' => 'links', 'heading' => 'By status', 'items' => $statuses],
                 ['kind' => 'locations', 'heading' => 'By location', 'items' => $locations],
+                ['kind' => 'featured_projects', 'heading' => 'Featured', 'projects' => array_slice(self::projectCards(featuredOnly: true), 0, 3)],
             ]),
             $item('Locations', '/locations'),
             $item('Landowners', '/landowner'),
@@ -242,7 +312,6 @@ final class DemoContent
                 $item('Careers', '/careers'),
             ]),
             $item('News', '/news'),
-            $item('Contact', '/contact'),
         ];
 
         return [
@@ -276,6 +345,7 @@ final class DemoContent
                 $item('Terms', '/terms'),
             ],
             'mobile_extra' => [
+                $item('Contact', '/contact'),
                 $item('Book a site visit', '/contact'),
             ],
         ];
@@ -286,15 +356,16 @@ final class DemoContent
      * @param  list<array<string, mixed>>|null  $mega
      * @return MenuItem
      */
-    private static function menuItem(string $label, string $url, ?string $description = null, array $children = [], ?array $mega = null): array
+    private static function menuItem(string $label, string $url, ?string $description = null, ?string $icon = null, ?int $count = null, array $children = [], ?array $mega = null): array
     {
         return [
             'id' => ++self::$menuItemId,
             'label' => $label,
             'url' => $url,
             'new_tab' => false,
-            'icon' => null,
+            'icon' => $icon,
             'description' => $description,
+            'count' => $count,
             'children' => $children,
             'mega' => $mega,
         ];

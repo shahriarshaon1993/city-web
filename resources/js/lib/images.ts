@@ -30,6 +30,14 @@ export const imagePresets = {
         loading: 'lazy',
         placeholder: 'media',
     },
+    /** Mega menu `auto:featured_projects` thumbnail (DEC-40; not in §5.3). */
+    'mega-card': {
+        sizes: '112px',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     /** Eager for the first slide only; pass `loading="lazy"` for the rest. */
     'gallery-hero': {
         sizes: '(min-width:1440px) 1440px, 100vw',
