@@ -11,7 +11,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ✅     |
 | 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ✅     |
 | 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ✅     |
-| 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ⬜     |
+| 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ✅     |
 | 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ⬜     |
 | 2.3  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.2            | ⬜     |
 | 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.3            | ⬜     |
@@ -173,6 +173,17 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 1.2 · **Read:** spec/hero.md (all); design/components.md CMP-HERO-01/02/03, CMP-SEARCH-01, CMP-MODAL-01 (bottom sheet); design/motion.md MOT-HERO-VIDEO, MOT-SLIDE, MOT-CUE; design/foundations.md §2.4 (hero gradients), TOK-C27; spec/search.md FR-SRCH-002, FR-SRCH-008.
 **Build:** owner approves `embla-carousel-vue` 8.6. `components/blocks/HeroBlock.vue`: single image/video, slider (2–5 images, autoplay off by default, pause/play always visible, pause on hover/focus/hidden tab); overlay styles with the 35 % minimum; heights reserved (CLS 0); H1 only as the first block. `useHeroVideo`: HERO-025 conditions, HERO-026 sequence, IntersectionObserver pause, sessionStorage pause state, error → poster stays. Search widget: real `<form method="get" action="/projects">`, segment toggle, grouped area combobox, status, size bands, bedrooms; single facet → clean URL (HERO-041); < 768 trigger + bottom sheet. Home renders the hero from the demo `home` block list; LCP preload from it.
 **Test:** production build + Lighthouse mobile on `/`: LCP element is the hero image (or poster) and there is exactly one preload; DevTools emulation: reduced motion, Save-Data, Slow 3G or width < 1024 → no `<video>` request; video pause survives a reload in the same tab; slider keyboard + pause button; with JavaScript disabled the search submits to `/projects?…` (404 until 4.1); one facet → `/locations/{area}` style URL.
+
+**Done notes (2026-10-25):**
+- Packages: `embla-carousel-vue` 8.6.0 + `embla-carousel-fade` 8.6.0 (exact). Autoplay and bottom-sheet swipe are hand-written (DEC-43).
+- Blocks: `types/blocks.ts` (`Block<Type, Data>` DM-BLOCK envelope, `HeroBlockData`, `PageBlock` union — 2.2 extends it). `DemoContent::homeBlocks($variant)`; Home passes `blocks` + `lead`; 2.2 swaps the `v-for` in `pages/Site/Home.vue` for the block renderer (pass `first` = index 0).
+- Hero: `components/blocks/HeroBlock.vue` → `hero/HeroSingle` (`useHeroVideo`) or `hero/HeroSlider` (`useHeroSlider`), both on `hero/HeroShell` (overlay, text, CTAs, search, cue, `data-hero`; slots `media`/`controls`). `SeoData::lcpFromBlocks($blocks)` derives the preload — reuse for every block page.
+- 3.1 must: add MOT-REVEAL-HERO (clip-path only), gate `.hero-cue`/`.hero-kenburns` (app.css) and the video on the footer motion toggle, stop Lenis while `BottomSheet` is open.
+- Search: `components/site/search/ProjectSearch.vue` (`hero` variant; `initial` prop for 4.1's `inline`), native-first fields (DEC-42), `lib/search.ts` (`projectSearchUrl`, `projectSearchSummary`), options from `DemoContent::projectSearch()` (`types/search.ts`; settings group `search.size_bands`). 4.1 must normalise the no-JS `size=min-max` + empty params (301) and accept `area[]`.
+- `components/site/BottomSheet.vue` (title, `trigger`/default/`footer` slots, popovers inside need `z-(--z-modal)`) — reuse for 4.1 filters.
+- Demo video: `storage/app/demo-src/video/{name}.mp4|webm` → `DemoMedia::video('video/{name}')`, manifest `videos` key; 11.1 must output the `MediaVideo` shape.
+- `POST /internal/client-errors` (route `client-errors.store`, CSRF-exempt, `throttle:client-errors` 10/min/IP) → `Actions/Monitoring/LogClientError` (log only; 18.2 Errors view reads it).
+- Local previews `/styleguide/hero/{image|video|slider|centered}`.
 
 ### 2.2 — Block renderer, project card, shortlist heart, home blocks I
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoMedia;
 use App\Support\Format;
 use App\Support\Seo\SeoData;
@@ -11,7 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Local-only UI kit reference (0.2, 0.3). Registered only when app()->isLocal().
+ * Local-only UI kit reference (0.2, 0.3) and hero previews (2.1). Registered only when app()->isLocal().
  */
 class StyleguideController extends Controller
 {
@@ -31,6 +32,22 @@ class StyleguideController extends Controller
             'ogImage' => DemoMedia::ogImage('hero/hero-01'),
             'formatSamples' => $this->formatSamples(),
             'seo' => SeoData::page('Styleguide')->noindex(follow: false)->toArray($request),
+        ]);
+    }
+
+    /**
+     * Phase 2.1 hero previews: the home page with another hero variant
+     * (image, video, slider, centered).
+     */
+    public function hero(Request $request, string $variant): Response
+    {
+        $blocks = DemoContent::homeBlocks($variant);
+
+        return Inertia::render('Site/Home', [
+            'blocks' => $blocks,
+            'lead' => DemoContent::page('home')['intro'],
+            'starts_with_hero' => true,
+            'seo' => SeoData::page('Hero: '.$variant)->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
         ]);
     }
 

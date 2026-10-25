@@ -19,6 +19,7 @@ use RuntimeException;
  * name without extension: {"alt": "…", "focal": [x, y], "caption": "…",
  * "credit": "…", "decorative": false}. The `hero` group uses the HERO-011
  * profile; "{name}-mobile" files there are portrait mobile crops (HERO-013).
+ * The `video` group holds hero videos, copied as they are (CopyDemoVideos).
  *
  * @phpstan-import-type ManifestEntry from DemoMedia
  */
@@ -29,11 +30,14 @@ final class GenerateDemoImages
 
     private const array EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
 
-    public function __construct(private readonly ConvertDemoImage $convert) {}
+    public function __construct(
+        private readonly ConvertDemoImage $convert,
+        private readonly CopyDemoVideos $copyVideos,
+    ) {}
 
     /**
      * @param  (Closure(string, bool): void)|null  $progress  called per image with its key and whether it was (re)converted
-     * @return array{converted: int, reused: int, removed: int, avif: bool, warnings: list<string>}
+     * @return array{converted: int, reused: int, removed: int, videos: int, avif: bool, warnings: list<string>}
      */
     public function handle(bool $force = false, ?Closure $progress = null): array
     {
@@ -53,6 +57,11 @@ final class GenerateDemoImages
 
         foreach (File::directories($sourceRoot) as $groupDir) {
             $group = Str::slug(basename($groupDir));
+
+            if ($group === CopyDemoVideos::GROUP) {
+                continue;
+            }
+
             $meta = $this->readMeta($groupDir, $warnings);
 
             foreach (File::files($groupDir) as $file) {
@@ -95,13 +104,15 @@ final class GenerateDemoImages
             }
         }
 
-        $removed = $this->removeStale(array_column($entries, 'dir'));
+        $videos = $this->copyVideos->handle($warnings);
+        $removed = $this->removeStale([...array_column($entries, 'dir'), ...array_column($videos, 'dir')]);
 
         File::put(DemoMedia::manifestPath(), (string) json_encode([
             'rules_version' => self::RULES_VERSION,
             'generated_at' => now()->toIso8601String(),
             'avif' => $withAvif,
             'images' => $entries,
+            'videos' => $videos,
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
         DemoMedia::flush();
@@ -110,6 +121,7 @@ final class GenerateDemoImages
             'converted' => $converted,
             'reused' => $reused,
             'removed' => $removed,
+            'videos' => count($videos),
             'avif' => $withAvif,
             'warnings' => $warnings,
         ];

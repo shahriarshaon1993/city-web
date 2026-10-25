@@ -31,6 +31,12 @@ export type MediaImage = {
     fallback: string;
 };
 
+/** Hero background video (HERO-020): MP4 required, WebM optional; no audio. */
+export type MediaVideo = {
+    mp4: string;
+    webm: string | null;
+};
+
 /** HERO-030/031: the page's LCP image, preloaded by the root view. */
 export type LcpImage = {
     image: MediaImage;

@@ -597,3 +597,32 @@
 #content.is-navigating {
     opacity: 0.6;
 }
+
+/*
+ * CMP-HERO-01/03 (2.1): MOT-CUE scroll cue (stopped after the first scroll by
+ * HeroShell) and the Ken Burns zoom on the current slide (play state follows
+ * the autoplay). Transform only (MOT-R01); none of it under reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .hero-cue {
+        animation: hero-cue 1.6s ease-in-out infinite;
+    }
+    .hero-kenburns {
+        animation: hero-kenburns 7s linear both;
+    }
+}
+
+@keyframes hero-cue {
+    50% {
+        transform: translateY(6px);
+    }
+}
+
+@keyframes hero-kenburns {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.06);
+    }
+}

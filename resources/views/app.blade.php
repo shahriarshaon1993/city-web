@@ -18,7 +18,8 @@
         @fonts
 
         {{-- CMP-FOOT-01: footer menu disclosures stay open without JavaScript. --}}
-        <noscript><style>.footer-collapsible { display: flex !important; }</style></noscript>
+        {{-- HERO-042/043: below 768 px the hero search form replaces its sheet trigger. --}}
+        <noscript><style>.footer-collapsible { display: flex !important; } @media (max-width: 767px) { .project-search-form { display: block !important; } .project-search-trigger { display: none !important; } }</style></noscript>
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
 

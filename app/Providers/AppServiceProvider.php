@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +27,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureRateLimiting();
+    }
+
+    /**
+     * Named rate limiters for public endpoints.
+     */
+    protected function configureRateLimiting(): void
+    {
+        // SEO-ANA-006: browser error reports, 10/min/IP.
+        RateLimiter::for('client-errors', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
     }
 
     /**

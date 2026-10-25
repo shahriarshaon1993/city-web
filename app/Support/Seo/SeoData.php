@@ -129,6 +129,26 @@ final class SeoData
     }
 
     /**
+     * The LCP image of a block page: the first block's hero image, video
+     * poster (HERO-021) or first slide (CMP-HERO-03); none for other blocks.
+     *
+     * @param  list<array<string, mixed>>  $blocks  DM-BLOCK shape
+     */
+    public function lcpFromBlocks(array $blocks): self
+    {
+        $first = $blocks[0] ?? null;
+
+        if (($first['type'] ?? null) !== 'hero' || ! is_array($first['data'] ?? null)) {
+            return $this->lcp(null);
+        }
+
+        $hero = $first['data'];
+        $media = $hero['mode'] === 'slider' ? ($hero['slides'][0] ?? []) : $hero;
+
+        return $this->lcp($media['image'] ?? null, $media['mobile_image'] ?? null);
+    }
+
+    /**
      * @param  list<array<string, mixed>>  $graph  `[]` until 19.1
      */
     public function jsonLd(array $graph): self

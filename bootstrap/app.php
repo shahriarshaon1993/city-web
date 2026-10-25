@@ -25,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // SEO-ANA-006: error beacons carry no token; the endpoint only writes to the log.
+        $middleware->preventRequestForgery(except: ['internal/client-errors']);
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

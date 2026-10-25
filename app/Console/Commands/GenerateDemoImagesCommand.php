@@ -44,9 +44,10 @@ final class GenerateDemoImagesCommand extends Command
         }
 
         $this->components->info(sprintf(
-            '%d converted, %d unchanged, %d stale folder(s) removed. Manifest: %s',
+            '%d converted, %d unchanged, %d video(s), %d stale folder(s) removed. Manifest: %s',
             $result['converted'],
             $result['reused'],
+            $result['videos'],
             $result['removed'],
             DemoMedia::manifestPath(),
         ));

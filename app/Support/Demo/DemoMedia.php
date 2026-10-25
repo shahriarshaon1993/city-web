@@ -37,6 +37,8 @@ use Illuminate\Support\Facades\File;
  *     sources: array{avif: string|null, webp: string, jpeg: string|null},
  *     fallback: string
  * }
+ * @phpstan-type VideoEntry array{dir: string, mp4: string, webm: string|null}
+ * @phpstan-type MediaVideo array{mp4: string, webm: string|null}
  */
 final class DemoMedia
 {
@@ -45,6 +47,9 @@ final class DemoMedia
 
     /** @var array<string, ManifestEntry>|null */
     private static ?array $entries = null;
+
+    /** @var array<string, VideoEntry>|null */
+    private static ?array $videos = null;
 
     public static function sourcePath(string $path = ''): string
     {
@@ -105,6 +110,27 @@ final class DemoMedia
     }
 
     /**
+     * The hero video under "video/{file name}" (`MediaVideo` in types/site.ts,
+     * HERO-020); null until a video is placed in storage/app/demo-src/video/.
+     *
+     * @return MediaVideo|null
+     */
+    public static function video(string $key): ?array
+    {
+        self::entries();
+        $entry = self::$videos[$key] ?? null;
+
+        if ($entry === null) {
+            return null;
+        }
+
+        return [
+            'mp4' => self::url($entry['mp4']),
+            'webm' => $entry['webm'] === null ? null : self::url($entry['webm']),
+        ];
+    }
+
+    /**
      * Keys of all generated images, optionally of one group ("projects").
      *
      * @return list<string>
@@ -131,7 +157,10 @@ final class DemoMedia
 
             /** @var array<string, ManifestEntry> $images */
             $images = is_array($manifest) ? ($manifest['images'] ?? []) : [];
+            /** @var array<string, VideoEntry> $videos */
+            $videos = is_array($manifest) ? ($manifest['videos'] ?? []) : [];
             self::$entries = $images;
+            self::$videos = $videos;
         }
 
         return self::$entries;
@@ -143,6 +172,7 @@ final class DemoMedia
     public static function flush(): void
     {
         self::$entries = null;
+        self::$videos = null;
     }
 
     /**

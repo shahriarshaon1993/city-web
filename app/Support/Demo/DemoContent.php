@@ -80,6 +80,18 @@ final class DemoContent
             'gsc_verification' => null,
             'bing_verification' => null,
         ],
+        // cms.md §8.2 Search; band labels are HERO-040's defaults.
+        'search' => [
+            'size_bands' => [
+                ['label' => '< 1,200 sft', 'min' => null, 'max' => 1200],
+                ['label' => '1,200–1,600 sft', 'min' => 1200, 'max' => 1600],
+                ['label' => '1,600–2,000 sft', 'min' => 1600, 'max' => 2000],
+                ['label' => '2,000–2,500 sft', 'min' => 2000, 'max' => 2500],
+                ['label' => '2,500+ sft', 'min' => 2500, 'max' => null],
+            ],
+            'price_filter_min_projects' => 5,
+            'results_per_page' => 12,
+        ],
         'motion' => [
             'animations_enabled' => true,
             'smooth_scroll_enabled' => true,
@@ -135,6 +147,17 @@ final class DemoContent
     ];
 
     /**
+     * Areas outside Dhaka for the search widget's city groups (HERO-040);
+     * placeholders like TOP_AREAS: name, slug, published project count, city.
+     *
+     * @var list<array{0: string, 1: string, 2: int, 3: string}>
+     */
+    private const array OTHER_AREAS = [
+        ['Khulshi', 'khulshi', 1, 'Chattogram'],
+        ['Panchlaish', 'panchlaish', 1, 'Chattogram'],
+    ];
+
+    /**
      * DM-OFF rows (spec/social.md); placeholder addresses until the client's arrive.
      *
      * @var list<array<string, mixed>>
@@ -174,7 +197,7 @@ final class DemoContent
     private const array PAGES = [
         'home' => [
             'title' => 'Gemcon City',
-            'intro' => 'Website foundation — the home page arrives in phase 2.',
+            'intro' => 'The home page blocks below the hero (featured projects, segments, stats, news) arrive in phases 2.2 and 2.3.',
             'description' => '',
         ],
         'about' => [
@@ -358,6 +381,70 @@ final class DemoContent
     }
 
     /**
+     * The home page blocks (DM-BLOCK shape, types/blocks.ts). Only the hero
+     * exists so far; 2.2/2.3 add the rest of LAY-HOME. `$variant` switches
+     * the hero for the local previews at /styleguide/hero/{variant}.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function homeBlocks(string $variant = 'image'): array
+    {
+        return [self::block(1, 'hero', self::hero($variant))];
+    }
+
+    /**
+     * CMP-SEARCH-01 options (ProjectSearchOptions in types/search.ts):
+     * values are FR-SRCH-002 query values, `url` the clean landing page a
+     * single facet goes to (HERO-041, FR-SRCH-008).
+     *
+     * @return array<string, mixed>
+     */
+    public static function projectSearch(): array
+    {
+        $option = fn (string $value, string $label, ?string $url): array => ['value' => $value, 'label' => $label, 'url' => $url];
+        // Facet URL slugs use hyphens (`handed-over`); awaiting owner confirmation (see menus()).
+        $slug = fn (string $value): string => str_replace('_', '-', $value);
+
+        $cities = [];
+        $areas = [...array_map(fn (array $area): array => [...$area, 'Dhaka'], self::TOP_AREAS), ...self::OTHER_AREAS];
+
+        foreach ($areas as [$name, $areaSlug, , $city]) {
+            $cities[$city][] = $option($areaSlug, $name, '/locations/'.$areaSlug);
+        }
+
+        return [
+            'action' => '/projects',
+            'segments' => array_map(
+                fn (string $value): array => $option($value, self::SEGMENT_LABELS[$value], '/projects/type/'.$slug($value)),
+                ['residential', 'commercial', 'land'],
+            ),
+            'statuses' => array_map(
+                fn (string $value): array => $option($value, self::LIFECYCLE_LABELS[$value], '/projects/status/'.$slug($value)),
+                array_keys(self::LIFECYCLE_LABELS),
+            ),
+            'cities' => array_map(
+                fn (string $city, array $cityAreas): array => ['city' => $city, 'areas' => $cityAreas],
+                array_keys($cities),
+                array_values($cities),
+            ),
+            // DEC-42: one `size` value "{min}-{max}" so the no-JS form can submit it.
+            'sizes' => array_map(
+                fn (array $band): array => [
+                    'value' => $band['min'].'-'.$band['max'],
+                    'label' => $band['label'],
+                    'min' => $band['min'],
+                    'max' => $band['max'],
+                ],
+                self::settings('search')['size_bands'],
+            ),
+            'beds' => array_map(
+                fn (int $beds): array => $option((string) $beds, $beds === 5 ? '5+ beds' : $beds.' '.($beds === 1 ? 'bed' : 'beds'), null),
+                range(1, 5),
+            ),
+        ];
+    }
+
+    /**
      * Project cards (ProjectCard in types/site.ts), optionally featured only.
      *
      * @return list<array<string, mixed>>
@@ -488,6 +575,76 @@ final class DemoContent
                 $item('Contact', '/contact'),
                 $item('Book a site visit', '/contact'),
             ],
+        ];
+    }
+
+    /**
+     * Hero block data (spec/hero.md §6.2–6.4, HeroBlockData in types/blocks.ts).
+     *
+     * @return array<string, mixed>
+     */
+    private static function hero(string $variant): array
+    {
+        $hero = [
+            'mode' => 'single',
+            'media_type' => 'image',
+            'image' => DemoMedia::image('hero/hero-01'),
+            'mobile_image' => DemoMedia::image('hero/hero-01-mobile'),
+            'video' => null,
+            'slides' => [],
+            'autoplay' => false,
+            'eyebrow' => 'Gemcon City Limited',
+            'headline' => 'Homes and workplaces built to last',
+            'subheadline' => 'Apartments, commercial spaces and land projects in Dhaka with clear titles, honest timelines and after-sales care.',
+            'primary_cta' => ['label' => 'Explore projects', 'url' => '/projects', 'new_tab' => false],
+            'secondary_cta' => ['label' => 'Book a site visit', 'url' => '/contact', 'new_tab' => false],
+            'overlay_opacity' => 45,
+            'overlay_style' => 'gradient-bottom',
+            'text_align' => 'left',
+            'show_search' => true,
+            'height' => 'full',
+        ];
+
+        $hero = match ($variant) {
+            // The poster follows HERO-010…014 and stays the LCP element (HERO-021).
+            'video' => [...$hero, 'media_type' => 'video', 'video' => DemoMedia::video('video/hero')],
+            // Autoplay is on here only so the pause control can be tested (HERO-003 default: off).
+            'slider' => [...$hero, 'mode' => 'slider', 'autoplay' => true, 'slides' => [
+                ['image' => DemoMedia::image('hero/hero-01'), 'mobile_image' => DemoMedia::image('hero/hero-01-mobile')],
+                ['image' => DemoMedia::image('hero/hero-02'), 'mobile_image' => null],
+                ['image' => DemoMedia::image('hero/hero-03'), 'mobile_image' => null],
+            ]],
+            'centered' => [
+                ...$hero,
+                'text_align' => 'center',
+                'overlay_style' => 'solid',
+                'overlay_opacity' => 55,
+                'height' => 'large',
+                'show_search' => false,
+                'secondary_cta' => null,
+            ],
+            default => $hero,
+        };
+
+        return [...$hero, 'search' => $hero['show_search'] ? self::projectSearch() : null];
+    }
+
+    /**
+     * DM-BLOCK envelope (CMS-PB-001).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private static function block(int $id, string $type, array $data): array
+    {
+        return [
+            'id' => $id,
+            'type' => $type,
+            'anchor_id' => null,
+            'background' => 'default',
+            'spacing' => 'none',
+            'animate' => true,
+            'data' => $data,
         ];
     }
 
