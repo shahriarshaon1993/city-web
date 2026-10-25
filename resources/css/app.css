@@ -643,9 +643,27 @@
     pointer-events: none;
 }
 
+/* Footer arrow (ProjectCardPrice): the disc fills from its centre on hover. */
+.card-arrow-fill {
+    transform: scale(0);
+}
+
+@media (hover: hover) {
+    .project-card:hover .card-arrow-fill {
+        transform: scale(1);
+    }
+}
+
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
     .project-card {
         transition: transform var(--dur-base) var(--ease-standard);
+    }
+    .card-arrow-fill,
+    .card-arrow-icon {
+        transition: transform var(--dur-base) var(--ease-standard);
+    }
+    .project-card:hover .card-arrow-icon {
+        transform: translate(1px, -1px);
     }
     .project-card::before {
         transition: opacity var(--dur-base) var(--ease-standard);

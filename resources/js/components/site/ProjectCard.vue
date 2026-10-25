@@ -1,25 +1,19 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Bath, BedDouble, LandPlot, Ruler } from '@lucide/vue';
-import type { Component } from 'vue';
+import { MapPin } from '@lucide/vue';
 import { computed } from 'vue';
-import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
+import ProjectCardFacts from '@/components/site/project-card/ProjectCardFacts.vue';
+import ProjectCardMedia from '@/components/site/project-card/ProjectCardMedia.vue';
+import ProjectCardPrice from '@/components/site/project-card/ProjectCardPrice.vue';
 import ShortlistHeart from '@/components/site/ShortlistHeart.vue';
-import { Badge } from '@/components/ui/badge';
-import {
-    formatBdtCompact,
-    formatKatha,
-    formatNumber,
-    formatSftRange,
-} from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { ProjectCard } from '@/types/site';
 
 // CMP-CARD-01. One link (the name, stretched over the card); the heart is a
-// separate button above it. Facts are a <dl>, never headings. The price shows
-// only when the server sent one (AC-PROJ-01). `featured` spans two grid
-// columns ≥ 1280 — the parent grid item sets the span. Compare (FR-SHORT-003)
-// arrives in 8.3; tilt (MOT-TILT) in 3.2.
+// separate button above it. `default`/`horizontal`/`mini` set the photo in a
+// matte frame; `featured` is an editorial card with the facts over the photo,
+// so it fills its two grid columns ≥ 1280 (the parent sets the span) at the
+// height of its row. Compare (FR-SHORT-003) arrives in 8.3; tilt in 3.2.
 const props = withDefaults(
     defineProps<{
         project: ProjectCard;
@@ -34,178 +28,158 @@ const props = withDefaults(
     },
 );
 
-type Fact = { key: string; label: string; icon: Component; value: string };
-
-function range(min: number | null, max: number | null): string | null {
-    if (min === null) {
-        return null;
-    }
-
-    return max === null || max === min
-        ? formatNumber(min)
-        : `${formatNumber(min)}–${formatNumber(max)}`;
-}
-
-const facts = computed<Fact[]>(() => {
-    const p = props.project;
-    const list: Fact[] = [];
-    const beds = range(p.beds_min, p.beds_max);
-    const baths = range(p.baths_min, p.baths_max);
-
-    if (p.size_min_sft !== null) {
-        list.push({
-            key: 'size',
-            label: 'Size',
-            icon: Ruler,
-            value: formatSftRange(p.size_min_sft, p.size_max_sft),
-        });
-    }
-
-    if (beds !== null) {
-        list.push({
-            key: 'beds',
-            label: 'Bedrooms',
-            icon: BedDouble,
-            value: `${beds} ${p.beds_max === 1 ? 'bed' : 'beds'}`,
-        });
-    }
-
-    if (baths !== null) {
-        list.push({
-            key: 'baths',
-            label: 'Bathrooms',
-            icon: Bath,
-            value: `${baths} ${p.baths_max === 1 ? 'bath' : 'baths'}`,
-        });
-    }
-
-    if (p.land_katha !== null) {
-        list.push({
-            key: 'land',
-            label: 'Land',
-            icon: LandPlot,
-            value: formatKatha(p.land_katha),
-        });
-    }
-
-    return list;
-});
-
+const featured = computed(() => props.variant === 'featured');
 const horizontal = computed(() => props.variant === 'horizontal');
+const mini = computed(() => props.variant === 'mini');
+
+const shell =
+    'project-card group/card relative flex h-full rounded-2xl has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring has-[a:focus-visible]:outline-solid';
+const stretchedLink =
+    "outline-none after:absolute after:inset-0 after:rounded-2xl after:content-['']";
 </script>
 
 <template>
+    <!-- Featured: the photo sits below the text (-z-10 inside `isolate`) so
+         the link's overlay still spans the whole card. -->
     <article
+        v-if="featured"
         :class="
             cn(
-                'project-card group/card @container relative flex h-full rounded-lg bg-card text-card-foreground shadow-xs ring-1 ring-border has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring has-[a:focus-visible]:outline-solid',
-                horizontal ? 'flex-row' : 'flex-col',
+                shell,
+                'isolate min-h-112 flex-col justify-end overflow-hidden bg-stone-900 text-white shadow-sm',
                 props.class,
             )
         "
     >
-        <div
-            :class="
-                cn(
-                    'relative shrink-0 overflow-hidden',
-                    horizontal ? 'w-2/5 rounded-l-lg' : 'rounded-t-lg',
-                )
-            "
+        <ProjectCardMedia
+            :project="project"
+            fill
+            :with-heart="false"
+            class="absolute inset-0 -z-10"
         >
-            <ResponsiveImage
-                :image="project.cover"
-                preset="project-card"
-                img-class="media-zoom"
-            />
             <div
-                class="pointer-events-none absolute top-3 left-3 flex flex-wrap gap-1.5 pr-14"
-            >
-                <Badge variant="lifecycle" :value="project.lifecycle" on-media>
-                    {{ project.lifecycle_label }}
-                </Badge>
-                <Badge
-                    v-if="
-                        project.booking_state !== 'none' &&
-                        project.booking_label
-                    "
-                    variant="booking"
-                    :value="project.booking_state"
-                    on-media
-                >
-                    {{ project.booking_label }}
-                </Badge>
-            </div>
-            <ShortlistHeart
-                :project-id="project.id"
-                :project-name="project.name"
-                class="absolute top-2 right-2 z-(--z-raised)"
+                class="absolute inset-0 bg-(image:--gradient-hero-bottom) [--overlay:0.92]"
+                aria-hidden="true"
             />
-        </div>
+        </ProjectCardMedia>
+        <ShortlistHeart
+            :project-id="project.id"
+            :project-name="project.name"
+            class="absolute top-3 right-3 z-(--z-raised) backdrop-blur-sm"
+        />
 
         <div
-            :class="
-                cn(
-                    'flex min-w-0 flex-1 flex-col gap-3',
-                    variant === 'mini' ? 'p-4' : 'p-5',
-                )
-            "
+            class="flex flex-col gap-5 p-5 [text-shadow:0_1px_2px_rgb(0_0_0/0.35)] sm:p-7"
         >
-            <div class="flex flex-col gap-1.5">
-                <p class="text-overline text-muted-foreground uppercase">
+            <div class="flex max-w-xl flex-col gap-2">
+                <p
+                    class="flex items-center gap-1.5 text-overline text-white/80 uppercase"
+                >
+                    <MapPin class="size-3.5 shrink-0" aria-hidden="true" />
                     {{ project.location.area }}, {{ project.location.city }}
                 </p>
-                <component
-                    :is="headingAs"
-                    :class="
-                        cn(
-                            'text-balance',
-                            variant === 'featured' ? 'text-h3' : 'text-h4',
-                        )
-                    "
-                >
+                <component :is="headingAs" class="text-h3 text-balance">
                     <Link
                         :href="project.url"
-                        class="outline-none group-hover/card:text-primary after:absolute after:inset-0 after:rounded-lg after:content-['']"
+                        :class="
+                            cn(
+                                stretchedLink,
+                                'decoration-white/50 decoration-1 underline-offset-[6px] group-hover/card:underline',
+                            )
+                        "
                     >
                         {{ project.name }}
                     </Link>
                 </component>
             </div>
+            <ProjectCardFacts :project="project" tone="media" />
+            <ProjectCardPrice :project="project" tone="media" />
+        </div>
+    </article>
 
-            <dl
-                v-if="variant !== 'mini' && facts.length > 0"
-                class="flex flex-wrap gap-x-4 gap-y-2 text-sm"
+    <article
+        v-else
+        :class="
+            cn(
+                shell,
+                'flex-col bg-card p-2 text-card-foreground shadow-xs ring-1 ring-border',
+                props.class,
+            )
+        "
+    >
+        <div :class="cn('flex flex-1 flex-col', horizontal && '@container')">
+            <div
+                :class="
+                    cn(
+                        'flex flex-1 flex-col',
+                        horizontal && '@min-[28rem]:flex-row',
+                    )
+                "
             >
-                <div
-                    v-for="fact in facts"
-                    :key="fact.key"
-                    class="flex items-center gap-1.5 @max-[340px]:basis-[calc(50%-0.5rem)]"
-                >
-                    <dt>
-                        <component
-                            :is="fact.icon"
-                            class="size-4 text-muted-foreground"
-                            aria-hidden="true"
-                        />
-                        <span class="sr-only">{{ fact.label }}</span>
-                    </dt>
-                    <dd class="tabular font-medium">{{ fact.value }}</dd>
-                </div>
-            </dl>
+                <ProjectCardMedia
+                    :project="project"
+                    :fill="horizontal"
+                    :class="
+                        cn(
+                            'shrink-0 rounded-xl',
+                            horizontal &&
+                                'aspect-4/3 @min-[28rem]:aspect-auto @min-[28rem]:min-h-52 @min-[28rem]:w-2/5',
+                        )
+                    "
+                />
 
-            <div class="mt-auto border-t pt-3">
-                <p
-                    v-if="project.price_from_bdt !== null"
-                    class="flex items-baseline gap-1.5"
+                <div
+                    :class="
+                        cn(
+                            'flex min-w-0 flex-1 flex-col',
+                            mini
+                                ? 'gap-3 px-2 pt-3 pb-1'
+                                : 'gap-4 px-3 pt-4 pb-2',
+                            horizontal && '@min-[28rem]:px-5 @min-[28rem]:py-3',
+                        )
+                    "
                 >
-                    <span class="text-sm text-muted-foreground">From</span>
-                    <span class="tabular font-display text-price">
-                        {{ formatBdtCompact(project.price_from_bdt) }}
-                    </span>
-                </p>
-                <p v-else class="text-sm text-muted-foreground">
-                    {{ project.price_note ?? 'Price on request' }}
-                </p>
+                    <div class="flex flex-col gap-1.5">
+                        <p
+                            class="flex items-center gap-1.5 text-overline text-muted-foreground uppercase"
+                        >
+                            <MapPin
+                                class="size-3.5 shrink-0 text-primary"
+                                aria-hidden="true"
+                            />
+                            <span class="truncate">
+                                {{ project.location.area }},
+                                {{ project.location.city }}
+                            </span>
+                        </p>
+                        <component
+                            :is="headingAs"
+                            :class="
+                                cn('text-balance', mini ? 'text-lg' : 'text-h4')
+                            "
+                        >
+                            <Link
+                                :href="project.url"
+                                :class="
+                                    cn(
+                                        stretchedLink,
+                                        'transition-colors duration-(--dur-fast) group-hover/card:text-primary',
+                                    )
+                                "
+                            >
+                                {{ project.name }}
+                            </Link>
+                        </component>
+                    </div>
+
+                    <ProjectCardFacts v-if="!mini" :project="project" />
+
+                    <ProjectCardPrice
+                        :project="project"
+                        :compact="mini"
+                        class="mt-auto"
+                    />
+                </div>
             </div>
         </div>
     </article>

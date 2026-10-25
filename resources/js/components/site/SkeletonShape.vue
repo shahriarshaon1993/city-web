@@ -20,20 +20,24 @@ const props = defineProps<{
         aria-hidden="true"
         :class="
             cn(
-                'flex flex-col overflow-hidden rounded-lg border bg-card',
+                'flex flex-col rounded-2xl bg-card p-2 ring-1 ring-border',
                 props.class,
             )
         "
     >
-        <Skeleton class="aspect-4/3 w-full rounded-none" />
-        <div class="flex flex-col gap-3 p-5">
-            <Skeleton class="h-5.5 w-24 rounded-full" />
-            <Skeleton class="h-6 w-3/4 rounded-sm" />
-            <Skeleton class="h-4 w-1/2 rounded-xs" />
-            <div class="mt-2 flex gap-4">
-                <Skeleton class="h-4 w-16 rounded-xs" />
-                <Skeleton class="h-4 w-16 rounded-xs" />
-                <Skeleton class="h-4 w-16 rounded-xs" />
+        <Skeleton class="aspect-4/3 w-full rounded-xl" />
+        <div class="flex flex-col gap-4 px-3 pt-4 pb-2">
+            <div class="flex flex-col gap-2">
+                <Skeleton class="h-3.5 w-36 rounded-xs" />
+                <Skeleton class="h-6 w-3/4 rounded-sm" />
+            </div>
+            <Skeleton class="h-15 w-full rounded-lg" />
+            <div class="flex items-center justify-between">
+                <div class="flex flex-col gap-1.5">
+                    <Skeleton class="h-3 w-20 rounded-xs" />
+                    <Skeleton class="h-6 w-28 rounded-sm" />
+                </div>
+                <Skeleton class="size-11 rounded-full" />
             </div>
         </div>
     </div>
