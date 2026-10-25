@@ -7,6 +7,11 @@ Route::inertia('/', 'Site/Home', [
     'lead' => 'Website foundation — phase 0.1.',
 ])->name('home');
 
+// Phase 0.2 UI kit reference; never registered outside local.
+if (app()->isLocal()) {
+    Route::inertia('styleguide', 'Site/Styleguide')->name('styleguide');
+}
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });

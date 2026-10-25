@@ -10,8 +10,10 @@ const props = defineProps<SkeletonProps>()
 </script>
 
 <template>
+  <!-- design §5.4: --muted block, radius of the element it stands for, MOT-SKELETON shimmer -->
   <div
     data-slot="skeleton"
-    :class="cn('animate-pulse rounded-md bg-primary/10', props.class)"
+    aria-hidden="true"
+    :class="cn('skeleton-shimmer rounded-md bg-muted', props.class)"
   />
 </template>

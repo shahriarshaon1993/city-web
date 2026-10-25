@@ -6,7 +6,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | ID   | Sub-phase                                                                  | Deps           | Status |
 | ---- | -------------------------------------------------------------------------- | -------------- | ------ |
 | 0.1  | Project setup, packages, public/admin entries                              | —              | ✅     |
-| 0.2  | Design tokens & UI kit I (buttons, badges, controls, styleguide)           | 0.1            | ⬜     |
+| 0.2  | Design tokens & UI kit I (buttons, badges, controls, styleguide)           | 0.1            | ✅     |
 | 0.3  | Images, formatters & props contract                                        | 0.2            | ⬜     |
 | 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ⬜     |
 | 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ⬜     |
@@ -90,6 +90,17 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 0.1 · **Read:** design/foundations.md §1, §2 (all), §3.2, §4, §13 (token code); design/components.md CMP-BTN-01, CMP-BADGE-01, CMP-FORM-01 (look and states only), CMP-EMPTY-01, CMP-SKEL-01, CMP-TABS-01, CMP-ACC-01, CMP-TOAST-01; design/patterns.md A11Y-D01, A11Y-D04.
 **Build:** `resources/css/app.css` replaced by DESIGN §13 (starter tokens removed). shadcn-vue components via CLI: button, badge, input, textarea, label, select, checkbox, radio-group, switch, tabs, accordion, skeleton, dialog, sheet, popover, tooltip, toggle-group, sonner. Revert any version bumps the CLI makes in `package.json`/lock. Button variants `primary/accent/secondary/outline/ghost/link/glow/on-media`, sizes `sm/md/lg/icon`, loading state. Badge `lifecycle/booking/featured/neutral`. `components/site/EmptyState`, skeleton shapes. Local-only `/styleguide` page (route registered only when `app()->isLocal()`): colour scales, semantic tokens in light and `.theme-dark`, type scale, buttons, badges, controls (all states), tabs, accordion, toast.
 **Test:** `/styleguide` at 360/768/1440; colours match foundations §2.2 (coral CTA `#B8432C`, teal `#027685`); Tab through every control (2 px teal ring; coral ring inside `.theme-dark`); loading button keeps its width; disabled controls 50%; text never below 13 px.
+
+**Done notes (2026-10-25):**
+- Tokens: `resources/css/app.css` = foundations §13 + DEC-36 additions; fixed values in `@theme static` (all emitted), semantic in `@theme inline`. `cn()` (`lib/utils.ts`) knows the custom text sizes — add any new `text-*` token there too.
+- `Button`: variants primary/accent/secondary/outline/ghost/link/glow/on-media/destructive, sizes sm/md(default)/lg/icon/icon-sm; `loading` prop; put a leading icon in `#icon` so the spinner can replace it. Hover uses `hover:not-disabled:`.
+- `Badge`: `variant` (lifecycle/booking/status/featured/neutral) + `value` (enum), `size`, `on-media`, `dot`. Types `LifecycleValue`/`BookingValue`/`PublishStatusValue` exported from `ui/badge`.
+- Text controls share `fieldControlClass` (+ `fieldReadOnlyClass` for real fields only — `:read-only` matches buttons) from `ui/input`. `Label required` renders "*" + sr-only "(required)". Checkbox/radio/switch have a 44 px hit area via `after:`.
+- `TabsList variant="underline|pill"` (Reka `TabsIndicator`); `AccordionHeader` renders `h3` — pass `as` where the outline needs another level.
+- Toasts: always `notify.*` from `lib/toast.ts` (durations); `<Toaster />` (ui/sonner) handles position/max 3. Errors lack `role="alert"` (vue-sonner limit). Public layout (1.1) must mount `<Toaster />` and `<TooltipProvider>`.
+- `components/site/EmptyState.vue` (copy via props, `titleAs` default `p`), `SkeletonShape.vue` (5 shapes, `skeleton-shimmer` utility).
+- `/styleguide` (local only, `Site/Styleguide`). Glow rotation (MOT-GLOW) left for 3.2. Admin starter buttons/inputs now 44 px until 10.2.
+- shadcn CLI: bumps `package.json` ranges, adds a `cn` package and imports `cn` from `"cn"` — revert and fix to `@/lib/utils` after every `add`.
 
 ### 0.3 — Images, formatters & props contract
 

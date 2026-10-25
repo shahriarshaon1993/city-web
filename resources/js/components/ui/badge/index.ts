@@ -3,23 +3,51 @@ import { cva } from "class-variance-authority"
 
 export { default as Badge } from "./Badge.vue"
 
+export type LifecycleValue = "upcoming" | "ongoing" | "ready" | "handed_over"
+export type BookingValue = "booking_open" | "limited_units" | "sold_out"
+export type PublishStatusValue = "draft" | "scheduled" | "published" | "archived" | "pending_revision"
+export type BadgeVariant = "lifecycle" | "booking" | "status" | "featured" | "neutral"
+export type BadgeValue = LifecycleValue | BookingValue | PublishStatusValue
+
+// CMP-BADGE-01: -50 background + -700/-800 text (design §2.6). Text is always
+// present, colour is never the only signal.
 export const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full font-medium [&>svg]:pointer-events-none [&>svg]:size-3.5",
   {
     variants: {
-      variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-         "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+      tone: {
+        upcoming: "bg-info-50 text-info-700",
+        ongoing: "bg-teal-50 text-teal-700",
+        ready: "bg-success-50 text-success-700",
+        handed_over: "bg-stone-100 text-stone-700",
+        booking_open: "bg-coral-50 text-coral-800",
+        limited_units: "bg-warning-50 text-warning-700",
+        sold_out: "bg-stone-200 text-stone-800",
+        draft: "bg-stone-100 text-stone-700",
+        scheduled: "bg-info-50 text-info-700",
+        published: "bg-success-50 text-success-700",
+        archived: "bg-stone-200 text-stone-600",
+        pending_revision: "bg-warning-50 text-warning-700",
+        featured: "bg-coral-600 text-white",
+        neutral: "bg-stone-100 text-stone-700",
+      },
+      size: {
+        sm: "h-[22px] px-2 text-xs",
+        md: "h-[26px] px-2.5 text-sm",
+      },
+      onMedia: {
+        true: "",
+        false: "",
       },
     },
+    compoundVariants: [
+      // On photos: white/90% background, text colour kept.
+      { onMedia: true, tone: ["upcoming", "ongoing", "ready", "handed_over", "booking_open", "limited_units", "sold_out", "neutral"], class: "bg-white/90 shadow-xs" },
+    ],
     defaultVariants: {
-      variant: "default",
+      tone: "neutral",
+      size: "sm",
+      onMedia: false,
     },
   },
 )
