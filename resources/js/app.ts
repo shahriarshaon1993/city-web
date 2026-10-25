@@ -21,4 +21,10 @@ void createInertiaApp({
         return (await page()).default;
     },
     layout: () => SiteLayout,
+    // MOT-PAGE: coral-500 bar after 150 ms (same delay as the main dim).
+    progress: {
+        color: 'var(--coral-500)',
+        delay: 150,
+        showSpinner: false,
+    },
 });

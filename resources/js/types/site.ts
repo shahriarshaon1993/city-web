@@ -180,13 +180,49 @@ export type SiteInfo = {
         newsletter: boolean;
         copyright: string;
         show_parent_company: boolean;
+        newsletter_title: string;
+        newsletter_text: string;
     };
+};
+
+/** DM-OFF (OfficeResource). */
+export type Office = {
+    id: number;
+    name: string;
+    address: string;
+    city: string;
+    postal_code: string | null;
+    /** E.164. */
+    phones: string[];
+    email: string | null;
+    hours: { days: string[]; opens: string; closes: string }[];
+    latitude: number;
+    longitude: number;
+    is_head_office: boolean;
+};
+
+/** `footer` shared prop (CMP-FOOT-01). */
+export type FooterInfo = {
+    /** Headings (menu names) of the `footer_1…4` menus, in order. */
+    columns: { menu: MenuKey; heading: string }[];
+    offices_heading: string;
+    offices: Office[];
+    locations_heading: string;
+    /** Top 8 areas (SEO-ONP-005). */
+    locations: MenuItem[];
+};
+
+/** CMP-BREAD-01: Home first; the current page last, `url` null. */
+export type Breadcrumb = {
+    label: string;
+    url: string | null;
 };
 
 /** Shared props of every public page (ARC-003, HandleInertiaRequests). */
 export type SiteShared = {
     site: SiteInfo;
     menus: Record<MenuKey, MenuItem[]>;
+    footer: FooterInfo;
     seo: Seo;
     ui: {
         /** Settings → Motion (MOT-R03). */
@@ -208,4 +244,23 @@ export type SiteShared = {
 export type SitePageProps = SiteShared & {
     /** CMP-HEAD-01: the first block is a hero, so the header may start transparent. */
     starts_with_hero?: boolean;
+};
+
+export type ErrorStatus = 404 | 410 | 419 | 429 | 500 | 503;
+
+/**
+ * `Site/Error` props (PG-26, App\Support\Errors\ErrorPage). With `minimal`
+ * (500/503) only `site` and `seo` of the shared props are present.
+ */
+export type ErrorPageProps = {
+    status: ErrorStatus;
+    title: string;
+    message: string;
+    /** 503 only: expected return time. */
+    retry_text: string | null;
+    /** 404 only: PG-19 site search. */
+    search: { action: string; name: string; min_length: number } | null;
+    /** 404 only. */
+    popular: { heading: string; projects: ProjectCard[] } | null;
+    minimal: boolean;
 };

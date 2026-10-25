@@ -10,7 +10,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 0.3  | Images, formatters & props contract                                        | 0.2            | ✅     |
 | 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ✅     |
 | 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ✅     |
-| 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ⬜     |
+| 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ✅     |
 | 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ⬜     |
 | 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ⬜     |
 | 2.3  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.2            | ⬜     |
@@ -156,6 +156,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 1.1 · **Read:** design/components.md CMP-FOOT-01, CMP-BAR-01, CMP-BREAD-01; design/layouts.md LAY-ERROR; design/patterns.md A11Y-D06, UX-11, UX-12; design/motion.md MOT-PAGE (progress bar + dim only); spec/performance-a11y.md SEO-A11Y-003; spec/seo.md SEO-TEC-007; spec/pages.md PG-26.
 **Build:** footer (gradient-dusk, about text, newsletter UI (submits in 7.2), 4 menu columns, offices, top 8 locations, legal menu, © `{year}`, parent-company link, social, "Reduce motion" toggle slot (wired in 3.1); columns become accordions on mobile). `Breadcrumbs` from a page prop. Sticky mobile bar: < 1024 only, appears after the hero, hides while an input has focus and while the footer is visible. Route-change focus + polite announcer. Inertia progress coral-500 after 150 ms; `.is-navigating` dim. Error pages 404/410/419/429/500/503 through Inertia's exception handler (404 = search box + 3 popular projects; 500/503 logo-only header). Toaster mounted.
 **Test:** `/does-not-exist` → branded page with HTTP 404 (Network tab); breadcrumb on a stub page, last item not a link; at 390 px the bar appears after scrolling past the hero and hides when a field is focused; after a navigation the live region contains the new title and focus is on main.
+
+**Done notes (2026-10-25):**
+- Layout order: `SiteHeader`, `main#content`, `SiteFooter` (`#site-footer`), `MobileContactBar`, live region, `Toaster` (offset lifted above the bar at 640–1023 px). `composables/useNavigationFeedback.ts`: focus to main + "Navigated to {seo.title}" on route changes only (skips `preserveState`/`only` visits); `.is-navigating` dim after 150 ms (CSS in `app.css`); progress `var(--coral-500)`, delay 150 in `app.ts`. 3.2 adds the fade-in.
+- Footer: `components/site/footer/{SiteFooter,FooterColumn}`; new once shared prop `footer` (`FooterInfo`: column headings = menu names, offices, top 8 areas) from `DemoContent::footer()`; `site.footer.newsletter_title/text`. Newsletter submit is a placeholder toast until 7.2; `#motion-toggle` slot is empty until 3.1. No-JS: `.footer-collapsible` noscript rule in `app.blade.php`.
+- `components/site/Breadcrumbs.vue` takes the `breadcrumbs` page prop (`App\Support\Seo\Breadcrumbs::to($current, $parents)`); pages render it (not the layout). 19.1 reuses the trail for JSON-LD.
+- `MobileContactBar`: mark the hero element with `data-hero` (2.1 HeroBlock must keep it); no hero → visible at once. 4.3 makes Enquire open the enquiry sheet on PG-04.
+- Errors: `App\Support\Errors\ErrorPage` via `Inertia::handleExceptionsUsing` (bootstrap/app.php) → `Site/Error` (`ErrorPageProps`); 500/503 use `layouts/MinimalLayout.vue` (only `site` + `seo` props). Debug 500 keeps the exception page; previews at local `/styleguide/errors/{status}`. Admin/JSON untouched until 18.2 (`HandleInertiaRequests::isAdminRequest` is now public static).
+- `lib/contact.ts` (`whatsappUrl(e164, text?)`, `socialLinks()`) — use for every WhatsApp/social link. 404 popular projects use an inline card: swap to `ProjectCard` mini in 2.2.
+- Stub route `about.leadership` (`/about/leadership`) until 6.3. DEC-41 records the new settings keys.
 
 ## Phase 2 — Home page
 

@@ -16,9 +16,9 @@ import {
     DialogTrigger,
 } from 'reka-ui';
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue';
-import type { SocialNetwork } from '@/components/site/SocialIcon.vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { socialLinks, whatsappUrl } from '@/lib/contact';
 import { formatPhone } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { MenuItem, SiteShared } from '@/types/site';
@@ -39,26 +39,13 @@ const page = usePage<SiteShared>();
 const site = computed(() => page.props.site);
 const extraItems = computed(() => page.props.menus.mobile_extra);
 
-const socialLinks = computed(() =>
-    (Object.entries(site.value.social) as [SocialNetwork, string][]).filter(
-        ([, url]) => Boolean(url),
-    ),
-);
+const social = computed(() => socialLinks(site.value.social));
 
-const whatsappUrl = computed(() =>
+const whatsapp = computed(() =>
     site.value.contact.whatsapp
-        ? `https://wa.me/${site.value.contact.whatsapp.replace(/\D/g, '')}`
+        ? whatsappUrl(site.value.contact.whatsapp)
         : null,
 );
-
-const socialNames: Record<SocialNetwork, string> = {
-    facebook: 'Facebook',
-    instagram: 'Instagram',
-    linkedin: 'LinkedIn',
-    youtube: 'YouTube',
-    x: 'X',
-    whatsapp: 'WhatsApp',
-};
 
 /** Child links of an item: its children, or its mega link columns. */
 function groupsOf(
@@ -305,9 +292,9 @@ const linkClass =
                             {{ formatPhone(site.contact.hotline) }}
                         </Button>
                         <Button
-                            v-if="whatsappUrl"
+                            v-if="whatsapp"
                             as="a"
-                            :href="whatsappUrl"
+                            :href="whatsapp"
                             target="_blank"
                             rel="noopener"
                             variant="outline"
@@ -323,18 +310,15 @@ const linkClass =
                         </Button>
 
                         <ul
-                            v-if="socialLinks.length > 0"
+                            v-if="social.length > 0"
                             class="mt-2 flex flex-wrap justify-center gap-1"
                         >
-                            <li
-                                v-for="[network, url] in socialLinks"
-                                :key="network"
-                            >
+                            <li v-for="link in social" :key="link.network">
                                 <a
-                                    :href="url"
+                                    :href="link.url"
                                     target="_blank"
                                     rel="noopener"
-                                    :aria-label="socialNames[network]"
+                                    :aria-label="link.label"
                                     :class="
                                         buttonVariants({
                                             variant: 'ghost',
@@ -343,7 +327,7 @@ const linkClass =
                                     "
                                 >
                                     <SocialIcon
-                                        :network="network"
+                                        :network="link.network"
                                         class="size-5"
                                     />
                                 </a>

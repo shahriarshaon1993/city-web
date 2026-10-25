@@ -66,6 +66,11 @@ final class DemoContent
             'newsletter_enabled' => true,
             'copyright_text' => '© {year} Gemcon City Limited. All rights reserved.',
             'show_parent_company' => true,
+            // DEC-41: footer copy keys the spec leaves out.
+            'newsletter_title' => 'Project updates in your inbox',
+            'newsletter_text' => 'New launches, construction progress and offers. No spam, unsubscribe any time.',
+            'offices_heading' => 'Offices',
+            'locations_heading' => 'Popular areas',
         ],
         'seo' => [
             'title_template' => '{title} | Gemcon City',
@@ -79,6 +84,85 @@ final class DemoContent
             'animations_enabled' => true,
             'smooth_scroll_enabled' => true,
             'hero_video_mobile' => false,
+        ],
+        'maintenance' => [
+            'message' => 'We are updating the website and will be back shortly. For urgent enquiries please call our hotline.',
+        ],
+        // PG-26 editable copy (DEC-41): `{status}_title` is the H1, `{status}_message` the text below it.
+        'errors' => [
+            '404_title' => 'We could not find that page',
+            '404_message' => 'The page may have moved or no longer exists. Try a search, or start from one of our popular projects.',
+            '410_title' => 'This page is no longer available',
+            '410_message' => 'The project, article or job you were looking for has been removed.',
+            '419_title' => 'This page has expired',
+            '419_message' => 'For your security the form timed out. Please reload the page and try again.',
+            '429_title' => 'Too many requests',
+            '429_message' => 'Please wait a moment before trying again.',
+            '500_title' => 'Something went wrong',
+            '500_message' => 'We have been notified and are fixing it. Please try again in a few minutes.',
+            '503_title' => 'We will be right back',
+            'popular_heading' => 'Popular projects',
+        ],
+    ];
+
+    /**
+     * DM-MENU names, used as footer column headings.
+     *
+     * @var array<string, string>
+     */
+    private const array MENU_NAMES = [
+        'footer_1' => 'Projects',
+        'footer_2' => 'Company',
+        'footer_3' => 'Buyers & landowners',
+        'footer_4' => 'Tools',
+    ];
+
+    /**
+     * `auto:locations` and the footer's top 8 areas (CMS-NAV-003,
+     * SEO-ONP-005): name, slug, published project count.
+     *
+     * @var list<array{0: string, 1: string, 2: int}>
+     */
+    private const array TOP_AREAS = [
+        ['Bashundhara R/A', 'bashundhara-ra', 6],
+        ['Gulshan', 'gulshan', 5],
+        ['Banani', 'banani', 4],
+        ['Baridhara', 'baridhara', 3],
+        ['Dhanmondi', 'dhanmondi', 3],
+        ['Uttara', 'uttara', 2],
+        ['Mirpur', 'mirpur', 2],
+        ['Mohammadpur', 'mohammadpur', 1],
+    ];
+
+    /**
+     * DM-OFF rows (spec/social.md); placeholder addresses until the client's arrive.
+     *
+     * @var list<array<string, mixed>>
+     */
+    private const array OFFICES = [
+        [
+            'name' => 'Head office',
+            'address' => 'House 00, Road 00, Gulshan 2',
+            'city' => 'Dhaka',
+            'postal_code' => '1212',
+            'phones' => ['+8809600000000'],
+            'email' => 'info@gemconcity.com',
+            'hours' => [['days' => ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'], 'opens' => '09:30', 'closes' => '18:30']],
+            'latitude' => 23.7925,
+            'longitude' => 90.4078,
+            'is_head_office' => true,
+        ],
+        [
+            'name' => 'Sales lounge',
+            'address' => 'Plot 00, Block A, Bashundhara R/A',
+            'city' => 'Dhaka',
+            'postal_code' => '1229',
+            'phones' => ['+8801700000000'],
+            'email' => 'sales@gemconcity.com',
+            'hours' => [['days' => ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'], 'opens' => '10:00', 'closes' => '20:00']],
+            'latitude' => 23.8193,
+            'longitude' => 90.4526,
+            'is_head_office' => false,
         ],
     ];
 
@@ -97,6 +181,11 @@ final class DemoContent
             'title' => 'About us',
             'intro' => 'Our story, values and the people behind every project. This page is built in phase 6.',
             'description' => 'Gemcon City Limited is a Bangladeshi real estate developer, part of Gemcon Group, building apartments, commercial spaces and land projects since its founding.',
+        ],
+        'leadership' => [
+            'title' => 'Leadership',
+            'intro' => 'The board and management team of Gemcon City Limited. This page is built in phase 6.',
+            'description' => 'Meet the board and management team leading Gemcon City Limited.',
         ],
     ];
 
@@ -178,7 +267,67 @@ final class DemoContent
                 'newsletter' => $footer['newsletter_enabled'],
                 'copyright' => str_replace('{year}', now()->format('Y'), $footer['copyright_text']),
                 'show_parent_company' => $footer['show_parent_company'],
+                'newsletter_title' => $footer['newsletter_title'],
+                'newsletter_text' => $footer['newsletter_text'],
             ],
+        ];
+    }
+
+    /**
+     * The `footer` shared prop (CMP-FOOT-01): headings of the `footer_1…4`
+     * menus, offices and the top 8 areas (SEO-ONP-005).
+     *
+     * @return array<string, mixed>
+     */
+    public static function footer(): array
+    {
+        $footer = self::settings('footer');
+        self::$menuItemId = 1000;
+        $item = self::menuItem(...);
+
+        return [
+            'columns' => array_map(
+                fn (string $key): array => ['menu' => $key, 'heading' => self::MENU_NAMES[$key]],
+                array_keys(self::MENU_NAMES),
+            ),
+            'offices_heading' => $footer['offices_heading'],
+            'offices' => self::offices(),
+            'locations_heading' => $footer['locations_heading'],
+            'locations' => array_map(
+                fn (array $area): array => $item($area[0], '/locations/'.$area[1], count: $area[2]),
+                self::TOP_AREAS,
+            ),
+        ];
+    }
+
+    /**
+     * Offices (OfficeResource shape, DM-OFF), head office first.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function offices(): array
+    {
+        return array_map(
+            fn (array $office, int $index): array => ['id' => $index + 1, ...$office],
+            self::OFFICES,
+            array_keys(self::OFFICES),
+        );
+    }
+
+    /**
+     * PG-26 copy for one status (Settings → Errors / Maintenance, DEC-41).
+     *
+     * @return array{title: string, message: string, popular_heading: string}
+     */
+    public static function errorPage(int $status): array
+    {
+        $errors = self::settings('errors');
+        $message = $status === 503 ? self::settings('maintenance')['message'] : $errors[$status.'_message'];
+
+        return [
+            'title' => (string) $errors[$status.'_title'],
+            'message' => (string) $message,
+            'popular_heading' => (string) $errors['popular_heading'],
         ];
     }
 
@@ -281,16 +430,7 @@ final class DemoContent
         // `auto:locations`: top 8 areas by project count (CMS-NAV-003).
         $locations = array_map(
             fn (array $area): array => $item($area[0], '/locations/'.$area[1], count: $area[2]),
-            [
-                ['Bashundhara R/A', 'bashundhara-ra', 6],
-                ['Gulshan', 'gulshan', 5],
-                ['Banani', 'banani', 4],
-                ['Baridhara', 'baridhara', 3],
-                ['Dhanmondi', 'dhanmondi', 3],
-                ['Uttara', 'uttara', 2],
-                ['Mirpur', 'mirpur', 2],
-                ['Mohammadpur', 'mohammadpur', 1],
-            ],
+            self::TOP_AREAS,
         );
 
         // Contact is not a header item: the Enquire button links there (DEC-40).

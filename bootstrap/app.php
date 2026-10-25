@@ -4,11 +4,14 @@ use App\Http\Middleware\AddNoindexHeader;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\NormalizeUrl;
+use App\Support\Errors\ErrorPage;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,4 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // PG-26: branded 404/410/419/429/500/503 pages for public requests.
+        Inertia::handleExceptionsUsing(fn (ExceptionResponse $response) => ErrorPage::render($response));
     })->create();

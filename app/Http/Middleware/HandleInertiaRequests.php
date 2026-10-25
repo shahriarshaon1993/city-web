@@ -51,7 +51,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Inertia::disableSsr(fn (): bool => $this->isAdminRequest($request));
+        Inertia::disableSsr(fn (): bool => self::isAdminRequest($request));
 
         return parent::handle($request, $next);
     }
@@ -61,7 +61,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function rootView(Request $request): string
     {
-        return $this->isAdminRequest($request) ? 'admin' : $this->rootView;
+        return self::isAdminRequest($request) ? 'admin' : $this->rootView;
     }
 
     /**
@@ -86,7 +86,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        if (! $this->isAdminRequest($request)) {
+        if (! self::isAdminRequest($request)) {
             return [
                 ...parent::share($request),
                 ...$this->sharePublic($request),
@@ -115,6 +115,7 @@ class HandleInertiaRequests extends Middleware
         return [
             'site' => Inertia::once(fn (): array => DemoContent::site()),
             'menus' => Inertia::once(fn (): array => DemoContent::menus()),
+            'footer' => Inertia::once(fn (): array => DemoContent::footer()),
             'seo' => fn (): array => SeoData::raw((string) DemoContent::settings('general')['site_name'])
                 ->noindex()
                 ->toArray($request),
@@ -126,7 +127,10 @@ class HandleInertiaRequests extends Middleware
         ];
     }
 
-    private function isAdminRequest(Request $request): bool
+    /**
+     * Also used by the error pages (App\Support\Errors\ErrorPage): admin errors stay unbranded until 18.2.
+     */
+    public static function isAdminRequest(Request $request): bool
     {
         return $request->routeIs(...self::ADMIN_ROUTES);
     }

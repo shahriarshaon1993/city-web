@@ -3,14 +3,21 @@
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\StyleguideController;
+use App\Support\Errors\ErrorPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('about', [PageController::class, 'about'])->name('about');
+Route::get('about/leadership', [PageController::class, 'leadership'])->name('about.leadership');
 
 // Phase 0.2/0.3 UI kit reference; never registered outside local.
 if (app()->isLocal()) {
     Route::get('styleguide', StyleguideController::class)->name('styleguide');
+
+    // Phase 1.2 error page previews (PG-26), including 500 while APP_DEBUG is on.
+    Route::get('styleguide/errors/{status}', function (int $status): never {
+        abort($status, headers: $status === 429 ? ['Retry-After' => '60'] : []);
+    })->whereIn('status', array_map(strval(...), ErrorPage::STATUSES))->name('styleguide.error');
 }
 
 Route::middleware(['auth', 'verified'])->group(function () {

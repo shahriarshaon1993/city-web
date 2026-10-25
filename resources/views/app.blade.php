@@ -17,6 +17,9 @@
 
         @fonts
 
+        {{-- CMP-FOOT-01: footer menu disclosures stay open without JavaScript. --}}
+        <noscript><style>.footer-collapsible { display: flex !important; }</style></noscript>
+
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
 
         {{-- SEO-REN-01: same keys as SeoHead.vue, so client navigation replaces these tags. --}}

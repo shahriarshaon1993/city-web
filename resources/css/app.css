@@ -586,3 +586,14 @@
         transform: translateY(24px);
     }
 }
+
+/*
+ * MOT-PAGE (1.2 part): `main` dims while an Inertia visit takes longer than
+ * 150 ms (useNavigationFeedback). Opacity only; instant under reduced motion.
+ */
+#content {
+    transition: opacity var(--dur-base) var(--ease-standard);
+}
+#content.is-navigating {
+    opacity: 0.6;
+}

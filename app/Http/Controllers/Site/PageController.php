@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Support\Demo\DemoContent;
+use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,11 +17,25 @@ class PageController extends Controller
 {
     public function about(Request $request): Response
     {
-        $page = DemoContent::page('about');
+        return $this->stub($request, 'about');
+    }
+
+    public function leadership(Request $request): Response
+    {
+        return $this->stub($request, 'leadership', [[DemoContent::page('about')['title'], '/about']]);
+    }
+
+    /**
+     * @param  list<array{0: string, 1: string}>  $parents
+     */
+    private function stub(Request $request, string $key, array $parents = []): Response
+    {
+        $page = DemoContent::page($key);
 
         return Inertia::render('Site/Page', [
             'title' => $page['title'],
             'intro' => $page['intro'],
+            'breadcrumbs' => Breadcrumbs::to($page['title'], $parents),
             'seo' => SeoData::page($page['title'], $page['description'])->toArray($request),
         ]);
     }

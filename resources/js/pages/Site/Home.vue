@@ -16,7 +16,8 @@ defineProps<{
 
 <template>
     <div>
-        <div class="h-[85svh] min-h-80">
+        <!-- `data-hero`: the mobile contact bar appears once this leaves the viewport (CMP-BAR-01). -->
+        <div class="h-[85svh] min-h-80" data-hero>
             <ResponsiveImage
                 :image="hero.image"
                 :mobile="hero.mobile"
