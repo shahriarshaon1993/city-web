@@ -23,9 +23,10 @@ export const imagePresets = {
         loading: 'eager',
         placeholder: 'media',
     },
+    /** DEC-46: 4:5 portrait (towers), not §5.3's 4:3. */
     'project-card': {
         sizes: '(min-width:1280px) 400px, (min-width:768px) 45vw, 92vw',
-        aspect: 'aspect-[4/3]',
+        aspect: 'aspect-[4/5]',
         fit: 'cover',
         loading: 'lazy',
         placeholder: 'media',

@@ -57,18 +57,29 @@ const desktopColumns: Record<number, string> = {
                 :key="index"
                 class="flex flex-col-reverse gap-2 lg:px-8 lg:first:pl-0"
             >
-                <dt class="text-sm text-muted-foreground">{{ stat.label }}</dt>
-                <dd class="font-display text-stat">
-                    <span aria-hidden="true" class="tabular">
-                        <span
+                <dt class="text-sm text-muted-foreground">
+                    {{ stat.label }}
+                </dt>
+                <dd
+                    class="font-display text-stat whitespace-nowrap text-primary"
+                >
+                    <!-- The final width (number + suffix) is reserved on the
+                         outer box, so a count-up never shifts the row. -->
+                    <span
+                        aria-hidden="true"
+                        class="tabular inline-block"
+                        :style="{
+                            minWidth: `${stat.display.length + (stat.suffix?.length ?? 0)}ch`,
+                        }"
+                        ><span
                             data-counter
                             :data-value="stat.value"
                             :data-decimals="stat.decimals"
-                            class="inline-block"
-                            :style="{ minWidth: `${stat.display.length}ch` }"
                             >{{ stat.display }}</span
-                        >{{ stat.suffix }}
-                    </span>
+                        ><span v-if="stat.suffix" class="ml-1 text-[0.5em]">{{
+                            stat.suffix
+                        }}</span></span
+                    >
                     <span class="sr-only"
                         >{{ stat.display }}{{ stat.suffix }}</span
                     >

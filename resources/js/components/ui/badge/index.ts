@@ -41,8 +41,8 @@ export const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      // On photos: white/90% background, text colour kept.
-      { onMedia: true, tone: ["upcoming", "ongoing", "ready", "handed_over", "booking_open", "limited_units", "sold_out", "neutral"], class: "bg-white/90 shadow-xs" },
+      // On photos: white/92% background, neutral text (DEC-46: one quiet chip style; the dot keeps the tone).
+      { onMedia: true, tone: ["upcoming", "ongoing", "ready", "handed_over", "booking_open", "limited_units", "sold_out", "neutral"], class: "bg-white/92 text-stone-800 shadow-xs" },
     ],
     defaultVariants: {
       tone: "neutral",

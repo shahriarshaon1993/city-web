@@ -129,7 +129,7 @@ function onFocusOut(event: FocusEvent): void {
                 <a
                     v-if="header.show_phone && site.contact.hotline"
                     :href="`tel:${site.contact.hotline}`"
-                    class="hidden min-h-11 items-center gap-2 rounded-sm px-2 font-semibold whitespace-nowrap xl:inline-flex"
+                    class="hidden min-h-11 items-center gap-2 rounded-sm px-2 text-sm whitespace-nowrap xl:inline-flex"
                 >
                     <Phone class="size-5" aria-hidden="true" />
                     <span class="sr-only">Hotline</span>
@@ -144,7 +144,12 @@ function onFocusOut(event: FocusEvent): void {
                     :on-media="transparent"
                 />
 
-                <Button as-child variant="accent" class="hidden lg:inline-flex">
+                <!-- DEC-46: white over the hero, whose search button is the coral CTA (DP-04). -->
+                <Button
+                    as-child
+                    :variant="transparent ? 'light' : 'accent'"
+                    class="hidden lg:inline-flex"
+                >
                     <Link :href="header.cta.url">{{ header.cta.label }}</Link>
                 </Button>
 

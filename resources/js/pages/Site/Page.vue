@@ -15,7 +15,7 @@ defineProps<{
 <template>
     <div class="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-10">
         <Breadcrumbs :items="breadcrumbs" />
-        <h1 class="mt-6 font-display text-5xl font-extrabold tracking-tight">
+        <h1 class="mt-6 font-display text-h1">
             {{ title }}
         </h1>
         <p class="text-lg">{{ intro }}</p>

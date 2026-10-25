@@ -13,8 +13,9 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ✅     |
 | 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ✅     |
 | 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ✅     |
-| 2.3  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.2            | ⬜     |
-| 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.3            | ⬜     |
+| 2.3  | Design refresh — premium direction (type, shape, card, demo photos)        | 2.2            | ✅     |
+| 2.4  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.3            | ⬜     |
+| 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ⬜     |
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ⬜     |
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ⬜     |
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ⬜     |
@@ -200,9 +201,25 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 - `DemoContent::homeBlocks()` = 6 blocks; `projectCards($featuredOnly, $segment, $lifecycle, $limit)`; 6 demo projects featured (mega menu still takes 3). Stats figures are placeholders. 404 popular projects use the `mini` card.
 - Open: unlayered `.theme-dark { background-color }` in `app.css` beats utilities — check the hero text wrapper (2.1) for a teal box; don't rely on `bg-transparent` over `.theme-dark`.
 
-### 2.3 — Home blocks II
+### 2.3 — Design refresh — premium direction
 
-**Deps:** 2.2 · **Read:** spec/page-builder.md block rows 8–12; design/components.md CMP-PROG-01 (summary use), CMP-TEST-01, CMP-MARQ-01, CMP-NEWS-01, CMP-CTA-01, §6.5 rows progress_highlight, testimonials, partners_marquee, latest_news, cta_band; design/motion.md MOT-MARQUEE, MOT-GRAD, MOT-PULSE; spec/social.md FR-SOC-001, FR-SOC-002, AC-SOC-01; spec/news.md FR-NEWS-004.
+**Deps:** 2.2 · **Read:** DECISIONS DEC-46 (the whole scope); design/foundations.md §3.2, §5.3; design/components.md CMP-CARD-01, CMP-BTN-01, CMP-BADGE-01.
+**Build:** owner reviewed the home page against the three references and asked for the same level of polish with our own identity. Tokens (light Manrope weights, greige surface), 8 px buttons + `light` variant, neutral on-media badges, CMP-CARD-01 rebuilt borderless with a 4:5 photo, block heading hairline, stats on dark, hero CTAs/overlay, header CTA over the hero, footer overlines, `.theme-dark` background into the base layer, stock demo photos via `demo:images`. New home sections (split image/dark panel, closing CTA band) are not added here: the CTA band is 2.4 (`cta_band`), the split panel is `media_text` in 6.1.
+**Test:** `/` at 1440, 1024, 768 and 390 px next to rancondevelopments.com and btibd.com: headings light (300), no teal box behind the hero text, hero text readable on the photo, one coral button per viewport (search on the hero; Enquire turns coral once the header goes solid), project cards without border, photos 4:5, the hairline price rows level across a row (also with "Price on request"), facts read "1,650–2,100 sft · 3–4 beds" with a space before the unit; stats on dark with no wrapped suffix; `/styleguide` card variants (default, featured, horizontal, mini) and skeleton; `/404` popular projects (mini); keyboard Tab through a card = name link then heart, focus ring around the whole card; DevTools reduced motion → no image zoom.
+
+**Done notes (2026-10-26):**
+- Everything is DEC-46 (wins over foundations §3/§5.3/§13 and CMP-BTN/BADGE/CARD/BLK-STATS). Tokens in `app.css`; Manrope 300/400/500 in `vite.config.ts` (preload 300) — don't use Manrope 600+ (not loaded).
+- Buttons `rounded-md` 8 px (pill rejected by the owner), new `light` variant; outline = `foreground/30`. Carousel arrows stay `rounded-full`. Footer Subscribe is `h-12` to match the email field.
+- `ProjectCard` is borderless: 4:5 `project-card` preset, name + segment overline, location, `ProjectCardFacts` = one dotted `<dl>` line (`value&nbsp;unit`), `ProjectCardPrice` = hairline row with `min-h-12`. Hover CSS = `.media-zoom` + `.card-arrow-icon` only. Skeleton matches.
+- On-media badges: neutral white chip; `Badge` colours the dot by tone (`dotTones`).
+- `[data-overlay]` re-declares `--gradient-hero-bottom|left` so `--overlay` works; any new element using those gradients with its own opacity must carry `data-overlay`. `.theme-dark` bg/colour now in `@layer base` (utilities win).
+- `BlockHeader` sits on a hairline; header Enquire is `light` while transparent over the hero.
+- Stats: reserved `min-width` is on the number + suffix box; 3.1 animates only the inner `[data-counter]`.
+- Demo photos: Unsplash (credits in each `storage/app/demo-src/{group}/meta.json`, team still placeholder). Git-ignored — 9.1 must copy `storage/app/demo-src` to the review server, then `php artisan demo:images`.
+
+### 2.4 — Home blocks II
+
+**Deps:** 2.3 · **Read:** spec/page-builder.md block rows 8–12; design/components.md CMP-PROG-01 (summary use), CMP-TEST-01, CMP-MARQ-01, CMP-NEWS-01, CMP-CTA-01, §6.5 rows progress_highlight, testimonials, partners_marquee, latest_news, cta_band; design/motion.md MOT-MARQUEE, MOT-GRAD, MOT-PULSE; spec/social.md FR-SOC-001, FR-SOC-002, AC-SOC-01; spec/news.md FR-NEWS-004.
 **Build:** progress_highlight, testimonials (carousel/grid, `<figure><blockquote>`), partners_marquee (CSS, duplicate track `aria-hidden` + `inert`, pause on hover/focus-within, pause button), latest_news + `NewsCard` (no read time on home), cta_band (brand/gradient/image; animated mesh paused off-screen).
 **Test:** full home review against LAY-HOME at all widths; marquee pauses on hover and when tabbing into it; the accessibility tree lists each partner once; with reduced motion the marquee is a static grid and the gradient static.
 
@@ -210,7 +227,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 
 ### 3.1 — Motion runtime, smooth scroll, reveals, counters
 
-**Deps:** 2.3 · **Read:** design/motion.md §8.1–8.3, §8.5, MOT-SMOOTH, MOT-REVEAL, MOT-REVEAL-HERO, MOT-SPLIT, MOT-STAGGER, MOT-MASK, MOT-COUNTER, MOT-SKELETON; spec/performance-a11y.md SEO-PERF-004, SEO-PERF-012, SEO-A11Y-005; spec/cms.md §8.2 Motion group.
+**Deps:** 2.4 · **Read:** design/motion.md §8.1–8.3, §8.5, MOT-SMOOTH, MOT-REVEAL, MOT-REVEAL-HERO, MOT-SPLIT, MOT-STAGGER, MOT-MASK, MOT-COUNTER, MOT-SKELETON; spec/performance-a11y.md SEO-PERF-004, SEO-PERF-012, SEO-A11Y-005; spec/cms.md §8.2 Motion group.
 **Build:** owner approves `gsap` 3.15 and `lenis` 1.3.27. `motion/index.ts` as a dynamic chunk, loaded after first paint via `requestIdleCallback` (1500 ms) only when motion is enabled, no reduced motion, and the footer toggle is off. Lenis in SiteLayout (GSAP ticker; anchor offset; `stop()/start()` hooked into the dialogs, sheets and menus built so far). Directives `v-reveal`, `v-split`, `v-mask`; counter helper (stats, later progress) — all no-ops until loaded. `gsap.context` per page with revert on unmount; `ScrollTrigger.refresh()` after navigate. Footer "Reduce motion" toggle (localStorage). Applied to shell + home.
 **Test:** desktop home: reveals play once, nothing above the fold starts hidden (Performance panel screenshots); reduced-motion emulation → the motion chunk is never requested and everything is visible; toggle persists after reload; navigate away and back 10× → `ScrollTrigger.getAll().length` stays stable; anchor links land below the header; motion chunk ≤ 45 KB gzip (build output).
 

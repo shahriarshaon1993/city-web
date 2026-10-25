@@ -20,7 +20,7 @@ const listId = useId();
 
 <template>
     <div class="max-md:border-b max-md:border-border">
-        <h2 class="font-display font-bold">
+        <h2 class="font-display font-medium">
             <button
                 type="button"
                 class="flex min-h-14 w-full items-center justify-between gap-4 rounded-sm text-left text-body-lg md:hidden"
@@ -39,7 +39,10 @@ const listId = useId();
                     aria-hidden="true"
                 />
             </button>
-            <span class="max-md:hidden">{{ heading }}</span>
+            <span
+                class="text-overline text-muted-foreground uppercase max-md:hidden"
+                >{{ heading }}</span
+            >
         </h2>
         <ul
             :id="listId"

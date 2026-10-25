@@ -88,17 +88,18 @@ function isActive(item: MenuItem): boolean {
 
 const itemClass = computed(() =>
     cn(
-        'group/nav relative inline-flex h-full items-center gap-1 rounded-sm px-3 text-[0.9375rem] font-medium whitespace-nowrap xl:px-4',
+        'group/nav relative inline-flex h-full items-center gap-1 rounded-sm px-3 text-sm tracking-[0.01em] whitespace-nowrap xl:px-4',
         props.onMedia ? 'text-white' : 'text-foreground',
     ),
 );
 
 // MOT-UNDERLINE (transform only, MOT-R01): grows from the left on hover and
-// focus; the active section keeps a 2 px coral-500 bar and a bold label.
+// focus; the active section keeps a 2 px coral-500 bar and a medium label.
 function labelClass(active: boolean): string {
     return cn(
         'relative after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-(--dur-base) after:ease-(--ease-standard) group-hover/nav:after:scale-x-100 group-focus-visible/nav:after:scale-x-100 group-data-[state=open]/nav:after:scale-x-100',
-        active && 'font-bold after:h-0.5 after:scale-x-100 after:bg-coral-500',
+        active &&
+            'font-medium after:h-0.5 after:scale-x-100 after:bg-coral-500',
     );
 }
 </script>

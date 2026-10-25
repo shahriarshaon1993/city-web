@@ -1,32 +1,22 @@
 <script setup lang="ts">
-import { Bath, BedDouble, LandPlot, Ruler } from '@lucide/vue';
-import type { Component } from 'vue';
 import { computed } from 'vue';
 import { formatKatha, formatNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { ProjectCard } from '@/types/site';
 
-// CMP-CARD-01 facts as a spec sheet: a <dl>, never headings (SEO-ONP-003).
-// Hairlines come from each cell's top/left border, clipped by the frame, so
-// they stay correct however the grid wraps: 2 × 2 on narrow cards (the spec's
-// 340 px switch, widened for labelled cells), one row once every value fits
-// unclipped (columns size to their content).
+// CMP-CARD-01 facts (DEC-46): one quiet line "1,650–2,100 sft · 3–4 beds ·
+// 3–4 baths", wrapping when narrow. A <dl>, never headings (SEO-ONP-003); the
+// term is visually hidden because the unit already names the value.
 const props = withDefaults(
     defineProps<{
         project: ProjectCard;
-        /** `media`: frosted glass over a photo (featured variant). */
+        /** `media`: white text over a photo (featured variant). */
         tone?: 'surface' | 'media';
     }>(),
     { tone: 'surface' },
 );
 
-type Fact = {
-    key: string;
-    label: string;
-    icon: Component;
-    value: string;
-    unit?: string;
-};
+type Fact = { key: string; label: string; value: string; unit: string };
 
 function range(min: number | null, max: number | null): string | null {
     if (min === null) {
@@ -38,6 +28,10 @@ function range(min: number | null, max: number | null): string | null {
         : `${formatNumber(min)}–${formatNumber(max)}`;
 }
 
+function plural(min: number | null, max: number | null, word: string): string {
+    return (max ?? min) === 1 ? word : `${word}s`;
+}
+
 const facts = computed<Fact[]>(() => {
     const p = props.project;
     const size = range(p.size_min_sft, p.size_max_sft);
@@ -46,29 +40,33 @@ const facts = computed<Fact[]>(() => {
     const list: Fact[] = [];
 
     if (size !== null) {
-        list.push({
-            key: 'size',
-            label: 'Size',
-            icon: Ruler,
-            value: size,
-            unit: 'sft',
-        });
+        list.push({ key: 'size', label: 'Size', value: size, unit: 'sft' });
     }
 
     if (beds !== null) {
-        list.push({ key: 'beds', label: 'Beds', icon: BedDouble, value: beds });
+        list.push({
+            key: 'beds',
+            label: 'Bedrooms',
+            value: beds,
+            unit: plural(p.beds_min, p.beds_max, 'bed'),
+        });
     }
 
     if (baths !== null) {
-        list.push({ key: 'baths', label: 'Baths', icon: Bath, value: baths });
+        list.push({
+            key: 'baths',
+            label: 'Bathrooms',
+            value: baths,
+            unit: plural(p.baths_min, p.baths_max, 'bath'),
+        });
     }
 
     if (p.land_katha !== null) {
         list.push({
             key: 'land',
             label: 'Land',
-            icon: LandPlot,
             value: formatKatha(p.land_katha),
+            unit: '',
         });
     }
 
@@ -79,72 +77,37 @@ const media = computed(() => props.tone === 'media');
 </script>
 
 <template>
-    <div
+    <dl
         v-if="facts.length > 0"
         :class="
             cn(
-                '@container overflow-hidden rounded-lg',
-                media
-                    ? 'bg-white/10 ring-1 ring-white/15 backdrop-blur-md ring-inset'
-                    : 'bg-surface-subtle ring-1 ring-border ring-inset',
+                'flex flex-wrap items-center gap-x-3 gap-y-1 text-sm',
+                media ? 'text-white/80' : 'text-muted-foreground',
             )
         "
     >
-        <dl
-            :class="
-                cn(
-                    '-mt-px -ml-px grid grid-cols-[repeat(2,minmax(max-content,1fr))]',
-                    facts.length === 4
-                        ? '@min-[26rem]:auto-cols-[minmax(max-content,1fr)] @min-[26rem]:grid-flow-col @min-[26rem]:grid-cols-none'
-                        : '@min-[19rem]:auto-cols-[minmax(max-content,1fr)] @min-[19rem]:grid-flow-col @min-[19rem]:grid-cols-none',
-                )
-            "
+        <div
+            v-for="(fact, index) in facts"
+            :key="fact.key"
+            class="flex items-center gap-3"
         >
-            <div
-                v-for="(fact, index) in facts"
-                :key="fact.key"
+            <span
+                v-if="index > 0"
                 :class="
                     cn(
-                        'flex flex-col gap-0.5 border-t border-l px-3 py-2.5',
-                        media ? 'border-white/15' : 'border-border',
-                        index === facts.length - 1 &&
-                            facts.length % 2 === 1 &&
-                            'col-span-2 @min-[19rem]:col-span-1',
+                        'size-1 rounded-full',
+                        media ? 'bg-white/50' : 'bg-stone-300',
                     )
                 "
-            >
-                <dt
-                    :class="
-                        cn(
-                            'flex items-center gap-1.5 text-xs',
-                            media ? 'text-white/70' : 'text-muted-foreground',
-                        )
-                    "
-                >
-                    <component
-                        :is="fact.icon"
-                        class="size-3.5 shrink-0"
-                        aria-hidden="true"
-                    />
-                    {{ fact.label }}
-                </dt>
-                <dd class="tabular text-sm font-semibold whitespace-nowrap">
-                    {{ fact.value }}
-                    <span
-                        v-if="fact.unit"
-                        :class="
-                            cn(
-                                'text-xs font-medium',
-                                media
-                                    ? 'text-white/70'
-                                    : 'text-muted-foreground',
-                            )
-                        "
-                    >
-                        {{ fact.unit }}
-                    </span>
-                </dd>
-            </div>
-        </dl>
-    </div>
+                aria-hidden="true"
+            />
+            <dt class="sr-only">{{ fact.label }}</dt>
+            <dd class="tabular whitespace-nowrap">
+                <span :class="media ? 'text-white' : 'text-foreground'">{{
+                    fact.value
+                }}</span>
+                <template v-if="fact.unit">&nbsp;{{ fact.unit }}</template>
+            </dd>
+        </div>
+    </dl>
 </template>

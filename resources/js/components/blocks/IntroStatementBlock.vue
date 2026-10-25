@@ -34,7 +34,7 @@ defineProps<{
                     :is="headingTag"
                     :id="headingId"
                     data-split
-                    class="max-w-[22ch] text-h2 font-semibold text-balance"
+                    class="max-w-[22ch] text-h2 text-balance"
                 >
                     {{ block.data.heading }}
                 </component>

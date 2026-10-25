@@ -94,7 +94,10 @@ const linkClass =
                                 required
                                 class="h-12 sm:flex-1"
                             />
-                            <Button type="submit" size="lg">Subscribe</Button>
+                            <!-- Same 48 px height as the email field. -->
+                            <Button type="submit" size="lg" class="h-12">
+                                Subscribe
+                            </Button>
                         </div>
                     </form>
                 </section>
@@ -119,7 +122,10 @@ const linkClass =
                     :aria-labelledby="ids.offices"
                     class="flex flex-col gap-4 lg:col-span-2"
                 >
-                    <h2 :id="ids.offices" class="font-display font-bold">
+                    <h2
+                        :id="ids.offices"
+                        class="text-overline text-muted-foreground uppercase"
+                    >
                         {{ footer.offices_heading }}
                     </h2>
                     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
@@ -128,7 +134,7 @@ const linkClass =
                             :key="office.id"
                             class="flex flex-col gap-1"
                         >
-                            <p class="font-semibold">{{ office.name }}</p>
+                            <p class="font-medium">{{ office.name }}</p>
                             <address
                                 class="flex flex-col text-muted-foreground not-italic"
                             >
@@ -168,7 +174,10 @@ const linkClass =
                 :aria-labelledby="ids.locations"
                 class="flex flex-col gap-2 border-t border-border pt-8"
             >
-                <h2 :id="ids.locations" class="font-display font-bold">
+                <h2
+                    :id="ids.locations"
+                    class="text-overline text-muted-foreground uppercase"
+                >
                     {{ footer.locations_heading }}
                 </h2>
                 <ul class="flex flex-wrap gap-x-6">

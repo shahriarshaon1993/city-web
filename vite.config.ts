@@ -17,9 +17,10 @@ export default defineConfig({
             refresh: true,
             // Self-hosted at build time, Latin only, metric-matched fallbacks via fontaine (SEO-PERF-007).
             fonts: [
+                // DEC-46: light display weights; 300 = hero headline (above the fold).
                 bunny('Manrope', {
-                    weights: [700, 800],
-                    preload: [{ weight: 700 }],
+                    weights: [300, 400, 500],
+                    preload: [{ weight: 300 }],
                 }),
                 bunny('Inter', {
                     weights: [400, 500, 600],

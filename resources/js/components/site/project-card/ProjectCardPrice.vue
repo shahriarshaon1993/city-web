@@ -5,9 +5,9 @@ import { formatBdtCompact } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { ProjectCard } from '@/types/site';
 
-// CMP-CARD-01 footer: price-from only when the server sent one (AC-PROJ-01),
-// else the muted note. The arrow is decoration (aria-hidden, not focusable):
-// the card's only link stays the stretched name; it fills on card hover.
+// CMP-CARD-01 footer (DEC-46): hairline, then price-from only when the server
+// sent one (AC-PROJ-01), else the muted note. The arrow is decoration
+// (aria-hidden, not focusable): the card's only link stays the stretched name.
 const props = withDefaults(
     defineProps<{
         project: ProjectCard;
@@ -21,8 +21,20 @@ const media = computed(() => props.tone === 'media');
 </script>
 
 <template>
-    <div class="flex items-center justify-between gap-4">
-        <p v-if="project.price_from_bdt !== null" class="flex min-w-0 flex-col">
+    <div
+        :class="
+            cn(
+                'flex items-end justify-between gap-4 border-t',
+                compact ? 'pt-3' : 'pt-4',
+                media ? 'border-white/20' : 'border-border',
+            )
+        "
+    >
+        <!-- min-h-12: a one-line note keeps the hairline level with priced neighbours. -->
+        <p
+            v-if="project.price_from_bdt !== null"
+            class="flex min-h-12 min-w-0 flex-col justify-end"
+        >
             <span
                 :class="
                     cn(
@@ -36,8 +48,8 @@ const media = computed(() => props.tone === 'media');
             <span
                 :class="
                     cn(
-                        'tabular font-display tracking-tight',
-                        compact ? 'text-lg font-bold' : 'text-price',
+                        'tabular font-display',
+                        compact ? 'text-lg font-medium' : 'text-price',
                     )
                 "
             >
@@ -48,7 +60,7 @@ const media = computed(() => props.tone === 'media');
             v-else
             :class="
                 cn(
-                    'text-sm font-medium',
+                    'flex min-h-12 items-end text-sm',
                     media ? 'text-white/80' : 'text-muted-foreground',
                 )
             "
@@ -56,27 +68,16 @@ const media = computed(() => props.tone === 'media');
             {{ project.price_note ?? 'Price on request' }}
         </p>
 
-        <span
+        <ArrowUpRight
             :class="
                 cn(
-                    'relative grid shrink-0 place-items-center overflow-hidden rounded-full ring-1 ring-inset',
-                    compact ? 'size-9' : 'size-11',
+                    'card-arrow-icon mb-1 size-5 shrink-0',
                     media
-                        ? 'text-white ring-white/40'
-                        : 'text-foreground ring-border group-hover/card:text-primary-foreground',
+                        ? 'text-white'
+                        : 'text-muted-foreground group-hover/card:text-primary',
                 )
             "
             aria-hidden="true"
-        >
-            <span
-                :class="
-                    cn(
-                        'card-arrow-fill absolute inset-0 rounded-full',
-                        media ? 'bg-white/20' : 'bg-primary',
-                    )
-                "
-            />
-            <ArrowUpRight class="card-arrow-icon relative size-4.5" />
-        </span>
+        />
     </div>
 </template>

@@ -52,10 +52,11 @@ const withSearch = computed(
 
 const ctas = computed(() =>
     [
-        { link: props.data.primary_cta, variant: 'primary' as const },
+        // DEC-46: solid white + glass on the photo (overrides DEC-43's teal primary).
+        { link: props.data.primary_cta, variant: 'light' as const },
         { link: props.data.secondary_cta, variant: 'on-media' as const },
     ].filter(
-        (cta): cta is { link: BlockLink; variant: 'primary' | 'on-media' } =>
+        (cta): cta is { link: BlockLink; variant: 'light' | 'on-media' } =>
             cta.link !== null,
     ),
 );
@@ -95,6 +96,7 @@ onBeforeUnmount(() => {
         <div class="absolute inset-0 -z-10">
             <slot name="media" />
             <div
+                data-overlay
                 :class="cn('absolute inset-0', overlayClass)"
                 aria-hidden="true"
             />
@@ -111,7 +113,7 @@ onBeforeUnmount(() => {
             <div
                 :class="
                     cn(
-                        'theme-dark flex flex-1 gap-6 text-foreground',
+                        'theme-dark flex flex-1 gap-6 bg-transparent text-foreground',
                         centered
                             ? 'flex-col items-center justify-center text-center'
                             : 'flex-col justify-end md:flex-row md:items-end md:justify-between',
@@ -121,14 +123,14 @@ onBeforeUnmount(() => {
                 <div
                     :class="
                         cn(
-                            'flex max-w-180 flex-col gap-4 [text-shadow:0_1px_2px_rgb(0_0_0/0.35)] md:gap-5',
+                            'flex max-w-4xl flex-col gap-5 [text-shadow:0_1px_2px_rgb(0_0_0/0.35)] md:gap-6',
                             centered && 'items-center',
                         )
                     "
                 >
                     <p
                         v-if="data.eyebrow"
-                        class="text-overline text-white/85 uppercase"
+                        class="text-overline text-white/80 uppercase"
                     >
                         {{ data.eyebrow }}
                     </p>
@@ -140,7 +142,7 @@ onBeforeUnmount(() => {
                     </component>
                     <p
                         v-if="data.subheadline"
-                        class="text-lead text-pretty text-white/90"
+                        class="max-w-2xl text-lead text-pretty text-white/85"
                     >
                         {{ data.subheadline }}
                     </p>

@@ -385,7 +385,7 @@ final class DemoContent
 
     /**
      * The home page blocks (DM-BLOCK shape, types/blocks.ts) in LAY-HOME
-     * order; 2.3 adds progress, testimonials, partners, news and the CTA band.
+     * order; 2.4 adds progress, testimonials, partners, news and the CTA band.
      * Project lists are resolved here the way the Part B block data loaders
      * will (ARC-002). `$variant` switches the hero for the local previews at
      * /styleguide/hero/{variant}.
@@ -433,7 +433,7 @@ final class DemoContent
                     ['value' => 3.2, 'suffix' => 'M sft', 'label' => 'Space delivered', 'decimals' => 1],
                     ['value' => 2500, 'suffix' => '+', 'label' => 'Families at home', 'decimals' => 0],
                 ],
-            ], background: 'brand'),
+            ], background: 'dark', spacing: 'lg'),
             self::block(6, 'project_grid', [
                 'heading' => 'Ongoing projects',
                 'projects' => self::projectCards(lifecycle: 'ongoing', limit: 6),
@@ -655,8 +655,8 @@ final class DemoContent
             'subheadline' => 'Apartments, commercial spaces and land projects in Dhaka with clear titles, honest timelines and after-sales care.',
             'primary_cta' => ['label' => 'Explore projects', 'url' => '/projects', 'new_tab' => false],
             'secondary_cta' => ['label' => 'Book a site visit', 'url' => '/contact', 'new_tab' => false],
-            'overlay_opacity' => 45,
-            'overlay_style' => 'gradient-bottom',
+            'overlay_opacity' => 55,
+            'overlay_style' => 'solid',
             'text_align' => 'left',
             'show_search' => true,
             'height' => 'full',

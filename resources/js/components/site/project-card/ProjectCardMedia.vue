@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { ProjectCard } from '@/types/site';
 
-// CMP-CARD-01 media: 4:3 frame (the parent rounds it) with MOT-CARD-IMG zoom, badges
+// CMP-CARD-01 media: 4:5 frame (the parent rounds it) with MOT-CARD-IMG zoom, badges
 // top-left (lifecycle, booking) and the shortlist heart top-right, outside
 // the link (FR-SHORT-001). `fill` drops the ratio and covers the parent
 // (horizontal and featured variants); the parent then owns the height. The
@@ -32,11 +32,11 @@ const props = withDefaults(
         />
         <slot />
         <div
-            class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-stone-950/35 to-transparent"
+            class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-stone-950/25 to-transparent"
             aria-hidden="true"
         />
         <div
-            class="pointer-events-none absolute top-3 left-3 flex flex-wrap gap-1.5 pr-14"
+            class="pointer-events-none absolute top-4 left-4 flex flex-wrap gap-1.5 pr-14"
         >
             <Badge
                 variant="lifecycle"
@@ -61,7 +61,7 @@ const props = withDefaults(
             v-if="withHeart"
             :project-id="project.id"
             :project-name="project.name"
-            class="absolute top-2 right-2 z-(--z-raised) backdrop-blur-sm"
+            class="absolute top-3 right-3 z-(--z-raised) backdrop-blur-sm"
         />
     </div>
 </template>

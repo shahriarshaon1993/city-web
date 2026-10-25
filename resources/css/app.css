@@ -123,7 +123,8 @@
     --border: var(--stone-200);
     --input: var(--stone-500);
     --ring: var(--teal-600);
-    --surface-subtle: var(--stone-50);
+    /* DEC-46: neutral greige band (Rancon); stone-50/100 read as pink */
+    --surface-subtle: #f3f1ed;
     --surface-brand: var(--teal-50);
     --chart-1: var(--teal-600);
     --chart-2: var(--coral-500);
@@ -292,9 +293,34 @@
     --chart-5: var(--stone-400);
 }
 
-.theme-dark {
-    background-color: var(--background);
-    color: var(--foreground);
+/*
+ * A custom property that uses var(--overlay) is resolved where it is defined,
+ * so the :root gradients always used 0.45. Elements that paint a hero
+ * gradient carry [data-overlay] and re-declare them with the inherited (or
+ * own) --overlay (HERO overlay_opacity, featured card scrim).
+ */
+[data-overlay] {
+    --gradient-hero-bottom: linear-gradient(
+        to top,
+        rgb(16 12 11 / var(--overlay)) 0%,
+        rgb(16 12 11 / calc(var(--overlay) * 0.55)) 45%,
+        rgb(16 12 11 / 0) 100%
+    );
+    --gradient-hero-left: linear-gradient(
+        to right,
+        rgb(16 12 11 / var(--overlay)) 0%,
+        rgb(16 12 11 / calc(var(--overlay) * 0.4)) 60%,
+        rgb(16 12 11 / 0) 100%
+    );
+}
+
+/* In the base layer so utilities (bg-transparent, text-white) still win: a
+   .theme-dark text wrapper over a photo must not paint a teal box (2.2 note). */
+@layer base {
+    .theme-dark {
+        background-color: var(--background);
+        color: var(--foreground);
+    }
 }
 
 @theme inline {
@@ -406,26 +432,27 @@
     --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
     --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
 
-    --text-display: clamp(2.5rem, 1.75rem + 3.33vw, 5rem);
-    --text-display--line-height: 1.02;
-    --text-display--letter-spacing: -0.03em;
-    --text-display--font-weight: 800;
-    --text-h1: clamp(2.125rem, 1.625rem + 2.22vw, 3.5rem);
+    /* DEC-46: light display weights (premium direction), not §13's 700/800 */
+    --text-display: clamp(2.5rem, 1.6rem + 4vw, 5.25rem);
+    --text-display--line-height: 1.04;
+    --text-display--letter-spacing: -0.02em;
+    --text-display--font-weight: 300;
+    --text-h1: clamp(2.25rem, 1.65rem + 2.67vw, 4rem);
     --text-h1--line-height: 1.08;
-    --text-h1--letter-spacing: -0.025em;
-    --text-h1--font-weight: 800;
-    --text-h2: clamp(1.75rem, 1.4rem + 1.56vw, 2.75rem);
+    --text-h1--letter-spacing: -0.015em;
+    --text-h1--font-weight: 300;
+    --text-h2: clamp(1.875rem, 1.45rem + 1.89vw, 3rem);
     --text-h2--line-height: 1.12;
-    --text-h2--letter-spacing: -0.02em;
-    --text-h2--font-weight: 700;
+    --text-h2--letter-spacing: -0.01em;
+    --text-h2--font-weight: 300;
     --text-h3: clamp(1.375rem, 1.225rem + 0.67vw, 1.875rem);
-    --text-h3--line-height: 1.2;
-    --text-h3--letter-spacing: -0.015em;
-    --text-h3--font-weight: 700;
-    --text-h4: clamp(1.125rem, 1.05rem + 0.33vw, 1.375rem);
+    --text-h3--line-height: 1.22;
+    --text-h3--letter-spacing: -0.005em;
+    --text-h3--font-weight: 400;
+    --text-h4: clamp(1.1875rem, 1.1rem + 0.39vw, 1.5rem);
     --text-h4--line-height: 1.3;
-    --text-h4--letter-spacing: -0.01em;
-    --text-h4--font-weight: 700;
+    --text-h4--letter-spacing: 0em;
+    --text-h4--font-weight: 400;
     --text-lead: clamp(1.125rem, 1.05rem + 0.33vw, 1.375rem);
     --text-lead--line-height: 1.55;
     --text-body: 1rem;
@@ -438,18 +465,18 @@
     --text-xs--line-height: 1.45;
     --text-overline: 0.75rem;
     --text-overline--line-height: 1.3;
-    --text-overline--letter-spacing: 0.14em;
-    --text-overline--font-weight: 600;
-    --text-stat: clamp(2.25rem, 1.75rem + 2.22vw, 3.75rem);
+    --text-overline--letter-spacing: 0.16em;
+    --text-overline--font-weight: 500;
+    --text-stat: clamp(2.5rem, 1.85rem + 2.89vw, 4.5rem);
     --text-stat--line-height: 1;
-    --text-stat--letter-spacing: -0.03em;
-    --text-stat--font-weight: 800;
+    --text-stat--letter-spacing: -0.02em;
+    --text-stat--font-weight: 300;
     --text-price: clamp(1.25rem, 1.15rem + 0.44vw, 1.5rem);
     --text-price--line-height: 1.2;
-    --text-price--font-weight: 700;
+    --text-price--font-weight: 500;
     --text-fact: 1.125rem;
     --text-fact--line-height: 1.3;
-    --text-fact--font-weight: 700;
+    --text-fact--font-weight: 500;
 }
 
 @layer base {
@@ -628,58 +655,25 @@
 }
 
 /*
- * CMP-CARD-01 hover (2.2): lift translateY(-4px), shadow md (fades in on a
- * pseudo-element so only opacity animates) and MOT-CARD-IMG zoom on
- * `.media-zoom` images (cards and segment tiles). Fine pointers only, never
- * under reduced motion (MOT-R01, MOT-R03).
+ * CMP-CARD-01 hover (DEC-46): no lift or shadow (the card has no surface);
+ * MOT-CARD-IMG zoom on `.media-zoom` images (cards and segment tiles) and the
+ * footer arrow nudges up-right. Fine pointers only, never under reduced
+ * motion (MOT-R01, MOT-R03).
  */
-.project-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    box-shadow: var(--shadow-md);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Footer arrow (ProjectCardPrice): the disc fills from its centre on hover. */
-.card-arrow-fill {
-    transform: scale(0);
-}
-
-@media (hover: hover) {
-    .project-card:hover .card-arrow-fill {
-        transform: scale(1);
-    }
-}
-
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
-    .project-card {
-        transition: transform var(--dur-base) var(--ease-standard);
-    }
-    .card-arrow-fill,
     .card-arrow-icon {
-        transition: transform var(--dur-base) var(--ease-standard);
+        transition:
+            transform var(--dur-base) var(--ease-standard),
+            color var(--dur-fast) var(--ease-standard);
     }
     .project-card:hover .card-arrow-icon {
-        transform: translate(1px, -1px);
-    }
-    .project-card::before {
-        transition: opacity var(--dur-base) var(--ease-standard);
-    }
-    .project-card:hover {
-        z-index: var(--z-raised);
-        transform: translateY(-4px);
-    }
-    .project-card:hover::before {
-        opacity: 1;
+        transform: translate(2px, -2px);
     }
     .media-zoom {
-        transition: transform 600ms var(--ease-standard);
+        transition: transform 800ms var(--ease-standard);
     }
     .project-card:hover .media-zoom,
     .segment-tile:hover .media-zoom {
-        transform: scale(1.04);
+        transform: scale(1.05);
     }
 }

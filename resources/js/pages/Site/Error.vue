@@ -35,7 +35,7 @@ const popularId = useId();
             <!-- Decorative: the H1 carries the meaning. -->
             <p
                 aria-hidden="true"
-                class="tabular font-display text-display font-extrabold text-brand-accent-decor"
+                class="tabular font-display text-display text-brand-accent-decor"
             >
                 {{ status }}
             </p>
