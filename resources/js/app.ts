@@ -1,42 +1,23 @@
 import { createInertiaApp } from '@inertiajs/vue3';
-import { initializeTheme } from '@/composables/useAppearance';
-import AppLayout from '@/layouts/AppLayout.vue';
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { initializeFlashToast } from '@/lib/flashToast';
+import type { DefineComponent } from 'vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+// Public entry (ARC-008): only pages/Site/* are bundled here, so no admin
+// chunk ever reaches a public route (SEO-PERF-004). Also the SSR entry.
+const pages = import.meta.glob<{ default: DefineComponent }>(
+    './pages/Site/**/*.vue',
+);
+
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    layout: (name) => {
-        switch (true) {
-            case name === 'Welcome':
-                return null;
-            case name.startsWith('auth/'):
-                return AuthLayout;
-            case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
-            default:
-                return AppLayout;
+    resolve: async (name) => {
+        const page = pages[`./pages/${name}.vue`];
+
+        if (!page) {
+            throw new Error(`Page not found: ${name}`);
         }
-    },
-    withApp: (app) => {
-        app.directive('focus', {
-            mounted: (el: HTMLElement, shouldFocus) => {
-                if (shouldFocus.value !== false) {
-                    el.focus();
-                }
-            },
-        });
-    },
-    progress: {
-        color: '#4B5563',
+
+        return (await page()).default;
     },
 });
-
-// This will set light / dark mode on page load...
-initializeTheme();
-
-// This will listen for flash toast data from the server...
-initializeFlashToast();

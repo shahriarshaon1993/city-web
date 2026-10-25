@@ -8,8 +8,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    /* design/foundations.md §3.1; --font-manrope / --font-inter come from the Vite fonts helper */
+    --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
     --font-sans:
-        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        var(--font-inter), ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 

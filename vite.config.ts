@@ -9,11 +9,21 @@ import { defineConfig, lazyPlugins } from 'vite-plus';
 export default defineConfig({
     plugins: lazyPlugins(() => [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.ts'],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.ts',
+                'resources/js/admin.ts',
+            ],
             refresh: true,
+            // Self-hosted at build time, Latin only, metric-matched fallbacks via fontaine (SEO-PERF-007).
             fonts: [
-                bunny('Instrument Sans', {
+                bunny('Manrope', {
+                    weights: [700, 800],
+                    preload: [{ weight: 700 }],
+                }),
+                bunny('Inter', {
                     weights: [400, 500, 600],
+                    preload: [{ weight: 400 }],
                 }),
             ],
         }),
@@ -68,6 +78,9 @@ export default defineConfig({
         htmlWhitespaceSensitivity: 'css',
         ignorePatterns: [
             '.github/**',
+            'AGENTS.md',
+            'CLAUDE.md',
+            'docs/**',
             'composer.json',
             'resources/js/components/ui/*',
             'resources/views/mail/*',

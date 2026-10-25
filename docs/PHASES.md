@@ -5,7 +5,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 
 | ID   | Sub-phase                                                                  | Deps           | Status |
 | ---- | -------------------------------------------------------------------------- | -------------- | ------ |
-| 0.1  | Project setup, packages, public/admin entries                              | —              | ⬜     |
+| 0.1  | Project setup, packages, public/admin entries                              | —              | ✅     |
 | 0.2  | Design tokens & UI kit I (buttons, badges, controls, styleguide)           | 0.1            | ⬜     |
 | 0.3  | Images, formatters & props contract                                        | 0.2            | ⬜     |
 | 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ⬜     |
@@ -75,6 +75,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** — · **Read:** spec/architecture.md §12.1 (frontend rows), §12.3, ARC-008..010; spec/admin.md §10 intro (admin entry, no SSR); design/foundations.md §3.1; spec/performance-a11y.md SEO-PERF-004, SEO-PERF-007; DECISIONS DEC-26..29.
 **Build:** owner confirms DEC-29 and approves packages. Check whether the starter's `laravel-vite-plugin` `fonts` helper self-hosts at build time. If yes, use it for Manrope (700/800) and Inter (400–600); otherwise use `@fontsource-variable/manrope` + `@fontsource-variable/inter` (Latin subset only). Optional `fontaine` 0.8.x (SEO-PERF-007). Split entries: `resources/js/app.ts` = public (pages under `pages/Site/*`), `resources/js/admin.ts` + `resources/views/admin.blade.php` = admin (starter auth/dashboard/settings pages move there unchanged until 10.2); `HandleInertiaRequests::rootView()` picks the root by route. Public root has no dark-mode script (DEC-28). `/` = `Site/Home` stub; remove `Welcome.vue`.
 **Test:** `npm run build` and `npm run build:ssr` pass; `/` shows the stub in Manrope/Inter (DevTools → Computed font); `/login` still works on the admin root; view-source of `/` loads no admin chunk; no font request goes to a third-party host.
+
+**Done notes (2026-10-25):**
+- Entries: `resources/js/app.ts` (public + SSR entry, globs `pages/Site/**` only) and `resources/js/admin.ts` (all pages except `Site/**`, keeps theme + flash toasts). Roots: `views/app.blade.php` (no dark script) and `views/admin.blade.php`. No `ssr.ts`: `@inertiajs/vite` uses `app.ts`.
+- `HandleInertiaRequests`: `ADMIN_ROUTES` name list → `rootView()` = `admin`; admin never SSR'd (`Inertia::disableSsr`); `version()` = manifest hash + `:app|:admin`, so a visit across roots gets a 409 and a full reload. 10.2: reduce the list to `admin.*` when the admin moves under `/admin`.
+- Starter pages stay in `pages/auth`, `pages/settings` and `pages/Dashboard.vue` (resolved only by `admin.ts`) until 10.2.
+- Fonts (DEC-35): `laravel-vite-plugin` 3.2.0 `fonts` helper, `bunny('Manrope', [700, 800])` + `bunny('Inter', [400, 500, 600])`, downloaded at build time into `/build/assets`, preload only Manrope 700 + Inter 400; `fontaine` 0.8.2 (dev) for fallbacks. CSS vars `--font-manrope`/`--font-inter` → `@theme` `--font-display`/`--font-sans` in `app.css`; 0.2 must use these, not "Manrope Variable".
+- `/` = `Route::inertia('/', 'Site/Home', [title, lead])` stub; copy moves to `DemoContent` in 0.4. `Welcome.vue` deleted.
+- `vite.config.ts` fmt ignores `docs/**`, `AGENTS.md`, `CLAUDE.md` (keep spec text verbatim, DEC-30).
+- Public JS on `/`: `app` + shared Vue/Inertia chunk (~80 KB gzip) + `Home`. Public CSS still contains starter admin styles (~17 KB gzip, shared `app.css`).
 
 ### 0.2 — Design tokens & UI kit I
 
