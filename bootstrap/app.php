@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\AddNoindexHeader;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\NormalizeUrl;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Global: runs before routing, so 404s and redirects are covered too (SEO-TEC-002, SEO-TEC-010).
+        $middleware->append([AddNoindexHeader::class, NormalizeUrl::class]);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [

@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Demo\DemoContent;
+use App\Support\Seo\SeoData;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -84,6 +86,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        if (! $this->isAdminRequest($request)) {
+            return [
+                ...parent::share($request),
+                ...$this->sharePublic($request),
+            ];
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -91,6 +100,29 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+
+    /**
+     * Public shared props (ARC-003, `SiteShared` in types/site.ts). Site and
+     * menus are sent once per visit; a page's own `seo` prop replaces the
+     * noindex fallback. No `auth` on public pages.
+     *
+     * @return array<string, mixed>
+     */
+    private function sharePublic(Request $request): array
+    {
+        return [
+            'site' => Inertia::once(fn (): array => DemoContent::site()),
+            'menus' => Inertia::once(fn (): array => DemoContent::menus()),
+            'seo' => fn (): array => SeoData::raw((string) DemoContent::settings('general')['site_name'])
+                ->noindex()
+                ->toArray($request),
+            'ui' => [
+                'motion' => Inertia::once(fn (): array => DemoContent::motion()),
+                // Read from the consent cookie in 7.2.
+                'consent' => null,
+            ],
         ];
     }
 

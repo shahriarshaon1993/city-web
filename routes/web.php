@@ -1,12 +1,12 @@
 <?php
 
+use App\Http\Controllers\Site\HomeController;
+use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\StyleguideController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Site/Home', [
-    'title' => 'Gemcon City',
-    'lead' => 'Website foundation — phase 0.1.',
-])->name('home');
+Route::get('/', HomeController::class)->name('home');
+Route::get('about', [PageController::class, 'about'])->name('about');
 
 // Phase 0.2/0.3 UI kit reference; never registered outside local.
 if (app()->isLocal()) {

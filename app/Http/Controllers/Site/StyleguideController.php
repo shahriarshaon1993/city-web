@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Support\Demo\DemoMedia;
 use App\Support\Format;
+use App\Support\Seo\SeoData;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +15,7 @@ use Inertia\Response;
  */
 class StyleguideController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
         return Inertia::render('Site/Styleguide', [
             'images' => [
@@ -28,6 +30,7 @@ class StyleguideController extends Controller
             ],
             'ogImage' => DemoMedia::ogImage('hero/hero-01'),
             'formatSamples' => $this->formatSamples(),
+            'seo' => SeoData::page('Styleguide')->noindex(follow: false)->toArray($request),
         ]);
     }
 

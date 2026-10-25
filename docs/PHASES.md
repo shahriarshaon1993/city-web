@@ -8,7 +8,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 0.1  | Project setup, packages, public/admin entries                              | —              | ✅     |
 | 0.2  | Design tokens & UI kit I (buttons, badges, controls, styleguide)           | 0.1            | ✅     |
 | 0.3  | Images, formatters & props contract                                        | 0.2            | ✅     |
-| 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ⬜     |
+| 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ✅     |
 | 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ⬜     |
 | 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ⬜     |
 | 2.1  | Hero (image, video, slider) & search widget                                | 1.2            | ⬜     |
@@ -122,6 +122,16 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 0.3 · **Read:** spec/seo.md SEO-REN-01, SEO-REN-07 (admin no SSR), SEO-REN-08, SEO-TEC-002, SEO-TEC-004, SEO-TEC-005 (`?page=1`), SEO-TEC-010 (non-production part), SEO-ONP-001, SEO-ONP-002, SEO-ONP-006; spec/hero.md HERO-030/031; spec/architecture.md ARC-001, ARC-003; spec/cms.md §8.2 (SEO, General, Contact, Header groups — key names only).
 **Build:** `App\Support\Seo\SeoData` (title via template, description, robots, canonical, OG/Twitter, `jsonLd[]`, `lcpImage`). The public Blade head renders it with `inertia` attributes, plus one LCP preload (two with a mobile crop) and font preloads; `SeoHead.vue` mirrors it client-side. Non-production: meta robots + `X-Robots-Tag: noindex, nofollow`. `App\Support\Demo\DemoContent` (site, contact, social, menus, settings-like values) → shared props `site`, `menus`, `ui.motion` (`Inertia::once`). `NormalizeUrl` middleware (trailing slash, uppercase, `index.php`, duplicate slashes, `?page=1`) — permanent code. `ClientOnly.vue`. Thin `Site\HomeController`.
 **Test:** view-source `/` → one `<title>`, description, canonical, OG tags, one image preload; Inertia-navigate to a stub page and back → head tags replaced, not duplicated (Elements panel); `/About/` → 301 `/about`; `/?page=1` → 301 `/`; local response has `X-Robots-Tag`.
+
+**Done notes (2026-10-25):**
+- `App\Support\Seo\SeoData`: `page($title, $desc)` (title template), `home()`, `raw()`; fluent `noindex()`, `canonical()`, `image()`, `article()`, `lcp($image, $mobile, $sizes)`, `jsonLd()`; `->toArray($request)` = the `seo` page prop (`Seo` in types/site.ts, incl. `preload[]`). Every public controller passes `'seo'`; without it the shared fallback is noindex,follow with the site name (DEC-39).
+- Head: `app.blade.php` renders the tags inside `<x-inertia::head>` with `data-inertia` keys; `components/site/SeoHead.vue` (in `layouts/SiteLayout.vue`) renders the same `head-key`s, so SSR and client visits replace, not duplicate. Add a tag in both places. LCP preloads sit outside `<x-inertia::head>`, unmanaged. `app.ts` title callback is identity (title is final server-side).
+- `layouts/SiteLayout.vue` exists now (default layout via `createInertiaApp({ layout })`) with only `<SeoHead />` — 1.1 extends it.
+- Shared props (public only, `HandleInertiaRequests::sharePublic`): `site`, `menus`, `ui.motion` as once-props, `seo` fallback, `ui.consent` = null (7.2). Admin keeps `name`/`auth`/`sidebarOpen`; public pages get no `auth`. Vue: `usePage<SiteShared>()`.
+- `DemoContent`: `settings($group)` (§8.2 key names; `seo.home_title/home_description` added), `site()` (+ `header`, `footer` with `{year}` filled), `motion()`, `menus()` (all 7 keys, root-relative URLs; header mega columns segments/status/locations — 1.1 adds `featured_projects`), `page($key)`. SeoData reads settings from it until 12.1.
+- Global middleware: `AddNoindexHeader` (outer, so 301s get the header too) then `NormalizeUrl` (GET/HEAD only). Routes: `home` (`Site\HomeController`), `about` (`Site\PageController::about` → `Site/Page` stub until 6.3).
+- Placeholder logos `public/images/brand/logo-{light,dark,mark}.svg`; contact/social = spec DEC-17 placeholders. Manual Wayfinder regen needs `--with-form`.
+- Open: facet URL slugs `mixed-use`/`handed-over` vs enum `mixed_use`/`handed_over` — owner to confirm before 4.1 (comment in `DemoContent::menus()`).
 
 ## Phase 1 — Site shell
 

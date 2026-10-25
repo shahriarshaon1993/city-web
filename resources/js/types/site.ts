@@ -72,23 +72,44 @@ export type ProjectCard = {
 
 export type Robots = 'index,follow' | 'noindex,follow' | 'noindex,nofollow';
 
-/** `seo` shared prop rendered into the head (SEO-REN-01, cms.md §8.5). */
+/** One `<link rel="preload" as="image">` (HERO-030/031). */
+export type ImagePreload = {
+    srcset: string;
+    sizes: string;
+    type: 'image/avif' | 'image/webp';
+    media: string | null;
+};
+
+/**
+ * `seo` page prop (App\Support\Seo\SeoData), rendered into the head by the
+ * root view and SeoHead.vue (SEO-REN-01, cms.md §8.5).
+ */
 export type Seo = {
     /** Final `<title>`, template already applied (SEO-ONP-001). */
     title: string;
     description: string | null;
-    /** Absolute clean URL (SEO-TEC-004); null on noindex pages. */
+    /**
+     * Absolute clean URL (SEO-TEC-004); null on pages that are noindex by
+     * themselves (not by the non-production override of `robots`).
+     */
     canonical: string | null;
     robots: Robots;
     og: {
+        type: 'website' | 'article';
         title: string;
         description: string | null;
+        url: string;
+        /** Absolute 1200×630 URL (SEO-ONP-006). */
         image: string | null;
-        type: 'website' | 'article';
+        image_alt: string | null;
+        site_name: string;
+        locale: string;
     };
     twitter_card: 'summary' | 'summary_large_image';
     /** `[]` until 19.1. */
     json_ld: Record<string, unknown>[];
+    /** Used by the root view only; empty without an LCP image. */
+    preload: ImagePreload[];
 };
 
 /** CMS-NAV-002; URLs are resolved server-side (CMS-NAV-004). */
@@ -142,9 +163,24 @@ export type SiteInfo = {
         Record<'facebook' | 'instagram' | 'linkedin' | 'youtube' | 'x', string>
     >;
     parent_company: { name: string; url: string | null } | null;
+    /** Settings → Header (cms.md §8.2). */
+    header: {
+        sticky: boolean;
+        transparent_on_hero: boolean;
+        cta: { label: string; url: string };
+        show_shortlist: boolean;
+        show_phone: boolean;
+    };
+    /** Settings → Footer; `{year}` already replaced in `copyright`. */
+    footer: {
+        about: string;
+        newsletter: boolean;
+        copyright: string;
+        show_parent_company: boolean;
+    };
 };
 
-/** Shared props of every public page (ARC-003); wired in 0.4. */
+/** Shared props of every public page (ARC-003, HandleInertiaRequests). */
 export type SiteShared = {
     site: SiteInfo;
     menus: Record<MenuKey, MenuItem[]>;

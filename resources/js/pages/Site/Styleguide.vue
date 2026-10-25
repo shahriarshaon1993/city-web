@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
 import {
     ArrowRight,
     CalendarCheck,
@@ -394,10 +393,6 @@ const faqs = [
 <template>
     <TooltipProvider>
         <div class="min-h-svh bg-background">
-            <Head title="Styleguide">
-                <meta name="robots" content="noindex, nofollow" />
-            </Head>
-
             <header class="theme-dark bg-(image:--gradient-dusk)">
                 <div
                     class="mx-auto max-w-content px-4 py-12 sm:px-6 lg:px-8 xl:px-10"

@@ -1,7 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import type { DefineComponent } from 'vue';
-
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+import SiteLayout from '@/layouts/SiteLayout.vue';
 
 // Public entry (ARC-008): only pages/Site/* are bundled here, so no admin
 // chunk ever reaches a public route (SEO-PERF-004). Also the SSR entry.
@@ -10,7 +9,8 @@ const pages = import.meta.glob<{ default: DefineComponent }>(
 );
 
 void createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    // `seo.title` is final: the template is applied server-side (SEO-ONP-001).
+    title: (title) => title,
     resolve: async (name) => {
         const page = pages[`./pages/${name}.vue`];
 
@@ -20,4 +20,5 @@ void createInertiaApp({
 
         return (await page()).default;
     },
+    layout: () => SiteLayout,
 });

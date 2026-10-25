@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
+import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
+import { about } from '@/routes';
+import type { LcpImage } from '@/types/site';
 
-// Phase 0.1 stub; replaced by the home blocks in 2.x.
+// Stub until the home blocks of 2.x. The hero image is the page's LCP image
+// (preloaded by the root view, HERO-030).
 defineProps<{
     title: string;
     lead: string;
+    hero: LcpImage;
 }>();
 </script>
 
 <template>
-    <main
-        class="mx-auto flex min-h-svh max-w-3xl flex-col justify-center gap-4 px-6"
-    >
-        <Head :title="title" />
-        <h1 class="font-display text-5xl font-extrabold tracking-tight">
-            {{ title }}
-        </h1>
-        <p class="text-lg">{{ lead }}</p>
+    <main>
+        <div class="h-[60svh] min-h-80">
+            <ResponsiveImage
+                :image="hero.image"
+                :mobile="hero.mobile"
+                preset="hero"
+                priority
+            />
+        </div>
+        <div class="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-16">
+            <h1 class="font-display text-5xl font-extrabold tracking-tight">
+                {{ title }}
+            </h1>
+            <p class="text-lg">{{ lead }}</p>
+            <p>
+                <Link
+                    :href="about()"
+                    class="font-medium text-primary underline underline-offset-4"
+                >
+                    About
+                </Link>
+            </p>
+        </div>
     </main>
 </template>
