@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Site\StyleguideController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Site/Home', [
@@ -7,9 +8,9 @@ Route::inertia('/', 'Site/Home', [
     'lead' => 'Website foundation — phase 0.1.',
 ])->name('home');
 
-// Phase 0.2 UI kit reference; never registered outside local.
+// Phase 0.2/0.3 UI kit reference; never registered outside local.
 if (app()->isLocal()) {
-    Route::inertia('styleguide', 'Site/Styleguide')->name('styleguide');
+    Route::get('styleguide', StyleguideController::class)->name('styleguide');
 }
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -8,8 +8,9 @@ import {
     Phone,
     Search,
 } from '@lucide/vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import EmptyState from '@/components/site/EmptyState.vue';
+import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
 import SkeletonShape from '@/components/site/SkeletonShape.vue';
 import {
     Accordion,
@@ -48,10 +49,72 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+    formatBdt,
+    formatBdtCompact,
+    formatBdtRange,
+    formatDate,
+    formatKatha,
+    formatMonth,
+    formatSft,
+    formatSftRange,
+} from '@/lib/format';
 import { notify } from '@/lib/toast';
+import type { MediaImage } from '@/types/site';
 
-// Local-only UI kit reference (phase 0.2). Sample copy here is developer
+// Local-only UI kit reference (phases 0.2–0.3). Sample copy here is developer
 // tooling, not site content, so it is not props-driven.
+
+const formatters = {
+    formatBdt,
+    formatBdtCompact,
+    formatBdtRange,
+    formatSft,
+    formatSftRange,
+    formatKatha,
+    formatDate,
+    formatMonth,
+};
+
+type FormatSample = {
+    fn: keyof typeof formatters;
+    args: (number | string | boolean | null)[];
+    php: string;
+    expected: string | null;
+};
+
+const props = defineProps<{
+    images: {
+        hero: MediaImage | null;
+        hero_mobile: MediaImage | null;
+        project: MediaImage | null;
+        news: MediaImage | null;
+        location: MediaImage | null;
+        portrait: MediaImage | null;
+        interior: MediaImage | null;
+        thumbs: (MediaImage | null)[];
+    };
+    ogImage: string | null;
+    formatSamples: FormatSample[];
+}>();
+
+// PHP (server) and TS (here) must agree, and match the spec strings.
+const formatRows = computed(() =>
+    props.formatSamples.map((sample) => {
+        const run = formatters[sample.fn] as (...args: unknown[]) => string;
+        const ts = run(...sample.args);
+        const plain = sample.php.replaceAll(' ', ' ');
+
+        return {
+            ...sample,
+            call: `${sample.fn}(${sample.args.map((arg) => JSON.stringify(arg)).join(', ')})`,
+            ts,
+            matches:
+                ts === sample.php &&
+                (sample.expected === null || plain === sample.expected),
+        };
+    }),
+);
 
 const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
@@ -340,14 +403,15 @@ const faqs = [
                     class="mx-auto max-w-content px-4 py-12 sm:px-6 lg:px-8 xl:px-10"
                 >
                     <p class="text-overline text-primary uppercase">
-                        Phase 0.2 · local only
+                        Phases 0.2–0.3 · local only
                     </p>
                     <h1 class="mt-2 font-display text-h1">
                         UI kit &amp; tokens
                     </h1>
                     <p class="mt-3 max-w-prose text-lead text-muted-foreground">
-                        design/foundations.md §2–§4, §13 and CMP-BTN, BADGE,
-                        FORM, TABS, ACC, TOAST, EMPTY, SKEL.
+                        design/foundations.md §2–§5, §13 and CMP-BTN, BADGE,
+                        FORM, TABS, ACC, TOAST, EMPTY, SKEL; images and
+                        formatters (ARC-016, ARC-017).
                     </p>
                 </div>
             </header>
@@ -1083,6 +1147,194 @@ const faqs = [
                                 shape="table-row"
                             />
                         </div>
+                    </div>
+                </section>
+
+                <!-- Images -->
+                <section
+                    aria-labelledby="sg-images"
+                    class="flex flex-col gap-6"
+                >
+                    <h2 id="sg-images" class="font-display text-h2">Images</h2>
+                    <EmptyState
+                        v-if="!images.hero"
+                        class="rounded-xl border"
+                        title="No demo images yet"
+                        body="Run php artisan demo:images --placeholders, then reload."
+                    />
+                    <template v-else>
+                        <figure class="flex flex-col gap-2">
+                            <div
+                                class="relative h-96 overflow-hidden rounded-xl md:h-128"
+                            >
+                                <ResponsiveImage
+                                    :image="images.hero"
+                                    :mobile="images.hero_mobile"
+                                    preset="hero"
+                                    priority
+                                />
+                            </div>
+                            <figcaption class="text-body text-muted-foreground">
+                                <code>hero</code> · eager ·
+                                <code>fetchpriority="high"</code> (the page's
+                                only one) · portrait crop below 768 px
+                            </figcaption>
+                        </figure>
+                        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <figure class="flex flex-col gap-2">
+                                <ResponsiveImage
+                                    :image="images.project"
+                                    preset="project-card"
+                                    class="rounded-lg"
+                                />
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    <code>project-card</code> 4:3 · lazy
+                                </figcaption>
+                            </figure>
+                            <figure class="flex flex-col gap-2">
+                                <ResponsiveImage
+                                    :image="images.news"
+                                    preset="news-card"
+                                    class="rounded-lg"
+                                />
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    <code>news-card</code> 16:10 · lazy
+                                </figcaption>
+                            </figure>
+                            <figure class="flex flex-col gap-2">
+                                <ResponsiveImage
+                                    :image="images.location"
+                                    preset="segment-tile"
+                                    class="rounded-lg"
+                                />
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    <code>segment-tile</code> 16:9 → 3:4 at 1024
+                                    px
+                                </figcaption>
+                            </figure>
+                            <figure class="flex flex-col gap-2">
+                                <ResponsiveImage
+                                    :image="images.portrait"
+                                    preset="team-portrait"
+                                    class="rounded-lg"
+                                />
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    <code>team-portrait</code> 4:5 · focal 50,35
+                                </figcaption>
+                            </figure>
+                            <figure class="flex flex-col gap-2">
+                                <ResponsiveImage
+                                    :image="images.interior"
+                                    preset="floor-plan"
+                                    class="rounded-lg"
+                                />
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    <code>floor-plan</code> intrinsic · contain
+                                </figcaption>
+                            </figure>
+                            <figure class="flex flex-col gap-2">
+                                <ResponsiveImage
+                                    :image="null"
+                                    preset="project-card"
+                                    class="rounded-lg"
+                                />
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    No image: placeholder only
+                                </figcaption>
+                            </figure>
+                            <figure class="flex flex-col gap-2 sm:col-span-2">
+                                <div class="grid grid-cols-4 gap-2">
+                                    <ResponsiveImage
+                                        v-for="(thumb, index) in images.thumbs"
+                                        :key="index"
+                                        :image="thumb"
+                                        preset="gallery-thumb"
+                                        class="rounded-md"
+                                    />
+                                </div>
+                                <figcaption
+                                    class="text-body text-muted-foreground"
+                                >
+                                    <code>gallery-thumb</code> 1:1 ·
+                                    <code>sizes="160px"</code>
+                                    <template v-if="ogImage">
+                                        ·
+                                        <a
+                                            :href="ogImage"
+                                            class="text-primary underline"
+                                            >og.jpg 1200×630</a
+                                        >
+                                    </template>
+                                </figcaption>
+                            </figure>
+                        </div>
+                    </template>
+                </section>
+
+                <!-- Formatters -->
+                <section
+                    aria-labelledby="sg-format"
+                    class="flex flex-col gap-6"
+                >
+                    <h2 id="sg-format" class="font-display text-h2">
+                        Formatters
+                    </h2>
+                    <div class="overflow-x-auto rounded-lg border">
+                        <table class="w-full text-left text-body">
+                            <thead class="bg-muted">
+                                <tr>
+                                    <th scope="col" class="px-3 py-2">Call</th>
+                                    <th scope="col" class="px-3 py-2">Spec</th>
+                                    <th scope="col" class="px-3 py-2">PHP</th>
+                                    <th scope="col" class="px-3 py-2">TS</th>
+                                    <th scope="col" class="px-3 py-2">Match</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="row in formatRows"
+                                    :key="row.call"
+                                    class="border-t"
+                                >
+                                    <td class="px-3 py-2">
+                                        <code>{{ row.call }}</code>
+                                    </td>
+                                    <td class="px-3 py-2 text-muted-foreground">
+                                        {{ row.expected ?? '—' }}
+                                    </td>
+                                    <td class="px-3 py-2">{{ row.php }}</td>
+                                    <td class="px-3 py-2">{{ row.ts }}</td>
+                                    <td class="px-3 py-2">
+                                        <Badge
+                                            :variant="
+                                                row.matches
+                                                    ? 'lifecycle'
+                                                    : 'booking'
+                                            "
+                                            :value="
+                                                row.matches
+                                                    ? 'ready'
+                                                    : 'sold_out'
+                                            "
+                                        >
+                                            {{ row.matches ? 'Yes' : 'No' }}
+                                        </Badge>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </section>
             </main>

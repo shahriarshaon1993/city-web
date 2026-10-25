@@ -7,7 +7,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | ---- | -------------------------------------------------------------------------- | -------------- | ------ |
 | 0.1  | Project setup, packages, public/admin entries                              | —              | ✅     |
 | 0.2  | Design tokens & UI kit I (buttons, badges, controls, styleguide)           | 0.1            | ✅     |
-| 0.3  | Images, formatters & props contract                                        | 0.2            | ⬜     |
+| 0.3  | Images, formatters & props contract                                        | 0.2            | ✅     |
 | 0.4  | Server-rendered head, shared props, URL normalisation, demo content        | 0.3            | ⬜     |
 | 1.1  | Site layout, header, mega menu, mobile menu                                | 0.4            | ⬜     |
 | 1.2  | Footer, breadcrumbs, mobile contact bar, navigation a11y, error pages      | 1.1            | ⬜     |
@@ -107,6 +107,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 0.2 · **Read:** design/foundations.md §5.2–5.4; spec/media.md CMS-MED-004, CMS-MED-005, CMS-MED-011; spec/hero.md HERO-010..014; spec/performance-a11y.md SEO-PERF-006; spec/architecture.md ARC-002, ARC-016, ARC-017; spec/overview.md §1.1 (BDT, sft, katha); DECISIONS DEC-31.
 **Build:** owner provides photos in `storage/app/demo-src/{group}/` (client photos, or labelled royalty-free placeholders). `php artisan demo:images` (GD only): hero group → HERO-011 widths, others → CMS-MED-005 profile; AVIF only when `imageavif` exists; `og` 1200×630 focal crop; dominant colour from `thumb`; output `public/demo/…` + manifest. PHP `App\Support\Demo\DemoMedia` → `MediaImage` shape (alt, decorative, width, height, focal, dominant_color, sources avif/webp srcsets, fallback). `ResponsiveImage.vue`: `<picture>`, named `sizes` presets from §5.3, eager/lazy/`fetchpriority`, aspect box with dominant colour + hexagon placeholder, focal `object-position`, mobile-crop `<source media>`. `lib/format.ts` + PHP twin `App\Support\Format`: BDT full `৳ 1,45,00,000` and compact `৳ 1.45 crore` / `৳ 85 lakh`, `1,850 sft`, `5 katha`, en-dash ranges, `DD MMM YYYY` in Asia/Dhaka. Types in `resources/js/types/site.ts` (MediaImage, ProjectCard, Seo, SiteShared, MenuItem). Add demos to `/styleguide`.
 **Test:** run `demo:images` → files per width/format exist, AVIF only if `php -r "var_dump(function_exists('imageavif'));"` is true; `/styleguide` image: Network shows AVIF (Chrome) and a smaller width at 390 px than at 1440 px; with "Slow 4G" the dominant colour shows before the image and nothing jumps; formatter samples match the strings above.
+
+**Done notes (2026-10-25):**
+- Images: `php artisan demo:images [--placeholders] [--force]` → Actions `app/Actions/Demo/{GenerateDemoImages,ConvertDemoImage,GenerateDemoPlaceholders}`. Sources `storage/app/demo-src/{group}/` + per-group `meta.json` (alt, focal [x,y], caption, credit, decorative); `hero` group = HERO-011 widths, `{name}-mobile` = HERO-013 crop. Output `public/demo/{group}/{slug}-{hash}/` + `public/demo/manifest.json`; incremental by content hash (DEC-38).
+- Placeholders (owner, no client photos yet): groups hero(3 + mobile), projects 8, interiors 4, locations 6, news 6, team 6, progress 4 — keys like `projects/projects-03`. Neither folder is in git: every checkout/server runs `demo:images --placeholders` (~3.5 min, AVIF).
+- `DemoMedia::image($key)` → `MediaImage` (+ `caption`, `credit`, `sources.jpeg` hero-only srcset); `ogImage($key)`, `keys($group)`. 11.1 must output this exact shape (DEC-31).
+- `components/site/ResponsiveImage.vue`: props `image` (null = placeholder), `preset` (`lib/images.ts`, §5.3 verbatim), `mobile`, `priority` (the one LCP image), `loading`, `imgClass`; root is a block `span` — size/radius via `class`. Hero preset = `fill`: parent sets the size.
+- Formatters `lib/format.ts` ⇄ `App\Support\Format` (`formatBdt/bdt`, `…Compact`, `…Range`, `Sft`, `SftRange`, `Katha`, `Date`, `Month`), no Intl number formatting; change both together (DEC-37). `/styleguide` table compares PHP vs TS.
+- Types `resources/js/types/site.ts` (MediaImage, LcpImage, ProjectCard, Seo, MenuItem, MegaColumn, SiteInfo, SiteShared) — 0.4 wires `SiteShared` into `sharedPageProps` and `LcpImage` into the head preload. `ProjectCard.price_from_bdt` is null when hidden (AC-PROJ-01).
+- `/styleguide` now served by `Site\StyleguideController` (local only).
 
 ### 0.4 — Server-rendered head, shared props, URL normalisation, demo content
 
