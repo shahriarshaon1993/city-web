@@ -4,6 +4,7 @@ import { Phone } from '@lucide/vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
 import { Button } from '@/components/ui/button';
+import { useContactBarOverride } from '@/composables/useContactBar';
 import { whatsappUrl } from '@/lib/contact';
 import { cn } from '@/lib/utils';
 import type { SiteShared } from '@/types/site';
@@ -12,15 +13,20 @@ import type { SiteShared } from '@/types/site';
 // the page's `[data-hero]` element has left the viewport (at once on pages
 // without a hero); hidden while a text field has focus (on-screen keyboard)
 // and while the footer is visible. Hidden = inert, so it is never tabbable.
-// PG-04 (4.3) makes Enquire open the enquiry sheet instead of linking.
+// A page can override WhatsApp and Enquire (useContactBar): PG-04 prefills
+// the project in WhatsApp and opens its enquiry dialog (4.3, owner: same
+// three buttons on every page).
 const page = usePage<SiteShared>();
 const site = computed(() => page.props.site);
+const override = useContactBarOverride();
 
-const whatsapp = computed(() =>
-    site.value.contact.whatsapp
-        ? whatsappUrl(site.value.contact.whatsapp)
-        : null,
-);
+const whatsapp = computed(() => {
+    const number = override.value?.whatsapp ?? site.value.contact.whatsapp;
+
+    return number
+        ? whatsappUrl(number, override.value?.whatsappText ?? undefined)
+        : null;
+});
 
 /** Read by SiteLayout to lift bottom toasts above the bar. */
 const shown = defineModel<boolean>('shown', { default: false });
@@ -165,6 +171,17 @@ onBeforeUnmount(() => {
             </li>
             <li>
                 <Button
+                    v-if="override"
+                    type="button"
+                    variant="accent"
+                    class="h-12 w-full gap-1.5 px-2"
+                    aria-haspopup="dialog"
+                    @click="override.onEnquire()"
+                >
+                    {{ site.header.cta.label }}
+                </Button>
+                <Button
+                    v-else
                     as-child
                     variant="accent"
                     class="h-12 w-full gap-1.5 px-2"

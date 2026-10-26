@@ -272,6 +272,8 @@
 
 /* Static theme values: Tailwind emits these as :root variables AND generates utilities (rounded-lg, shadow-md, ease-out-expo, max-w-content) */
 @theme static {
+    /* CMP-ENQ-01: the WhatsApp icon only, never text or a surface (4.3). */
+    --color-whatsapp: #25d366;
     --radius-xs: 4px;
     --radius-sm: 6px;
     --radius-md: 8px;
@@ -683,6 +685,16 @@ html.lenis body {
     transition: transform var(--dur-base) var(--ease-standard);
 }
 :root[data-header-hidden] .sticky-under-header {
+    transform: translateY(calc(-1 * var(--header-height)));
+}
+
+/* CMP-ENQ-01 (4.3): the desktop enquiry panel sticks below the tab bar and
+ * moves up with it when the header hides. */
+.sticky-under-tabs {
+    top: calc(var(--header-height) + var(--tabbar-height, 0px) + 1.5rem);
+    transition: transform var(--dur-base) var(--ease-standard);
+}
+:root[data-header-hidden] .sticky-under-tabs {
     transform: translateY(calc(-1 * var(--header-height)));
 }
 

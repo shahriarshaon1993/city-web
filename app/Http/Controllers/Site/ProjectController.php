@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoProjectDetail;
 use App\Support\Seo\ProjectMeta;
 use App\Support\Seo\SeoData;
@@ -31,6 +32,7 @@ class ProjectController extends Controller
         return Inertia::render('Site/Project', [
             'project' => $project,
             'copy' => DemoProjectDetail::copy(),
+            'cta' => DemoContent::projectListingCta(),
             'seo' => $seo->toArray($request),
         ]);
     }

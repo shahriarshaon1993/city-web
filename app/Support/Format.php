@@ -130,6 +130,18 @@ final class Format
     }
 
     /**
+     * Download size: "940 KB", "2.4 MB" (KB rounded up, so never "0 KB").
+     */
+    public static function fileSize(int $bytes): string
+    {
+        if ($bytes < 1024 * 1024) {
+            return self::number(max(1, (int) ceil($bytes / 1024))).self::NBSP.'KB';
+        }
+
+        return self::number($bytes / 1024 / 1024, 1).self::NBSP.'MB';
+    }
+
+    /**
      * Display form of an E.164 number: Bangladeshi "+880 9600-000000"
      * (DEC-40); other numbers unchanged.
      */

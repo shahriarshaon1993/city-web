@@ -71,6 +71,14 @@ export const imagePresets = {
         loading: 'lazy',
         placeholder: 'media',
     },
+    /** PG-04 video facade poster, 16:9 in the 8-column content column (4.3; not in §5.3). */
+    'video-poster': {
+        sizes: '(min-width:1280px) 800px, (min-width:1024px) 64vw, 92vw',
+        aspect: 'aspect-video',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     'gallery-thumb': {
         sizes: '160px',
         aspect: 'aspect-square',

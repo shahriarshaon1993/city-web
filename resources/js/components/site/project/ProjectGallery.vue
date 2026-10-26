@@ -14,6 +14,8 @@ import type { GalleryPhoto, ProjectDetail } from '@/types/project';
 // with a "1 / n" counter; a native scroll-snap strip before hydration.
 // Every photo is a button that opens the lightbox at that photo; Embla is
 // switched off from 768 px so the mosaic is plain grid layout.
+// `data-hero`: the mobile contact bar appears once the gallery has left the
+// viewport (CMP-BAR-01, 4.3).
 const props = defineProps<{
     project: ProjectDetail;
     photos: GalleryPhoto[];
@@ -49,7 +51,7 @@ function label(photo: GalleryPhoto, index: number): string {
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative" data-hero>
         <div
             ref="viewport"
             :class="[

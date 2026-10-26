@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { MapPin } from '@lucide/vue';
-import { computed, useTemplateRef } from 'vue';
+import ProgressBar from '@/components/site/ProgressBar.vue';
 import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
-import { useOffscreen } from '@/composables/useOffscreen';
 import { formatMonth } from '@/lib/format';
-import { cn } from '@/lib/utils';
 import type { ProgressStage, ProgressSummary } from '@/types/site';
 
 // CMP-PROG-01 summary as an editorial row (DEC-48): photo | project + note |
-// big percentage, 4-stage segmented bar with stage names, "Updated {Month
-// YYYY}". Stages up to the current one are filled; the current one pulses
-// (MOT-PULSE, paused off-screen, off under reduced motion). The bar is the
-// accessible value (`role="progressbar"`); the big number is aria-hidden
-// because it counts up (MOT-COUNTER, `v-counter`). One link: the name.
-const props = withDefaults(
+// big percentage, 4-stage segmented bar with stage names (ProgressBar),
+// "Updated {Month YYYY}". The bar is the accessible value; the big number
+// is aria-hidden because it counts up (MOT-COUNTER, `v-counter`). One
+// link: the name.
+withDefaults(
     defineProps<{
         summary: ProgressSummary;
         stages: { value: ProgressStage; label: string }[];
@@ -22,14 +19,6 @@ const props = withDefaults(
     }>(),
     { headingAs: 'h3' },
 );
-
-const current = computed(() =>
-    props.stages.findIndex((stage) => stage.value === props.summary.stage),
-);
-const complete = computed(() => props.summary.stage === 'complete');
-
-const bar = useTemplateRef<HTMLElement>('bar');
-const offscreen = useOffscreen(bar);
 </script>
 
 <template>
@@ -98,47 +87,13 @@ const offscreen = useOffscreen(bar);
                     </p>
                 </div>
 
-                <div
-                    ref="bar"
-                    role="progressbar"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    :aria-valuenow="summary.percent"
-                    :aria-valuetext="`${summary.percent}% complete, ${summary.stage_label} stage`"
-                    :aria-label="`Construction progress of ${summary.project.name}`"
-                    :data-offscreen="offscreen ? '' : undefined"
-                    class="grid grid-cols-4 gap-1"
-                >
-                    <span
-                        v-for="(stage, index) in stages"
-                        :key="stage.value"
-                        :class="
-                            cn(
-                                'h-1 rounded-full',
-                                index <= current
-                                    ? 'bg-primary'
-                                    : 'bg-foreground/10',
-                                index === current &&
-                                    !complete &&
-                                    'progress-pulse',
-                            )
-                        "
-                    />
-                </div>
-                <!-- Stage names; the bar's aria-valuetext already says them. -->
-                <ol class="grid grid-cols-4 gap-1 text-xs" aria-hidden="true">
-                    <li
-                        v-for="(stage, index) in stages"
-                        :key="stage.value"
-                        :class="
-                            index === current
-                                ? 'font-medium text-foreground'
-                                : 'text-muted-foreground'
-                        "
-                    >
-                        {{ stage.label }}
-                    </li>
-                </ol>
+                <ProgressBar
+                    :percent="summary.percent"
+                    :stage="summary.stage"
+                    :stage-label="summary.stage_label"
+                    :stages="stages"
+                    :label="`Construction progress of ${summary.project.name}`"
+                />
             </div>
         </div>
     </article>

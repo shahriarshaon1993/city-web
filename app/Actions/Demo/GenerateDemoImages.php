@@ -19,7 +19,8 @@ use RuntimeException;
  * name without extension: {"alt": "…", "focal": [x, y], "caption": "…",
  * "credit": "…", "decorative": false}. The `hero` group uses the HERO-011
  * profile; "{name}-mobile" files there are portrait mobile crops (HERO-013).
- * The `video` group holds hero videos, copied as they are (CopyDemoVideos).
+ * The `video` group holds hero and project videos, copied as they are
+ * (CopyDemoVideos); `documents` holds the PG-04 PDFs (CopyDemoDocuments).
  * SVG files (partner logos) are copied as they are too, without raster
  * conversions: `sources` stay empty and `fallback` is the SVG (DEC-47).
  *
@@ -36,6 +37,7 @@ final class GenerateDemoImages
     public function __construct(
         private readonly ConvertDemoImage $convert,
         private readonly CopyDemoVideos $copyVideos,
+        private readonly CopyDemoDocuments $copyDocuments,
     ) {}
 
     /**
@@ -120,7 +122,8 @@ final class GenerateDemoImages
         }
 
         $videos = $this->copyVideos->handle($warnings);
-        $removed = $this->removeStale([...array_column($entries, 'dir'), ...array_column($videos, 'dir')]);
+        $documents = $this->copyDocuments->handle($warnings);
+        $removed = $this->removeStale([...array_column($entries, 'dir'), ...array_column($videos, 'dir'), ...array_column($documents, 'dir')]);
 
         File::put(DemoMedia::manifestPath(), (string) json_encode([
             'rules_version' => self::RULES_VERSION,
@@ -128,6 +131,7 @@ final class GenerateDemoImages
             'avif' => $withAvif,
             'images' => $entries,
             'videos' => $videos,
+            'documents' => $documents,
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
         DemoMedia::flush();

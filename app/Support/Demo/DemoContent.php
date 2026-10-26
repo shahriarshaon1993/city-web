@@ -569,11 +569,7 @@ final class DemoContent
             ]),
             self::block(7, 'progress_highlight', [
                 'heading' => 'Construction progress',
-                'stages' => array_map(
-                    fn (string $value, string $label): array => ['value' => $value, 'label' => $label],
-                    array_keys(self::PROGRESS_STAGES),
-                    self::PROGRESS_STAGES,
-                ),
+                'stages' => self::progressStages(),
                 'items' => self::progressSummaries(),
             ], background: 'muted'),
             self::block(8, 'testimonials', [
@@ -684,6 +680,30 @@ final class DemoContent
             self::PARTNERS,
             array_keys(self::PARTNERS),
         );
+    }
+
+    /**
+     * DM-PROG stages in order, as `{value, label}` (CMP-PROG-01 bar).
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public static function progressStages(): array
+    {
+        return array_map(
+            fn (string $value, string $label): array => ['value' => $value, 'label' => $label],
+            array_keys(self::PROGRESS_STAGES),
+            self::PROGRESS_STAGES,
+        );
+    }
+
+    /**
+     * The home block's latest update of a project, so PG-04 shows the same figures.
+     *
+     * @return array{project: string, percent: int, stage: string, reported_on: string, note: string, photo: string}|null
+     */
+    public static function latestProgress(string $slug): ?array
+    {
+        return array_find(self::PROGRESS, fn (array $update): bool => $update['project'] === $slug);
     }
 
     /**

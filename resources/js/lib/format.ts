@@ -111,6 +111,15 @@ export function formatMonth(value: string | Date): string {
     return `${MONTHS[month - 1]} ${year}`;
 }
 
+/** Download size: "940 KB", "2.4 MB" (KB rounded up, so never "0 KB"). */
+export function formatFileSize(bytes: number): string {
+    if (bytes < 1024 * 1024) {
+        return `${formatNumber(Math.max(1, Math.ceil(bytes / 1024)))}${NBSP}KB`;
+    }
+
+    return `${formatNumber(bytes / 1024 / 1024, 1)}${NBSP}MB`;
+}
+
 /** Display form of an E.164 number: Bangladeshi "+880 9600-000000" (DEC-40); other numbers unchanged. */
 export function formatPhone(e164: string): string {
     const parts = /^\+880(\d{4})(\d{6})$/.exec(e164);

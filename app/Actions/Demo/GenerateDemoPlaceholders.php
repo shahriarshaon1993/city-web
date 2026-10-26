@@ -12,11 +12,15 @@ use RuntimeException;
  * the client's photos arrive (owner, 0.3). Existing files are never
  * overwritten; each image marks its focal point so crops can be checked.
  * Partner logos are fictional SVG wordmarks (DEC-47), never real brands;
- * floor plans are fictional SVG drawings (GenerateDemoFloorPlans, 4.2).
+ * floor plans are fictional SVG drawings (GenerateDemoFloorPlans, 4.2);
+ * PG-04 PDFs and film captions come from GenerateDemoDocuments (4.3).
  */
 final class GenerateDemoPlaceholders
 {
-    public function __construct(private readonly GenerateDemoFloorPlans $floorPlans) {}
+    public function __construct(
+        private readonly GenerateDemoFloorPlans $floorPlans,
+        private readonly GenerateDemoDocuments $documents,
+    ) {}
 
     /** Groups the demo content uses, with source sizes above the upload minimums. */
     private const array GROUPS = [
@@ -102,7 +106,7 @@ final class GenerateDemoPlaceholders
             File::put($metaPath, (string) json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
-        return [...$written, ...$this->partnerLogos(), ...$this->floorPlans->handle()];
+        return [...$written, ...$this->partnerLogos(), ...$this->floorPlans->handle(), ...$this->documents->handle()];
     }
 
     /**

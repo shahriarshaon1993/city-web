@@ -37,8 +37,10 @@ use Illuminate\Support\Facades\File;
  *     sources: array{avif: string|null, webp: string, jpeg: string|null},
  *     fallback: string
  * }
- * @phpstan-type VideoEntry array{dir: string, mp4: string, webm: string|null}
+ * @phpstan-type VideoEntry array{dir: string, mp4: string, webm: string|null, captions?: string|null}
  * @phpstan-type MediaVideo array{mp4: string, webm: string|null}
+ * @phpstan-type DocumentEntry array{dir: string, path: string, bytes: int}
+ * @phpstan-type MediaDocument array{url: string, bytes: int}
  */
 final class DemoMedia
 {
@@ -50,6 +52,9 @@ final class DemoMedia
 
     /** @var array<string, VideoEntry>|null */
     private static ?array $videos = null;
+
+    /** @var array<string, DocumentEntry>|null */
+    private static ?array $documents = null;
 
     public static function sourcePath(string $path = ''): string
     {
@@ -131,6 +136,31 @@ final class DemoMedia
     }
 
     /**
+     * URL of the WebVTT captions paired with a video ("video/{name}.vtt"), if any.
+     */
+    public static function captions(string $key): ?string
+    {
+        self::entries();
+        $path = self::$videos[$key]['captions'] ?? null;
+
+        return $path === null ? null : self::url($path);
+    }
+
+    /**
+     * The PDF under "documents/{file name}" (DM-PDOC demo files), or null
+     * until `demo:images --placeholders` has written it.
+     *
+     * @return MediaDocument|null
+     */
+    public static function document(string $key): ?array
+    {
+        self::entries();
+        $entry = self::$documents[$key] ?? null;
+
+        return $entry === null ? null : ['url' => self::url($entry['path']), 'bytes' => $entry['bytes']];
+    }
+
+    /**
      * Keys of all generated images, optionally of one group ("projects").
      *
      * @return list<string>
@@ -159,8 +189,11 @@ final class DemoMedia
             $images = is_array($manifest) ? ($manifest['images'] ?? []) : [];
             /** @var array<string, VideoEntry> $videos */
             $videos = is_array($manifest) ? ($manifest['videos'] ?? []) : [];
+            /** @var array<string, DocumentEntry> $documents */
+            $documents = is_array($manifest) ? ($manifest['documents'] ?? []) : [];
             self::$entries = $images;
             self::$videos = $videos;
+            self::$documents = $documents;
         }
 
         return self::$entries;
@@ -173,6 +206,7 @@ final class DemoMedia
     {
         self::$entries = null;
         self::$videos = null;
+        self::$documents = null;
     }
 
     /**

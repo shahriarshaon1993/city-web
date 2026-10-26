@@ -19,7 +19,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ✅     |
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ✅     |
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ✅     |
-| 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ⬜     |
+| 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ✅     |
 | 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ⬜     |
 | 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ⬜     |
 | 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ⬜     |
@@ -298,6 +298,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 4.2 · **Read:** spec/projects.md FR-PROJ-004..007, AC-PROJ-07, edge cases (handed-over heading); spec/locations.md FR-LOC-007; spec/leads.md FR-LEAD-013; design/components.md CMP-VIDEO-01, CMP-PROG-01, CMP-NEAR-01, CMP-MAP-02, CMP-ENQ-01, CMP-BAR-01 (PG-04 variant), CMP-PERSON-01 (mini), CMP-ACC-01; design/layouts.md LAY-PROJ-DETAIL (T/M).
 **Build:** video facade (`youtube-nocookie` iframe on click, native `<video>` with captions track), virtual-tour link; progress (stat, 4-stage bar, `role="progressbar"`, timeline with photo strips → lightbox); map facade → keyless Google embed on click + "Open in Google Maps"; nearby list; design team; documents (gated lock icon); project FAQ; similar projects (3); enquiry panel (sticky desktop, inline card on tablet, sticky bar on mobile) with dialog shells for Enquire / Site visit / Brochure (forms filled in 7.1); WhatsApp prefilled link.
 **Test:** no iframe or map request until clicked (Network); progress bar read correctly by the accessibility tree; the panel stays sticky and stops before similar projects; WhatsApp URL text is encoded and names the project; the handed-over demo project shows the resale heading.
+
+**Done notes (2026-10-26):**
+- Props: `ProjectDetail` gained `video`, `virtual_tour_url`, `progress` (newest first), `coordinates`, `address`, `nearby`, `design_team`, `documents` (gated = `url: null`, AC-PROJ-05), `faq`, `similar` (AC-PROJ-07), `enquiry` (heading incl. handed-over edge case, WhatsApp E.164 + prefilled text); page prop `cta`; `copy` holds texts + `progress_stages`. Demo data: `App\Support\Demo\DemoProjectSections` (13.3 maps relations to the same shape).
+- Components in `components/site/project/` (ProjectVideo, ProjectProgress, NearbyPlaces, DesignTeam, ProjectDocuments, ProjectFaq, EnquiryPanel, EnquiryDialog); site-level `MapFacade.vue` + `lib/maps.ts` (reuse for 6.2 offices) and `ProgressBar.vue` (home ProgressSummary uses it).
+- **7.1:** put CMP-FORM-02 into `EnquiryDialog`'s default slot per `kind` (`enquire` → project_inquiry, `visit` → site_visit, `brochure` → brochure_download); no-JS links are `/contact?project={slug}&type=…`. Unit "Enquire about Type X" still links (4.2).
+- `composables/useContactBar.ts`: a page overrides the mobile bar (WhatsApp text, Enquire handler) from onMounted. ProjectGallery carries `data-hero`, so the bar appears after the gallery.
+- **7.2:** fire GA4 `whatsapp_click` on the PG-04 WhatsApp links (panel, dialog, mobile bar); nothing is tracked yet.
+- `demo:images --placeholders` writes placeholder PDFs (`documents/`) and `video/project.vtt`; drop `video/project.mp4` for Lakeview's upload demo. YouTube placeholder `aqz-KE-bpKQ` and the Matterport tour URL are demo-only.
+- New preset `video-poster`; `.sticky-under-tabs` (app.css) for the panel; `--color-whatsapp` (icon only); `formatFileSize` ⇄ `Format::fileSize`.
 
 ## Phase 5 — Locations & maps
 

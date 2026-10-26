@@ -1,7 +1,14 @@
-// PG-04 props (ProjectDetailResource, DM-PROJ / DM-UNIT / DM-AMEN). Part A
-// fills them from App\Support\Demo\DemoProjectDetail (DEC-29).
+// PG-04 props (ProjectDetailResource, DM-PROJ / DM-UNIT / DM-AMEN / DM-PROG /
+// DM-NEAR / DM-PDOC). Part A fills them from App\Support\Demo\DemoProjectDetail
+// and DemoProjectSections (DEC-29).
 
-import type { Breadcrumb, MediaImage, ProjectCard } from '@/types/site';
+import type { CtaBandBlock } from '@/types/blocks';
+import type {
+    Breadcrumb,
+    MediaImage,
+    ProgressStage,
+    ProjectCard,
+} from '@/types/site';
 
 export type GalleryCategory =
     | 'exterior'
@@ -80,6 +87,86 @@ export type UnitType = {
     availability_label: string;
 };
 
+/** CMP-VIDEO-01: a YouTube video or an uploaded MP4 (captions = WebVTT URL). */
+export type ProjectVideo = {
+    title: string;
+    poster: MediaImage | null;
+    duration_seconds: number | null;
+} & (
+    | { type: 'youtube'; youtube_id: string }
+    | {
+          type: 'upload';
+          mp4: string;
+          webm: string | null;
+          captions: string | null;
+      }
+);
+
+/** DM-PROG, newest first; `photos` open in the lightbox. */
+export type ProgressUpdate = {
+    id: number;
+    /** ISO date, month precision. */
+    reported_on: string;
+    percent: number;
+    stage: ProgressStage;
+    stage_label: string;
+    note: string | null;
+    photos: MediaImage[];
+};
+
+export type NearbyCategory =
+    | 'school'
+    | 'hospital'
+    | 'mall'
+    | 'mosque'
+    | 'transport'
+    | 'park'
+    | 'office'
+    | 'airport';
+
+export type NearbyPlace = {
+    id: number;
+    name: string;
+    category: NearbyCategory;
+    category_label: string;
+    minutes: number;
+    mode: 'drive' | 'walk';
+    mode_label: string;
+};
+
+export type DesignTeamMember = {
+    role: 'architect' | 'structural_engineer' | 'contractor';
+    role_label: string;
+    name: string;
+};
+
+/** DM-PDOC. Gated documents have no `url`: a signed URL follows the lead (AC-PROJ-05). */
+export type ProjectDocument = {
+    id: number;
+    title: string;
+    kind: 'brochure' | 'price_list' | 'specification' | 'other';
+    kind_label: string;
+    is_gated: boolean;
+    url: string | null;
+    bytes: number | null;
+    format: string;
+};
+
+export type ProjectFaq = {
+    id: number;
+    question: string;
+    /** Sanitised HTML. */
+    answer: string;
+};
+
+/** CMP-ENQ-01 data; WhatsApp = the project's override, else Settings → Contact (E.164). */
+export type ProjectEnquiry = {
+    heading: string;
+    whatsapp: string | null;
+    /** FR-LEAD-013 prefilled text, the project's absolute URL included. */
+    whatsapp_text: string;
+};
+
 export type ProjectDetail = Omit<ProjectCard, 'location'> & {
     tagline: string | null;
     segment_url: string | null;
@@ -96,6 +183,19 @@ export type ProjectDetail = Omit<ProjectCard, 'location'> & {
     amenities: Amenity[];
     unit_types: UnitType[];
     breadcrumbs: Breadcrumb[];
+    video: ProjectVideo | null;
+    /** Allowed hosts only (my.matterport.com, kuula.co, www.youtube.com). */
+    virtual_tour_url: string | null;
+    progress: ProgressUpdate[];
+    coordinates: { lat: number; lng: number } | null;
+    address: string | null;
+    nearby: NearbyPlace[];
+    design_team: DesignTeamMember[];
+    documents: ProjectDocument[];
+    faq: ProjectFaq[];
+    /** AC-PROJ-07: manual picks, else same segment + city (≤ 3). */
+    similar: ProjectCard[];
+    enquiry: ProjectEnquiry;
 };
 
 export type ProjectCopy = {
@@ -110,9 +210,38 @@ export type ProjectCopy = {
     gallery_heading: string;
     gallery_tab: string;
     price_from_label: string;
+    video_heading: string;
+    video_tab: string;
+    tour_label: string;
+    team_heading: string;
+    progress_heading: string;
+    progress_tab: string;
+    progress_timeline_heading: string;
+    location_heading: string;
+    location_tab: string;
+    nearby_heading: string;
+    documents_heading: string;
+    documents_tab: string;
+    faq_heading: string;
+    similar_heading: string;
+    price_on_request: string;
+    sales_name: string;
+    /** `{project}` is replaced by the project name. */
+    enquire_title: string;
+    enquire_text: string;
+    visit_title: string;
+    visit_text: string;
+    brochure_title: string;
+    brochure_text: string;
+    dialog_alternative: string;
+    progress_stages: { value: ProgressStage; label: string }[];
 };
 
 export type ProjectPageProps = {
     project: ProjectDetail;
     copy: ProjectCopy;
+    cta: CtaBandBlock;
 };
+
+/** The three CMP-ENQ-01 dialogs (forms arrive in 7.1). */
+export type EnquiryKind = 'enquire' | 'visit' | 'brochure';
