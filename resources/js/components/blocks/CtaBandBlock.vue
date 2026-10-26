@@ -10,7 +10,8 @@ import type { CtaBandBlock } from '@/types/blocks';
 // (owner kept this over the split layout tried in DEC-48). Styles: `brand` (static --gradient-brand), `gradient` (--gradient-mesh
 // drifting, MOT-GRAD: paused off-screen, static under reduced motion) and
 // `image` (photo + 55 % stone-950 overlay). CTAs are `light` + `on-media`
-// (DEC-47): the header's Enquire stays the one coral button (DP-04). The
+// (DEC-47): the header's Enquire stays the one coral button (DP-04); both
+// are magnetic (MOT-MAGNETIC, fine pointers only). The
 // triangle cluster (DP-03) sits at the right edge from 1024 px. The layers
 // are positioned against the <section> (the wrappers are static).
 defineProps<{
@@ -86,16 +87,26 @@ const offscreen = useOffscreen(band);
                 </p>
                 <div class="mt-2 flex flex-wrap justify-center gap-3">
                     <BlockLinkButton
+                        v-magnetic
                         :link="block.data.primary_cta"
                         variant="light"
                         size="lg"
-                    />
+                    >
+                        <span data-magnetic-label class="inline-flex">
+                            {{ block.data.primary_cta.label }}
+                        </span>
+                    </BlockLinkButton>
                     <BlockLinkButton
                         v-if="block.data.secondary_cta"
+                        v-magnetic
                         :link="block.data.secondary_cta"
                         variant="on-media"
                         size="lg"
-                    />
+                    >
+                        <span data-magnetic-label class="inline-flex">
+                            {{ block.data.secondary_cta.label }}
+                        </span>
+                    </BlockLinkButton>
                 </div>
             </div>
         </div>

@@ -599,8 +599,8 @@ html.lenis body {
 }
 
 /*
- * MOT-MEGA / MOT-MENU, CSS-only until the GSAP timelines of 3.2. Transform
- * and opacity only (MOT-R01); none of it runs under reduced motion (MOT-R03).
+ * MOT-MEGA (CSS). MOT-MENU is a GSAP timeline (motion/menu.ts, 3.2).
+ * Transform and opacity only (MOT-R01); none of it under reduced motion.
  */
 @media (prefers-reduced-motion: no-preference) {
     :root:not([data-reduce-motion]) {
@@ -616,16 +616,6 @@ html.lenis body {
         .mega-content[data-state='open'] .mega-column {
             animation: mega-column-in var(--dur-base) var(--ease-out-expo) both;
             animation-delay: calc(var(--i, 0) * 40ms);
-        }
-        .mobile-menu[data-state='open'] {
-            animation: menu-in 420ms var(--ease-out-expo) both;
-        }
-        .mobile-menu[data-state='closed'] {
-            animation: menu-out var(--dur-base) var(--ease-in-out) both;
-        }
-        .mobile-menu[data-state='open'] .mobile-menu-link {
-            animation: menu-link-in 420ms var(--ease-out-expo) both;
-            animation-delay: calc(120ms + var(--i, 0) * var(--stagger-tight));
         }
     }
 }
@@ -648,25 +638,6 @@ html.lenis body {
     from {
         opacity: 0;
         transform: translateY(8px);
-    }
-}
-
-@keyframes menu-in {
-    from {
-        transform: translateX(100%);
-    }
-}
-
-@keyframes menu-out {
-    to {
-        transform: translateX(100%);
-    }
-}
-
-@keyframes menu-link-in {
-    from {
-        opacity: 0;
-        transform: translateY(24px);
     }
 }
 
@@ -762,10 +733,16 @@ html.lenis body {
         filter var(--dur-base) var(--ease-standard),
         opacity var(--dur-base) var(--ease-standard);
 }
-.marquee-logo:hover,
 .marquee-logo:focus-visible {
     filter: none;
     opacity: 1;
+}
+/* UX-01: hover states only for hovering pointers (no sticky tap state). */
+@media (hover: hover) {
+    .marquee-logo:hover {
+        filter: none;
+        opacity: 1;
+    }
 }
 @media (prefers-reduced-motion: no-preference) {
     :root:not([data-reduce-motion]) {
@@ -775,12 +752,16 @@ html.lenis body {
         .marquee[data-direction='right'] .marquee-track {
             animation-direction: reverse;
         }
-        .marquee:hover .marquee-track,
         .marquee:focus-within .marquee-track,
         .marquee[data-paused] .marquee-track,
         .marquee[data-offscreen] .marquee-track {
             animation-play-state: paused;
         }
+    }
+}
+@media (hover: hover) {
+    .marquee:hover .marquee-track {
+        animation-play-state: paused;
     }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -869,5 +850,85 @@ html.lenis body {
 @keyframes progress-pulse {
     50% {
         opacity: 0.6;
+    }
+}
+
+/*
+ * MOT-GLOW (`glow` button): a conic sweep rotates in a 1.5 px ring while a
+ * fine pointer hovers or focus is visible (4 s linear, rotate only); the
+ * static --glow-primary shadow is all touch and reduced motion get. Used on
+ * the styleguide only — public CTAs are `light` / `on-media` (owner, 3.2).
+ */
+.glow-ring {
+    isolation: isolate;
+    overflow: hidden;
+}
+.glow-ring::before,
+.glow-ring::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+}
+.glow-ring::before {
+    top: 50%;
+    left: 50%;
+    width: max(150%, 12rem);
+    aspect-ratio: 1;
+    background: conic-gradient(
+        transparent 0turn 0.7turn,
+        rgb(255 255 255 / 0.85) 0.85turn,
+        transparent 1turn
+    );
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity var(--dur-base) var(--ease-standard);
+}
+.glow-ring::after {
+    inset: 1.5px;
+    border-radius: calc(var(--radius-md) - 1.5px);
+    background-color: inherit;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    :root:not([data-reduce-motion]) {
+        .glow-ring:is(:hover, :focus-visible)::before {
+            opacity: 1;
+            animation: glow-spin 4s linear infinite;
+        }
+    }
+}
+
+@keyframes glow-spin {
+    to {
+        transform: translate(-50%, -50%) rotate(1turn);
+    }
+}
+
+/*
+ * MOT-UNDERLINE for plain text links (footer; inline links from 6.1): a 1 px
+ * line in the text colour grows from the left under `.link-line` when its
+ * link is hovered (hovering pointers) or focused. Transform only (MOT-R01),
+ * instant under reduced motion. The header nav has its own (DesktopNav).
+ */
+.link-line {
+    position: relative;
+}
+.link-line::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.125em;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-base) var(--ease-standard);
+}
+a:focus-visible .link-line::after {
+    transform: scaleX(1);
+}
+@media (hover: hover) {
+    a:hover .link-line::after {
+        transform: scaleX(1);
     }
 }

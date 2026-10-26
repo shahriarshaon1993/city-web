@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { attachEffect } from '@/motion/effects';
+import { animateMenu } from '@/motion/menu';
 import { createSmoothScroll } from '@/motion/smooth-scroll';
 import type { MotionOptions, MotionRuntime } from '@/motion/types';
 
@@ -34,6 +35,7 @@ export function createRuntime(options: MotionOptions): MotionRuntime {
         attach: attachEffect,
         refresh,
         setPaused: (paused) => smooth?.setPaused(paused),
+        animateMenu,
         destroy() {
             offNavigate();
             cancelAnimationFrame(refreshFrame);

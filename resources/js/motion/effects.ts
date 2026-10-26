@@ -2,6 +2,8 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { formatNumber } from '@/lib/format';
+import { line, magnetic, parallax, tilt } from '@/motion/interactive';
+import { compact, passed } from '@/motion/measure';
 import type { MotionEntry } from '@/motion/types';
 
 // design/motion.md §8.4 effects, GSAP side. Every effect follows MOT-R02:
@@ -11,25 +13,14 @@ import type { MotionEntry } from '@/motion/types';
 // (MOT-R01). Each binding runs in its own `gsap.context`, reverted when the
 // element unmounts (MOT-R05), which also kills its ScrollTriggers.
 
-type Cleanup = (() => void) | void;
+export type Cleanup = (() => void) | void;
 
 /** Runs `fn` inside the binding's context, so later tweens are reverted too. */
-type Within = (fn: () => void) => void;
+export type Within = (fn: () => void) => void;
 
 const REVEAL_START = 0.85;
 const MASK_START = 0.8;
 const EXPO = 'expo.out';
-
-/** MOT-R04 + the "Mobile" column: shorter moves on touch and small screens. */
-function compact(): boolean {
-    return window.matchMedia(
-        '(max-width: 767px), (hover: none), (pointer: coarse)',
-    ).matches;
-}
-
-function passed(el: Element, start: number): boolean {
-    return el.getBoundingClientRect().top < window.innerHeight * start;
-}
 
 function seconds(ms: number | undefined): number {
     return Math.min(300, Math.max(0, ms ?? 0)) / 1000;
@@ -300,6 +291,14 @@ function run(entry: MotionEntry, within: Within): Cleanup {
             return mask(el, seconds(value), within);
         case 'counter':
             return counter(el, value ?? 0, within);
+        case 'parallax':
+            return parallax(el, value ?? 10);
+        case 'magnetic':
+            return magnetic(el);
+        case 'tilt':
+            return tilt(el);
+        case 'line':
+            return line(el);
     }
 }
 

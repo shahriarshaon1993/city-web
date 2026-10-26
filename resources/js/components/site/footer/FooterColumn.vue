@@ -61,7 +61,7 @@ const listId = useId();
                     :aria-current="isCurrent(item.url) ? 'page' : undefined"
                     class="inline-flex min-h-11 items-center rounded-sm text-muted-foreground transition-colors duration-(--dur-fast) hover:text-foreground aria-[current=page]:text-foreground md:min-h-9"
                 >
-                    {{ item.label }}
+                    <span class="link-line">{{ item.label }}</span>
                 </Link>
             </li>
         </ul>

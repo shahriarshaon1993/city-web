@@ -16,7 +16,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 2.3  | Design refresh — premium direction (type, shape, card, demo photos)        | 2.2            | ✅     |
 | 2.4  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.3            | ✅     |
 | 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ✅     |
-| 3.2  | Interactive effects & page transitions                                     | 3.1            | ⬜     |
+| 3.2  | Interactive effects & page transitions                                     | 3.1            | ✅     |
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ⬜     |
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ⬜     |
 | 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ⬜     |
@@ -252,6 +252,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 3.1 · **Read:** design/motion.md MOT-R04..R07, MOT-PARALLAX, MOT-MAGNETIC, MOT-TILT, MOT-GLOW, MOT-MENU, MOT-PAGE, MOT-CARD-IMG, MOT-UNDERLINE, MOT-LINE, MOT-PORTRAIT, MOT-ACC, MOT-TAB; design/patterns.md UX-01.
 **Build:** `v-parallax`, `v-magnetic`, `v-tilt` (pointer-fine only), glow rotation, mobile-menu GSAP timeline, page enter transition (client visits only), `MOT-LINE` helper for process steps (used in 6.1); audit CSS hover effects for `(hover: hover)`.
 **Test:** touch emulation → no magnetic/tilt, parallax halved; Performance recording of a home scroll with 4× CPU slowdown stays smooth (no long tasks from motion setup); the first page load never animates; page transitions keep focus/announcement from 1.2.
+
+**Done notes (2026-10-26):**
+- Lazy chunk adds `motion/interactive.ts` (`v-parallax`, `v-magnetic`, `v-tilt`, `v-line`), `motion/menu.ts` (MOT-MENU), `motion/measure.ts` (`compact`/`finePointer`/`passed`). Bridge attaches every entry in idle slices (≤ 8 ms, MOT-R06), on first load and client visits; hero `.hero` reveals still attach at once.
+- `v-parallax="N"` (% of frame, ≤ 10, halved on touch/small): needs a `[data-parallax-layer]` child that overflows the frame by N % top and bottom from first paint (`-inset-y-[N%]`). Hero = 8 (`HeroShell`). 6.1 page_header / parallax_band use the same contract.
+- `v-magnetic` (6 px, `[data-magnetic-label]` inline-flex span moves 1.3×): hero CTAs + CTA band. `v-tilt` (`[data-tilt-depth]`, `[data-tilt-glare]`) and the `glow` ring (`.glow-ring`) are styleguide-only (DEC-51). `v-line` on the steps wrapper, `[data-line-path]` = SVG shape or an HTML rule (`data-line-axis="x"`).
+- Mobile menu: `DialogContent force-mount v-if` under `<Transition :css="false">` → `animateMenu()` from the bridge (instant without runtime); groups carry `data-menu-link`. New sheets that want a GSAP timeline follow the same pattern.
+- MOT-PAGE enter = Web Animations on `#content` in `useNavigationFeedback` (only on visits that announce). `.link-line` span = MOT-UNDERLINE for text links (footer now; inline links in 6.1). Custom `:hover` CSS lives in `@media (hover: hover)`.
+- Motion chunk 55.31 KB gzip, 0.31 KB over DEC-50's 55 KB — open, see DEC-51.
 
 ## Phase 4 — Projects
 

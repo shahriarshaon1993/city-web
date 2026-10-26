@@ -14,7 +14,7 @@ import type { ProjectCard } from '@/types/site';
 // (the name, stretched over the card); the heart is a separate button above
 // it. `featured` is an editorial card with the text over the photo, so it
 // fills its two grid columns ≥ 1280 (the parent sets the span) at the height
-// of its row. Compare (FR-SHORT-003) arrives in 8.3; tilt in 3.2.
+// of its row. Compare (FR-SHORT-003) arrives in 8.3. No MOT-TILT (owner, 3.2).
 const props = withDefaults(
     defineProps<{
         project: ProjectCard;

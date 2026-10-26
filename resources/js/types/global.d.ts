@@ -33,6 +33,10 @@ declare module 'vue' {
         vSplit: MotionDirective;
         vMask: MotionDirective;
         vCounter: MotionDirective;
+        vParallax: MotionDirective;
+        vMagnetic: MotionDirective;
+        vTilt: MotionDirective;
+        vLine: MotionDirective;
     }
 
     interface ComponentCustomProperties {

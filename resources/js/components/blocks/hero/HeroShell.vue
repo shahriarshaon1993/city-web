@@ -12,7 +12,8 @@ import type { BlockLink, HeroBlockData } from '@/types/blocks';
 // TOK-C27 shadow, CTAs, search (CMP-SEARCH-01) and the scroll cue. Height
 // is reserved by min-height (HERO-033). Text is visible at first paint
 // (HERO-032); MOT-REVEAL-HERO wipes the lines in on client visits only
-// (`v-reveal.hero`, owner 3.1).
+// (`v-reveal.hero`, owner 3.1). The media layer has MOT-PARALLAX (≤ 8 %),
+// the CTAs MOT-MAGNETIC (fine pointers only).
 // `data-hero`: the mobile contact bar appears once this leaves the viewport.
 defineOptions({ inheritAttrs: false });
 
@@ -85,6 +86,7 @@ onBeforeUnmount(() => {
 <template>
     <section
         v-bind="$attrs"
+        v-parallax="8"
         data-hero
         :class="
             cn(
@@ -94,7 +96,8 @@ onBeforeUnmount(() => {
         "
         :style="{ '--overlay': overlay }"
     >
-        <div class="absolute inset-0 -z-10">
+        <!-- MOT-PARALLAX ≤ 8 %: the layer overflows by that share. -->
+        <div data-parallax-layer class="absolute inset-x-0 -inset-y-[8%] -z-10">
             <slot name="media" />
             <div
                 data-overlay
@@ -164,6 +167,7 @@ onBeforeUnmount(() => {
                         <Button
                             v-for="cta in ctas"
                             :key="cta.link.label"
+                            v-magnetic
                             as-child
                             :variant="cta.variant"
                             size="lg"
@@ -173,7 +177,9 @@ onBeforeUnmount(() => {
                                 v-if="isInternal(cta.link)"
                                 :href="cta.link.url"
                             >
-                                {{ cta.link.label }}
+                                <span data-magnetic-label class="inline-flex">
+                                    {{ cta.link.label }}
+                                </span>
                             </Link>
                             <a
                                 v-else
@@ -183,7 +189,9 @@ onBeforeUnmount(() => {
                                 "
                                 :rel="cta.link.new_tab ? 'noopener' : undefined"
                             >
-                                {{ cta.link.label }}
+                                <span data-magnetic-label class="inline-flex">
+                                    {{ cta.link.label }}
+                                </span>
                             </a>
                         </Button>
                     </div>

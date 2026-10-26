@@ -6,6 +6,7 @@ import EmptySkeletonShowcase from '@/components/styleguide/EmptySkeletonShowcase
 import FormattersTable from '@/components/styleguide/FormattersTable.vue';
 import FormControlsPanel from '@/components/styleguide/FormControlsPanel.vue';
 import ImagesShowcase from '@/components/styleguide/ImagesShowcase.vue';
+import MotionShowcase from '@/components/styleguide/MotionShowcase.vue';
 import ProjectCardsShowcase from '@/components/styleguide/ProjectCardsShowcase.vue';
 import SemanticTokens from '@/components/styleguide/SemanticTokens.vue';
 import StyleguideSection from '@/components/styleguide/StyleguideSection.vue';
@@ -70,6 +71,7 @@ defineProps<{
             <EmptySkeletonShowcase />
             <ImagesShowcase :images="images" :og-image="ogImage" />
             <ProjectCardsShowcase :projects="projects" />
+            <MotionShowcase :images="images" />
             <FormattersTable :samples="formatSamples" />
         </div>
     </div>

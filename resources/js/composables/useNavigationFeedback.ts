@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/vue3';
 import type { Ref } from 'vue';
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { isMotionReduced } from '@/motion/preference';
 
 /** MOT-PAGE: the dim (and Inertia's progress bar) start after 150 ms. */
 const DIM_DELAY = 150;
@@ -12,6 +13,10 @@ type VisitInfo = { preserveState: unknown; only: string[] };
  * - `navigating`: true while a visit runs longer than 150 ms (MOT-PAGE `.is-navigating`).
  * - after a route change, focus moves to `main` and `announcement` reads
  *   "Navigated to {title}" in a polite live region (A11Y-D06, SEO-A11Y-003).
+ * - MOT-PAGE enter: the new page fades and rises in (opacity 0 → 1, y 12 → 0,
+ *   240 ms). Client visits only — the first load never animates — and not
+ *   under reduced motion (MOT-R03). Web Animations, so no class fights
+ *   Vue's binding and nothing waits for the motion chunk.
  * Partial reloads and preserve-state visits (filters, 4.1) keep focus where it is.
  */
 export function useNavigationFeedback(
@@ -29,6 +34,20 @@ export function useNavigationFeedback(
     function onPopState(): void {
         pending = true;
         lastVisit = null;
+    }
+
+    function enter(): void {
+        if (isMotionReduced() || typeof main.value?.animate !== 'function') {
+            return;
+        }
+
+        main.value.animate(
+            [
+                { opacity: 0, transform: 'translateY(12px)' },
+                { opacity: 1, transform: 'none' },
+            ],
+            { duration: 240, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
+        );
     }
 
     async function announce(): Promise<void> {
@@ -76,6 +95,7 @@ export function useNavigationFeedback(
                     return;
                 }
 
+                enter();
                 void announce();
             }),
         );

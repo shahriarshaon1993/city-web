@@ -192,7 +192,7 @@ const linkClass =
                             "
                             :class="linkClass"
                         >
-                            {{ area.label }}
+                            <span class="link-line">{{ area.label }}</span>
                         </Link>
                     </li>
                 </ul>
@@ -215,7 +215,9 @@ const linkClass =
                                     "
                                     :class="linkClass"
                                 >
-                                    {{ item.label }}
+                                    <span class="link-line">{{
+                                        item.label
+                                    }}</span>
                                 </Link>
                             </li>
                         </ul>

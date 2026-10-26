@@ -26,19 +26,62 @@ function attach(entry: MotionEntry): void {
     }
 }
 
-// Elements mounted by a client visit are attached two frames later, after
-// Inertia's scroll reset, so "already passed" is measured on the new page.
-function flush(): void {
-    flushFrame = 0;
-    pending.forEach(attach);
-    pending.clear();
+/** Runs `fn` when the main thread is idle (setTimeout where rIC is missing). */
+function whenIdle(fn: (deadline: IdleDeadline | null) => void): void {
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(fn, { timeout: 500 });
+    } else {
+        setTimeout(() => fn(null), 16);
+    }
+}
+
+// MOT-R06: setup (measuring, SplitText) runs in idle slices of a few ms, so
+// a page full of effects never makes a long task. "Already passed" is still
+// measured and the "from" state set in the same slice (MOT-R02).
+let draining = false;
+
+function drain(deadline: IdleDeadline | null): void {
+    const until = performance.now() + 8;
+    const hasTime = (): boolean =>
+        deadline
+            ? deadline.didTimeout || deadline.timeRemaining() > 2
+            : performance.now() < until;
+
+    for (const entry of pending) {
+        pending.delete(entry);
+        attach(entry);
+
+        if (!hasTime()) {
+            break;
+        }
+    }
+
+    if (pending.size > 0) {
+        whenIdle(drain);
+
+        return;
+    }
+
+    draining = false;
     runtime?.refresh();
 }
 
+function startDrain(): void {
+    if (!draining) {
+        draining = true;
+        whenIdle(drain);
+    }
+}
+
+// Elements mounted by a client visit are queued two frames later, after
+// Inertia's scroll reset, so "already passed" is measured on the new page.
 function scheduleFlush(): void {
     if (flushFrame === 0) {
         flushFrame = requestAnimationFrame(() => {
-            flushFrame = requestAnimationFrame(flush);
+            flushFrame = requestAnimationFrame(() => {
+                flushFrame = 0;
+                startDrain();
+            });
         });
     }
 }
@@ -117,9 +160,9 @@ export function startMotion(
             runtime = createRuntime({ ...options, paused: pauses.size > 0 });
             entries.forEach((entry) => {
                 entry.late = false;
-                attach(entry);
+                pending.add(entry);
             });
-            pending.clear();
+            startDrain();
         })
         .catch(() => {
             // Chunk failed to load: everything simply stays visible.
@@ -135,8 +178,25 @@ export function stopMotion(): void {
         entry.detach?.();
         entry.detach = null;
     });
+    pending.clear();
     runtime?.destroy();
     runtime = null;
+}
+
+/**
+ * MOT-MENU for a Vue `<Transition :css="false">` hook: the GSAP timeline
+ * when the runtime runs, otherwise instant (MOT-R03, or not loaded yet).
+ */
+export function animateMenu(
+    panel: Element,
+    opening: boolean,
+    done: () => void,
+): void {
+    if (runtime && panel instanceof HTMLElement && !isMotionReduced()) {
+        runtime.animateMenu(panel, opening, done);
+    } else {
+        done();
+    }
 }
 
 /**

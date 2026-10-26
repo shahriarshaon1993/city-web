@@ -17,6 +17,7 @@ import {
 } from 'reka-ui';
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
+import { animateMenu } from '@/motion/bridge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { socialLinks, whatsappUrl } from '@/lib/contact';
 import { formatPhone } from '@/lib/format';
@@ -26,7 +27,8 @@ import type { MenuItem, SiteShared } from '@/types/site';
 // CMP-NAV-03 (+ CMP-MODAL-01): full-screen sheet from the right, max 420 px
 // from md, dark scope. Reka Dialog traps focus, closes on Esc, returns focus
 // to the trigger, hides the background from AT and locks body scroll.
-// MOT-MENU is CSS here (sheet slide + link stagger); GSAP replaces it in 3.2.
+// MOT-MENU: the content is force-mounted under a JS-only <Transition>, whose
+// hooks play the GSAP timeline (instant until the motion runtime runs).
 const props = defineProps<{
     items: MenuItem[];
     onMedia: boolean;
@@ -101,6 +103,14 @@ onBeforeUnmount(() => {
     desktopQuery?.removeEventListener('change', closeOnDesktop);
 });
 
+function onEnter(panel: Element, done: () => void): void {
+    animateMenu(panel, true, done);
+}
+
+function onLeave(panel: Element, done: () => void): void {
+    animateMenu(panel, false, done);
+}
+
 const linkClass =
     'flex min-h-11 items-center rounded-sm py-1 transition-colors duration-(--dur-fast) hover:text-primary aria-[current=page]:text-primary';
 </script>
@@ -125,218 +135,230 @@ const linkClass =
             <DialogOverlay
                 class="fixed inset-0 z-(--z-overlay) bg-stone-950/60 backdrop-blur-sm duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
             />
-            <DialogContent
-                :aria-describedby="undefined"
-                class="theme-dark mobile-menu fixed inset-y-0 right-0 z-(--z-drawer) flex w-screen flex-col bg-(image:--gradient-dusk) shadow-lg outline-none md:max-w-105"
-            >
-                <DialogTitle class="sr-only">Menu</DialogTitle>
-
-                <div
-                    class="flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-6"
+            <Transition :css="false" @enter="onEnter" @leave="onLeave">
+                <DialogContent
+                    v-if="open"
+                    force-mount
+                    :aria-describedby="undefined"
+                    class="theme-dark fixed inset-y-0 right-0 z-(--z-drawer) flex w-screen flex-col bg-(image:--gradient-dusk) shadow-lg outline-none md:max-w-105"
                 >
-                    <Link href="/" class="shrink-0 rounded-sm">
-                        <img
-                            :src="site.logos.light"
-                            :alt="site.name"
-                            width="240"
-                            height="56"
-                            class="h-8 w-auto"
-                        />
-                    </Link>
-                    <DialogClose
-                        aria-label="Close menu"
-                        :class="
-                            buttonVariants({ variant: 'ghost', size: 'icon' })
-                        "
-                    >
-                        <X class="size-6" aria-hidden="true" />
-                    </DialogClose>
-                </div>
-
-                <div
-                    data-lenis-prevent
-                    class="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6"
-                >
-                    <nav aria-label="Main">
-                        <AccordionRoot
-                            type="single"
-                            collapsible
-                            :default-value="openSection"
-                            as="ul"
-                            class="flex flex-col"
-                        >
-                            <li
-                                v-for="(item, index) in items"
-                                :key="item.id"
-                                class="mobile-menu-link border-b border-border"
-                                :style="{ '--i': index }"
-                            >
-                                <AccordionItem
-                                    v-if="groupsOf(item).length > 0"
-                                    :value="String(item.id)"
-                                >
-                                    <AccordionHeader as="div">
-                                        <AccordionTrigger
-                                            class="group flex min-h-14 w-full items-center justify-between gap-4 rounded-sm py-2 text-left font-display text-h3"
-                                        >
-                                            {{ item.label }}
-                                            <ChevronDown
-                                                class="size-6 shrink-0 text-muted-foreground transition-transform duration-(--dur-base) group-data-[state=open]:rotate-180"
-                                                aria-hidden="true"
-                                            />
-                                        </AccordionTrigger>
-                                    </AccordionHeader>
-                                    <AccordionContent
-                                        class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-                                    >
-                                        <div class="flex flex-col gap-5 pb-5">
-                                            <div
-                                                v-for="(
-                                                    group, groupIndex
-                                                ) in groupsOf(item)"
-                                                :key="groupIndex"
-                                            >
-                                                <p
-                                                    v-if="group.heading"
-                                                    class="mb-1 text-overline text-muted-foreground uppercase"
-                                                >
-                                                    {{ group.heading }}
-                                                </p>
-                                                <ul>
-                                                    <li
-                                                        v-for="link in group.items"
-                                                        :key="link.id"
-                                                    >
-                                                        <Link
-                                                            :href="link.url"
-                                                            :aria-current="
-                                                                isCurrent(
-                                                                    link.url,
-                                                                )
-                                                                    ? 'page'
-                                                                    : undefined
-                                                            "
-                                                            :class="linkClass"
-                                                            class="text-body-lg"
-                                                        >
-                                                            {{ link.label }}
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <Link
-                                                v-if="item.mega"
-                                                :href="item.url"
-                                                :aria-current="
-                                                    isCurrent(item.url)
-                                                        ? 'page'
-                                                        : undefined
-                                                "
-                                                :class="linkClass"
-                                                class="font-semibold text-primary"
-                                            >
-                                                {{
-                                                    `View all ${item.label.toLowerCase()}`
-                                                }}
-                                            </Link>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                                <Link
-                                    v-else
-                                    :href="item.url"
-                                    :aria-current="
-                                        isCurrent(item.url) ? 'page' : undefined
-                                    "
-                                    :class="linkClass"
-                                    class="min-h-14 font-display text-h3"
-                                >
-                                    {{ item.label }}
-                                </Link>
-                            </li>
-                        </AccordionRoot>
-
-                        <ul
-                            v-if="extraItems.length > 0"
-                            class="mobile-menu-link mt-4 flex flex-col"
-                            :style="{ '--i': items.length }"
-                        >
-                            <li v-for="link in extraItems" :key="link.id">
-                                <Link
-                                    :href="link.url"
-                                    :aria-current="
-                                        isCurrent(link.url) ? 'page' : undefined
-                                    "
-                                    :class="linkClass"
-                                    class="text-body-lg font-medium"
-                                >
-                                    {{ link.label }}
-                                </Link>
-                            </li>
-                        </ul>
-                    </nav>
+                    <DialogTitle class="sr-only">Menu</DialogTitle>
 
                     <div
-                        class="mobile-menu-link mt-auto flex flex-col gap-3"
-                        :style="{ '--i': items.length + 1 }"
+                        class="flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-6"
                     >
-                        <Button
-                            v-if="site.contact.hotline"
-                            as="a"
-                            :href="`tel:${site.contact.hotline}`"
-                            variant="outline"
-                            size="lg"
+                        <Link href="/" class="shrink-0 rounded-sm">
+                            <img
+                                :src="site.logos.light"
+                                :alt="site.name"
+                                width="240"
+                                height="56"
+                                class="h-8 w-auto"
+                            />
+                        </Link>
+                        <DialogClose
+                            aria-label="Close menu"
+                            :class="
+                                buttonVariants({
+                                    variant: 'ghost',
+                                    size: 'icon',
+                                })
+                            "
                         >
-                            <Phone class="size-5" aria-hidden="true" />
-                            <span class="sr-only">Call</span>
-                            {{ formatPhone(site.contact.hotline) }}
-                        </Button>
-                        <Button
-                            v-if="whatsapp"
-                            as="a"
-                            :href="whatsapp"
-                            target="_blank"
-                            rel="noopener"
-                            variant="outline"
-                            size="lg"
-                        >
-                            <SocialIcon network="whatsapp" class="size-5" />
-                            WhatsApp
-                        </Button>
-                        <Button as-child variant="accent" size="lg">
-                            <Link :href="site.header.cta.url">
-                                {{ site.header.cta.label }}
-                            </Link>
-                        </Button>
-
-                        <ul
-                            v-if="social.length > 0"
-                            class="mt-2 flex flex-wrap justify-center gap-1"
-                        >
-                            <li v-for="link in social" :key="link.network">
-                                <a
-                                    :href="link.url"
-                                    target="_blank"
-                                    rel="noopener"
-                                    :aria-label="link.label"
-                                    :class="
-                                        buttonVariants({
-                                            variant: 'ghost',
-                                            size: 'icon',
-                                        })
-                                    "
-                                >
-                                    <SocialIcon
-                                        :network="link.network"
-                                        class="size-5"
-                                    />
-                                </a>
-                            </li>
-                        </ul>
+                            <X class="size-6" aria-hidden="true" />
+                        </DialogClose>
                     </div>
-                </div>
-            </DialogContent>
+
+                    <div
+                        data-lenis-prevent
+                        class="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6"
+                    >
+                        <nav aria-label="Main">
+                            <AccordionRoot
+                                type="single"
+                                collapsible
+                                :default-value="openSection"
+                                as="ul"
+                                class="flex flex-col"
+                            >
+                                <li
+                                    v-for="item in items"
+                                    :key="item.id"
+                                    data-menu-link
+                                    class="border-b border-border"
+                                >
+                                    <AccordionItem
+                                        v-if="groupsOf(item).length > 0"
+                                        :value="String(item.id)"
+                                    >
+                                        <AccordionHeader as="div">
+                                            <AccordionTrigger
+                                                class="group flex min-h-14 w-full items-center justify-between gap-4 rounded-sm py-2 text-left font-display text-h3"
+                                            >
+                                                {{ item.label }}
+                                                <ChevronDown
+                                                    class="size-6 shrink-0 text-muted-foreground transition-transform duration-(--dur-base) group-data-[state=open]:rotate-180"
+                                                    aria-hidden="true"
+                                                />
+                                            </AccordionTrigger>
+                                        </AccordionHeader>
+                                        <AccordionContent
+                                            class="overflow-hidden duration-(--dur-base) data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+                                        >
+                                            <div
+                                                class="flex flex-col gap-5 pb-5"
+                                            >
+                                                <div
+                                                    v-for="(
+                                                        group, groupIndex
+                                                    ) in groupsOf(item)"
+                                                    :key="groupIndex"
+                                                >
+                                                    <p
+                                                        v-if="group.heading"
+                                                        class="mb-1 text-overline text-muted-foreground uppercase"
+                                                    >
+                                                        {{ group.heading }}
+                                                    </p>
+                                                    <ul>
+                                                        <li
+                                                            v-for="link in group.items"
+                                                            :key="link.id"
+                                                        >
+                                                            <Link
+                                                                :href="link.url"
+                                                                :aria-current="
+                                                                    isCurrent(
+                                                                        link.url,
+                                                                    )
+                                                                        ? 'page'
+                                                                        : undefined
+                                                                "
+                                                                :class="
+                                                                    linkClass
+                                                                "
+                                                                class="text-body-lg"
+                                                            >
+                                                                {{ link.label }}
+                                                            </Link>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <Link
+                                                    v-if="item.mega"
+                                                    :href="item.url"
+                                                    :aria-current="
+                                                        isCurrent(item.url)
+                                                            ? 'page'
+                                                            : undefined
+                                                    "
+                                                    :class="linkClass"
+                                                    class="font-semibold text-primary"
+                                                >
+                                                    {{
+                                                        `View all ${item.label.toLowerCase()}`
+                                                    }}
+                                                </Link>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    <Link
+                                        v-else
+                                        :href="item.url"
+                                        :aria-current="
+                                            isCurrent(item.url)
+                                                ? 'page'
+                                                : undefined
+                                        "
+                                        :class="linkClass"
+                                        class="min-h-14 font-display text-h3"
+                                    >
+                                        {{ item.label }}
+                                    </Link>
+                                </li>
+                            </AccordionRoot>
+
+                            <ul
+                                v-if="extraItems.length > 0"
+                                data-menu-link
+                                class="mt-4 flex flex-col"
+                            >
+                                <li v-for="link in extraItems" :key="link.id">
+                                    <Link
+                                        :href="link.url"
+                                        :aria-current="
+                                            isCurrent(link.url)
+                                                ? 'page'
+                                                : undefined
+                                        "
+                                        :class="linkClass"
+                                        class="text-body-lg font-medium"
+                                    >
+                                        {{ link.label }}
+                                    </Link>
+                                </li>
+                            </ul>
+                        </nav>
+
+                        <div data-menu-link class="mt-auto flex flex-col gap-3">
+                            <Button
+                                v-if="site.contact.hotline"
+                                as="a"
+                                :href="`tel:${site.contact.hotline}`"
+                                variant="outline"
+                                size="lg"
+                            >
+                                <Phone class="size-5" aria-hidden="true" />
+                                <span class="sr-only">Call</span>
+                                {{ formatPhone(site.contact.hotline) }}
+                            </Button>
+                            <Button
+                                v-if="whatsapp"
+                                as="a"
+                                :href="whatsapp"
+                                target="_blank"
+                                rel="noopener"
+                                variant="outline"
+                                size="lg"
+                            >
+                                <SocialIcon network="whatsapp" class="size-5" />
+                                WhatsApp
+                            </Button>
+                            <Button as-child variant="accent" size="lg">
+                                <Link :href="site.header.cta.url">
+                                    {{ site.header.cta.label }}
+                                </Link>
+                            </Button>
+
+                            <ul
+                                v-if="social.length > 0"
+                                class="mt-2 flex flex-wrap justify-center gap-1"
+                            >
+                                <li v-for="link in social" :key="link.network">
+                                    <a
+                                        :href="link.url"
+                                        target="_blank"
+                                        rel="noopener"
+                                        :aria-label="link.label"
+                                        :class="
+                                            buttonVariants({
+                                                variant: 'ghost',
+                                                size: 'icon',
+                                            })
+                                        "
+                                    >
+                                        <SocialIcon
+                                            :network="link.network"
+                                            class="size-5"
+                                        />
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Transition>
         </DialogPortal>
     </DialogRoot>
 </template>

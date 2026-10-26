@@ -1,13 +1,24 @@
 // Shared between the always-loaded bridge and the lazy motion chunk
 // (design/motion.md §8.5). Type-only, so it never pulls GSAP in.
 
-export type MotionKind = 'reveal' | 'split' | 'mask' | 'counter';
+export type MotionKind =
+    | 'reveal'
+    | 'split'
+    | 'mask'
+    | 'counter'
+    | 'parallax'
+    | 'magnetic'
+    | 'tilt'
+    | 'line';
 
-/** One directive binding (`v-reveal`, `v-split`, `v-mask`, `v-counter`). */
+/** One motion directive binding (`v-reveal`, `v-parallax`, …). */
 export type MotionEntry = {
     el: HTMLElement;
     kind: MotionKind;
-    /** Binding value: `data-delay` style delay in ms, or the counter index. */
+    /**
+     * Binding value: a delay in ms (reveal, split, mask), the counter index,
+     * or the parallax intensity in % of the frame height.
+     */
     value: number | undefined;
     modifiers: Partial<Record<string, boolean>>;
     /**
@@ -26,6 +37,12 @@ export type MotionRuntime = {
     refresh: () => void;
     /** Lenis stop/start for dialogs, sheets and menus (§8.3). */
     setPaused: (paused: boolean) => void;
+    /** MOT-MENU: plays the sheet in or reverses it, then calls `done`. */
+    animateMenu: (
+        panel: HTMLElement,
+        opening: boolean,
+        done: () => void,
+    ) => void;
     destroy: () => void;
 };
 
