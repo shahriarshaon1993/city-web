@@ -1,5 +1,6 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { Ref } from 'vue';
+import { isMotionReduced, useReducedMotion } from '@/motion/preference';
 import { store as clientErrorsStore } from '@/routes/client-errors';
 import type { MediaVideo } from '@/types/site';
 
@@ -83,8 +84,7 @@ export function useHeroVideo(options: {
 
         return (
             options.animations() &&
-            window.matchMedia('(prefers-reduced-motion: no-preference)')
-                .matches &&
+            !isMotionReduced() &&
             (options.allowMobile() ||
                 window.matchMedia('(min-width: 1024px)').matches) &&
             connection?.saveData !== true &&
@@ -163,6 +163,16 @@ export function useHeroVideo(options: {
         ready.value = false;
         src.value = null;
     }
+
+    // MOT-R03: the footer toggle turned on → stop for this page view (the
+    // session pause of HERO-027 is the visitor's own button only).
+    const reducedMotion = useReducedMotion();
+    watch(reducedMotion, (reduced) => {
+        if (reduced && inserted.value) {
+            paused.value = true;
+            options.element.value?.pause();
+        }
+    });
 
     // HERO-026 (4): pause when less than 10 % is visible.
     watch(

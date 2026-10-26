@@ -8,8 +8,8 @@ import type { StatsCountersBlock } from '@/types/blocks';
 
 // CMP-BLK-STATS / CMP-STAT-01: 2 cols < 768, 3 at 768–1023, all items in one
 // row ≥ 1024 with dividers. Final values are in the HTML (SEO); the visible
-// number is aria-hidden with a visually hidden twin, so the count-up of 3.1
-// (MOT-COUNTER, `data-counter`) is never read out. `min-width` in ch reserves
+// number is aria-hidden with a visually hidden twin, so the count-up
+// (MOT-COUNTER, `v-counter`) is never read out. Items fade up (MOT-STAGGER). `min-width` in ch reserves
 // the final width (no CLS). Stats are a <dl>, never headings.
 const props = defineProps<{
     block: StatsCountersBlock;
@@ -45,6 +45,7 @@ const desktopColumns: Record<number, string> = {
             :heading="block.data.heading"
         />
         <dl
+            v-reveal.stagger
             :class="
                 cn(
                     'grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:gap-x-0 lg:divide-x lg:divide-border',
@@ -72,6 +73,7 @@ const desktopColumns: Record<number, string> = {
                             minWidth: `${stat.display.length + (stat.suffix?.length ?? 0)}ch`,
                         }"
                         ><span
+                            v-counter="index"
                             data-counter
                             :data-value="stat.value"
                             :data-decimals="stat.decimals"

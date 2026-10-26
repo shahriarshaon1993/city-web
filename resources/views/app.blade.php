@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 {{-- Public root (ARC-008). Light only, no dark-mode script (DEC-28); the admin uses admin.blade.php. --}}
 @php($seo = $page['props']['seo'] ?? null)
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@php($motionOff = ! ($page['props']['ui']['motion']['animations'] ?? true))
+{{-- MOT-R03: `data-reduce-motion` = Settings → Motion off, or the visitor's footer choice (script below, before first paint). --}}
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @if ($motionOff) data-reduce-motion @endif>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        @unless ($motionOff)
+            <script>try{if(localStorage.getItem('gc.reduce-motion')==='1')document.documentElement.setAttribute('data-reduce-motion','')}catch(e){}</script>
+        @endunless
 
         {{-- HERO-030/031: the LCP image, first load only (not managed by <Head>). --}}
         @foreach ($seo['preload'] ?? [] as $preload)

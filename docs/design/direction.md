@@ -81,7 +81,7 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 
 ## 7. Motion feel
 
-Subtle and slow, never bouncy on content. Hover: image `scale(1.05)` over 800 ms, arrow nudge 2 px, colour to teal (`--dur-fast`). No card lift, no hover shadows. Loops (marquee, mesh, pulse) pause off-screen. Transform/opacity only; everything visible without JS; reduced motion removes it (MOT-R01…03).
+Subtle and slow, never bouncy on content. Hover: image `scale(1.05)` over 800 ms, arrow nudge 2 px, colour to teal (`--dur-fast`). No card lift, no hover shadows. Loops (marquee, mesh, pulse) pause off-screen. Scroll reveals (3.1): fade-up 32 px, split-line headings, diagonal image mask, count-up numbers — once, only below the fold; the hero text wipes in on client visits only (DEC-50). Transform/opacity/clip-path only; everything visible without JS; reduced motion, the footer toggle or the setting removes it (MOT-R01…03).
 
 ## 8. The outdated style — do not reintroduce
 

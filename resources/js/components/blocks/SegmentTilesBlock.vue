@@ -31,11 +31,12 @@ defineProps<{
             class="grid gap-4 md:grid-cols-2 lg:flex lg:h-[clamp(26rem,34vw,34rem)] lg:gap-6"
         >
             <li
-                v-for="tile in block.data.tiles"
+                v-for="(tile, index) in block.data.tiles"
                 :key="tile.segment"
                 class="lg:min-w-0 lg:flex-[1_1_0%] lg:transition-[flex-grow] lg:duration-(--dur-slow) lg:ease-(--ease-standard) lg:focus-within:grow-[1.4] lg:hover:grow-[1.4]"
             >
                 <Link
+                    v-mask="index * 75"
                     :href="tile.url"
                     class="segment-tile group/tile relative isolate flex h-full overflow-hidden rounded-xl"
                 >

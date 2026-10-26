@@ -62,6 +62,7 @@ const pad = (value: number): string => String(value).padStart(2, '0');
         <div
             v-if="carousel"
             ref="viewport"
+            v-reveal
             :class="
                 api
                     ? 'overflow-hidden'
@@ -83,7 +84,11 @@ const pad = (value: number): string => String(value).padStart(2, '0');
             </ul>
         </div>
 
-        <ul v-else class="grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+        <ul
+            v-else
+            v-reveal.stagger
+            class="grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
+        >
             <li v-for="testimonial in block.data.items" :key="testimonial.id">
                 <TestimonialCard :testimonial="testimonial" />
             </li>

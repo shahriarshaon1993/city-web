@@ -43,12 +43,16 @@ const headingAs = computed(() => (props.first ? 'h2' : 'h3'));
             class="grid gap-12 lg:grid-cols-12 lg:gap-8 xl:gap-12"
         >
             <NewsCard
+                v-reveal
                 :post="lead"
                 variant="lead"
                 :heading-as="headingAs"
                 class="lg:col-span-7"
             />
-            <ul class="flex flex-col divide-y divide-border lg:col-span-5">
+            <ul
+                v-reveal.stagger
+                class="flex flex-col divide-y divide-border lg:col-span-5"
+            >
                 <li
                     v-for="post in side"
                     :key="post.id"
@@ -64,6 +68,7 @@ const headingAs = computed(() => (props.first ? 'h2' : 'h3'));
         </div>
         <ul
             v-if="more.length > 0"
+            v-reveal.stagger
             :class="[
                 'grid gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3 xl:gap-x-8',
                 editorial && 'mt-16 border-t border-border pt-12',

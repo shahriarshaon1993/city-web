@@ -68,6 +68,7 @@ const offscreen = useOffscreen(band);
             </svg>
 
             <div
+                v-reveal
                 class="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center"
             >
                 <component

@@ -154,6 +154,7 @@ const linkClass =
                 </div>
 
                 <div
+                    data-lenis-prevent
                     class="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6"
                 >
                     <nav aria-label="Main">

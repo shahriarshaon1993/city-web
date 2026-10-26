@@ -15,7 +15,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 2.2  | Block renderer, project card, shortlist heart, home blocks I               | 2.1            | ✅     |
 | 2.3  | Design refresh — premium direction (type, shape, card, demo photos)        | 2.2            | ✅     |
 | 2.4  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.3            | ✅     |
-| 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ⬜     |
+| 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ✅     |
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ⬜     |
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ⬜     |
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ⬜     |
@@ -238,6 +238,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 2.4 · **Read:** design/motion.md §8.1–8.3, §8.5, MOT-SMOOTH, MOT-REVEAL, MOT-REVEAL-HERO, MOT-SPLIT, MOT-STAGGER, MOT-MASK, MOT-COUNTER, MOT-SKELETON; spec/performance-a11y.md SEO-PERF-004, SEO-PERF-012, SEO-A11Y-005; spec/cms.md §8.2 Motion group.
 **Build:** owner approves `gsap` 3.15 and `lenis` 1.3.27. `motion/index.ts` as a dynamic chunk, loaded after first paint via `requestIdleCallback` (1500 ms) only when motion is enabled, no reduced motion, and the footer toggle is off. Lenis in SiteLayout (GSAP ticker; anchor offset; `stop()/start()` hooked into the dialogs, sheets and menus built so far). Directives `v-reveal`, `v-split`, `v-mask`; counter helper (stats, later progress) — all no-ops until loaded. `gsap.context` per page with revert on unmount; `ScrollTrigger.refresh()` after navigate. Footer "Reduce motion" toggle (localStorage). Applied to shell + home.
 **Test:** desktop home: reveals play once, nothing above the fold starts hidden (Performance panel screenshots); reduced-motion emulation → the motion chunk is never requested and everything is visible; toggle persists after reload; navigate away and back 10× → `ScrollTrigger.getAll().length` stays stable; anchor links land below the header; motion chunk ≤ 45 KB gzip (build output).
+
+**Done notes (2026-10-26):**
+- Packages: `gsap` 3.15.0 + `lenis` 1.3.27 (exact). Motion chunk = 53.9 KB gzip, over the 45 KB budget (libraries alone ≈ 55 KB) — accepted, DEC-50.
+- `motion/bridge.ts` (always loaded): `register/unregister`, `startMotion/stopMotion`, `usePauseSmoothScroll(() => open)` — every new dialog/sheet/lightbox/menu must call it and put `data-lenis-prevent` on its scroll area. Lazy chunk = `motion/index.ts` + `effects.ts` + `smooth-scroll.ts`; never import gsap/lenis statically elsewhere (3.2's effects go into the lazy chunk too).
+- Directives (global, `withApp`): `v-reveal` (`="delayMs"`, `.stagger` = children batch, `.hero` = `[data-hero-line]` + `[data-hero-ctas]`), `v-split`, `v-mask`, `v-counter="index"` on a `[data-counter]` span. Each binding = own `gsap.context`; later tweens go through `within()`. Already-passed elements are never touched (MOT-R02). `v-split` targets must hold static text.
+- Client-visit mounts attach two frames later (after Inertia's scroll reset); hero attaches at once. Hero reveal plays on client visits only (DEC-50).
+- Motion off = OS setting, footer `MotionToggle` (`gc.reduce-motion`) or Settings → animations → `data-reduce-motion` on `<html>` (server + inline script in `app.blade.php`; 19.4 must give that script a CSP nonce). `motion-safe:`/`motion-reduce:` are redefined in `app.css`; custom CSS motion blocks use `@media (…) { :root:not([data-reduce-motion]) { … } }` (top-level `@variant` breaks). JS checks use `isMotionReduced()` / `useReducedMotion()` from `motion/preference.ts`, never `matchMedia` alone.
+- Anchor offset = `html { scroll-padding-top }` (`--header-height` + `--tabbar-height` + 1rem): 4.2's sticky tabs set `--tabbar-height`. Console hook `__gcMotion.scrollTriggers()`.
 
 ### 3.2 — Interactive effects & page transitions
 

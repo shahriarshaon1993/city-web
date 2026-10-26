@@ -59,7 +59,7 @@ const { viewport, api, canPrevious, canNext, scroll } = useCarousel();
             "
         >
             <!-- Vertical padding keeps the hover lift and focus ring inside the viewport. -->
-            <ul class="-ml-4 flex py-2 md:-ml-6">
+            <ul v-reveal.stagger class="-ml-4 flex py-2 md:-ml-6">
                 <li
                     v-for="project in block.data.projects"
                     :key="project.id"

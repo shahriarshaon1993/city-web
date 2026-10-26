@@ -69,7 +69,7 @@ const chevron =
                 >
                     <SelectValue>{{ display }}</SelectValue>
                 </SelectTrigger>
-                <SelectContent :class="contentClass">
+                <SelectContent data-lenis-prevent :class="contentClass">
                     <SelectItem :value="ANY">{{ anyLabel }}</SelectItem>
                     <SelectItem
                         v-for="option in options"

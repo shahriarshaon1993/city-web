@@ -13,7 +13,7 @@ import type { ProgressStage, ProgressSummary } from '@/types/site';
 // YYYY}". Stages up to the current one are filled; the current one pulses
 // (MOT-PULSE, paused off-screen, off under reduced motion). The bar is the
 // accessible value (`role="progressbar"`); the big number is aria-hidden
-// because 3.1 counts it up (MOT-COUNTER, `data-counter`). One link: the name.
+// because it counts up (MOT-COUNTER, `v-counter`). One link: the name.
 const props = withDefaults(
     defineProps<{
         summary: ProgressSummary;
@@ -81,6 +81,7 @@ const offscreen = useOffscreen(bar);
                             :style="{
                                 minWidth: `${String(summary.percent).length}ch`,
                             }"
+                            v-counter
                             data-counter
                             :data-value="summary.percent"
                             data-decimals="0"

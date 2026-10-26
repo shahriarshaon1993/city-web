@@ -11,6 +11,7 @@ import {
 } from 'reka-ui';
 import { computed, ref } from 'vue';
 import { buttonVariants } from '@/components/ui/button';
+import { usePauseSmoothScroll } from '@/motion/bridge';
 
 // CMP-MODAL-01 bottom sheet (mobile search, later the 4.1 filters): max
 // 90svh, drag handle, swipe down to close; Reka Dialog traps focus, closes
@@ -22,6 +23,9 @@ defineProps<{
 }>();
 
 const open = defineModel<boolean>('open', { default: false });
+
+// §8.3: Lenis stops while the sheet is open; its body scrolls natively.
+usePauseSmoothScroll(() => open.value);
 
 /** Drag distance after which releasing closes the sheet. */
 const CLOSE_DISTANCE = 96;
@@ -100,6 +104,7 @@ const dragStyle = computed(() =>
                     </div>
                 </div>
                 <div
+                    data-lenis-prevent
                     class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 sm:px-6"
                 >
                     <slot />

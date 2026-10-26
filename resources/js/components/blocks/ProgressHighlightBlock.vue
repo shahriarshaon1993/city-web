@@ -24,7 +24,7 @@ defineProps<{
             :heading-id="headingId"
             :heading="block.data.heading"
         />
-        <ul class="flex flex-col divide-y divide-border">
+        <ul v-reveal.stagger class="flex flex-col divide-y divide-border">
             <li
                 v-for="summary in block.data.items"
                 :key="summary.project.id"

@@ -8,6 +8,7 @@ import ShortlistLink from '@/components/site/header/ShortlistLink.vue';
 import { Button } from '@/components/ui/button';
 import { useHeadroom } from '@/composables/useHeadroom';
 import { useShortlist } from '@/composables/useShortlist';
+import { usePauseSmoothScroll } from '@/motion/bridge';
 import { formatPhone } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
@@ -36,6 +37,9 @@ const { scrolled, hidden } = useHeadroom({
         () => focusInside.value || megaOpen.value !== '' || mobileOpen.value,
     ),
 });
+
+// §8.3: Lenis stops while the mega menu or the mobile menu is open.
+usePauseSmoothScroll(() => megaOpen.value !== '' || mobileOpen.value);
 
 const transparent = computed(
     () => props.overHero && !scrolled.value && megaOpen.value === '',

@@ -5,7 +5,7 @@ import type { BlockLink } from '@/types/blocks';
 
 // Block heading row: H1/H2 (from BlockSection), optional "View all" link and
 // extra controls (`actions`, e.g. carousel arrows) on the right, over a
-// hairline (DEC-46, Rancon).
+// hairline (DEC-46, Rancon). Fades up on scroll (MOT-REVEAL).
 defineProps<{
     headingTag: string;
     headingId: string;
@@ -17,6 +17,7 @@ defineProps<{
 <template>
     <div
         v-if="heading || viewAll || $slots.actions"
+        v-reveal
         class="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-border pb-6 lg:mb-12 lg:pb-8"
     >
         <component

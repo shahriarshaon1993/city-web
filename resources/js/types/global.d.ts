@@ -1,4 +1,5 @@
 import type { Directive } from 'vue';
+import type { MotionDirective } from '@/motion/directives';
 import type { Auth } from '@/types/auth';
 
 // Extend ImportMeta interface for Vite...
@@ -28,6 +29,10 @@ declare module '@inertiajs/core' {
 declare module 'vue' {
     interface GlobalDirectives {
         vFocus: Directive<HTMLElement, boolean | undefined>;
+        vReveal: MotionDirective;
+        vSplit: MotionDirective;
+        vMask: MotionDirective;
+        vCounter: MotionDirective;
     }
 
     interface ComponentCustomProperties {

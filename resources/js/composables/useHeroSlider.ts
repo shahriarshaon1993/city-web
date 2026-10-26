@@ -1,6 +1,7 @@
 import Fade from 'embla-carousel-fade';
 import emblaCarouselVue from 'embla-carousel-vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useReducedMotion } from '@/motion/preference';
 
 /** HERO-003: 7 s per slide when autoplay is on. */
 export const HERO_SLIDE_INTERVAL = 7000;
@@ -10,7 +11,8 @@ export const HERO_SLIDE_INTERVAL = 7000;
  * `duration` is a physics value, 45 ≈ 700 ms). Autoplay is hand-written so
  * the Ken Burns zoom can follow it: it pauses on hover, on focus inside the
  * hero and while the tab is hidden; the pause/play button stops it for good.
- * Reduced motion: no autoplay, instant slide changes.
+ * Reduced motion (OS, footer toggle, settings — MOT-R03): no autoplay,
+ * instant slide changes; turning it on later stops the autoplay.
  */
 export function useHeroSlider(options: {
     count: () => number;
@@ -26,7 +28,7 @@ export function useHeroSlider(options: {
     const hovered = ref(false);
     const focused = ref(false);
     const hidden = ref(false);
-    const reducedMotion = ref(false);
+    const reducedMotion = useReducedMotion();
     /** After `load`: slides 2+ switch from lazy to eager so fades never show a blank slide. */
     const preloadRest = ref(false);
 
@@ -93,6 +95,12 @@ export function useHeroSlider(options: {
         preloadRest.value = true;
     }
 
+    watch(reducedMotion, (reduced) => {
+        if (reduced) {
+            playing.value = false;
+        }
+    });
+
     watch(running, restartTimer);
 
     watch(api, (instance) => {
@@ -104,10 +112,6 @@ export function useHeroSlider(options: {
     });
 
     onMounted(() => {
-        reducedMotion.value = window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-        ).matches;
-
         if (reducedMotion.value) {
             playing.value = false;
         }

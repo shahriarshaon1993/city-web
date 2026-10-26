@@ -103,7 +103,10 @@ const itemClass =
                             )
                         "
                     >
-                        <ComboboxViewport class="max-h-72 overflow-y-auto p-1">
+                        <ComboboxViewport
+                            data-lenis-prevent
+                            class="max-h-72 overflow-y-auto p-1"
+                        >
                             <ComboboxEmpty
                                 class="px-3 py-4 text-sm text-muted-foreground"
                             >

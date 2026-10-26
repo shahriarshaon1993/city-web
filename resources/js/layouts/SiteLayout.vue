@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { useMediaQuery } from '@vueuse/core';
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import MobileContactBar from '@/components/site/MobileContactBar.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
 import SkipLink from '@/components/site/SkipLink.vue';
@@ -10,6 +10,8 @@ import SiteHeader from '@/components/site/header/SiteHeader.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigationFeedback } from '@/composables/useNavigationFeedback';
+import { startMotion, stopMotion } from '@/motion/bridge';
+import { useReducedMotion } from '@/motion/preference';
 import type { SitePageProps } from '@/types/site';
 
 // Persistent public layout (ARC-010), default for every pages/Site/* page
@@ -28,6 +30,24 @@ const { navigating, announcement } = useNavigationFeedback(
     main,
     () => page.props.seo.title,
 );
+
+// SEO-PERF-012: the motion runtime (and Lenis) loads after first paint and
+// idle, only while motion is on (MOT-R03); turning it off at runtime (footer
+// toggle, OS setting) reverts every effect, turning it on loads it at once.
+const reducedMotion = useReducedMotion();
+const motionOptions = () => ({
+    smoothScroll: page.props.ui.motion.smooth_scroll,
+});
+
+onMounted(() => startMotion(motionOptions()));
+
+watch(reducedMotion, (reduced) => {
+    if (reduced) {
+        stopMotion();
+    } else {
+        startMotion(motionOptions(), true);
+    }
+});
 
 // Between 640 and 1023 px toasts sit bottom-right: keep them above the bar.
 const barShown = ref(false);

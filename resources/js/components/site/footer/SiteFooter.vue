@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { computed, useId } from 'vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
 import FooterColumn from '@/components/site/footer/FooterColumn.vue';
+import MotionToggle from '@/components/site/footer/MotionToggle.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +15,8 @@ import type { SiteShared } from '@/types/site';
 
 // CMP-FOOT-01: dark scope on --gradient-dusk. Rows: brand + newsletter;
 // footer_1…4 menus + offices; top 8 areas (SEO-ONP-005); legal, ©, parent
-// company, the "Reduce motion" toggle (slot, wired in 3.1) and social.
+// company, the "Reduce motion" toggle (SEO-A11Y-005) and social. Rows
+// fade up in one batch on first view (MOT-STAGGER).
 const page = usePage<SiteShared>();
 const site = computed(() => page.props.site);
 const footer = computed(() => page.props.footer);
@@ -47,6 +49,7 @@ const linkClass =
         class="theme-dark bg-(image:--gradient-dusk) text-foreground"
     >
         <div
+            v-reveal.stagger
             class="mx-auto flex max-w-content flex-col gap-12 px-4 pt-16 pb-8 sm:px-6 lg:gap-14 lg:px-8 lg:pt-20 xl:px-10"
         >
             <!-- Row 1: brand + newsletter -->
@@ -242,7 +245,7 @@ const linkClass =
                 </div>
 
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-                    <slot name="motion-toggle" />
+                    <MotionToggle />
                     <ul
                         v-if="social.length > 0"
                         class="-mx-2.5 flex flex-wrap gap-1"

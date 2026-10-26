@@ -11,7 +11,8 @@ import type { BlockLink, HeroBlockData } from '@/types/blocks';
 // overlay (§2.4, min 35 % with a headline), text in the dark scope with the
 // TOK-C27 shadow, CTAs, search (CMP-SEARCH-01) and the scroll cue. Height
 // is reserved by min-height (HERO-033). Text is visible at first paint
-// (HERO-032); the clip-path reveal arrives with the motion runtime (3.1).
+// (HERO-032); MOT-REVEAL-HERO wipes the lines in on client visits only
+// (`v-reveal.hero`, owner 3.1).
 // `data-hero`: the mobile contact bar appears once this leaves the viewport.
 defineOptions({ inheritAttrs: false });
 
@@ -121,6 +122,7 @@ onBeforeUnmount(() => {
                 "
             >
                 <div
+                    v-reveal.hero
                     :class="
                         cn(
                             'flex max-w-4xl flex-col gap-5 [text-shadow:0_1px_2px_rgb(0_0_0/0.35)] md:gap-6',
@@ -130,24 +132,28 @@ onBeforeUnmount(() => {
                 >
                     <p
                         v-if="data.eyebrow"
+                        data-hero-line
                         class="text-overline text-white/80 uppercase"
                     >
                         {{ data.eyebrow }}
                     </p>
                     <component
                         :is="first ? 'h1' : 'h2'"
+                        data-hero-line
                         class="font-display text-display text-balance text-white"
                     >
                         {{ data.headline }}
                     </component>
                     <p
                         v-if="data.subheadline"
+                        data-hero-line
                         class="max-w-2xl text-lead text-pretty text-white/85"
                     >
                         {{ data.subheadline }}
                     </p>
                     <div
                         v-if="ctas.length > 0"
+                        data-hero-ctas
                         :class="
                             cn(
                                 'mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap',

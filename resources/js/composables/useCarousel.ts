@@ -1,6 +1,7 @@
 import type { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel';
 import emblaCarouselVue from 'embla-carousel-vue';
 import { ref, watch } from 'vue';
+import { isMotionReduced } from '@/motion/preference';
 
 // Block carousels (featured projects, testimonials): Embla plus the state of
 // the prev/next arrows in the heading row (DEC-44: no dots). Embla starts on
@@ -33,11 +34,9 @@ export function useCarousel(options: EmblaOptionsType = {}) {
         }
     });
 
-    // Respects reduced motion: Embla jumps instead of animating.
+    // Respects reduced motion (MOT-R03): Embla jumps instead of animating.
     function scroll(direction: 'previous' | 'next'): void {
-        const instant = window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-        ).matches;
+        const instant = isMotionReduced();
 
         if (direction === 'previous') {
             api.value?.scrollPrev(instant);
