@@ -11,10 +11,13 @@ use RuntimeException;
  * Draws labelled placeholder photos into storage/app/demo-src/{group}/ until
  * the client's photos arrive (owner, 0.3). Existing files are never
  * overwritten; each image marks its focal point so crops can be checked.
- * Partner logos are fictional SVG wordmarks (DEC-47), never real brands.
+ * Partner logos are fictional SVG wordmarks (DEC-47), never real brands;
+ * floor plans are fictional SVG drawings (GenerateDemoFloorPlans, 4.2).
  */
 final class GenerateDemoPlaceholders
 {
+    public function __construct(private readonly GenerateDemoFloorPlans $floorPlans) {}
+
     /** Groups the demo content uses, with source sizes above the upload minimums. */
     private const array GROUPS = [
         'hero' => ['count' => 3, 'width' => 2560, 'height' => 1440],
@@ -99,7 +102,7 @@ final class GenerateDemoPlaceholders
             File::put($metaPath, (string) json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
-        return [...$written, ...$this->partnerLogos()];
+        return [...$written, ...$this->partnerLogos(), ...$this->floorPlans->handle()];
     }
 
     /**

@@ -69,6 +69,11 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Editorial card grid + sticky hairline filter bar | project listing PG-02/03 (4.1) |
 | Hairline link rows in 4 columns on greige (overline meta, light name, arrow) | listing location links (4.1) |
 | Heading 4 / hairline accordion 8 | facet FAQ (4.1) |
+| Mosaic 8 + 2 × 2 with "View all n photos" | project detail gallery hero (4.2) |
+| Closed hairline facts band (4 cells, 2 × 2 on phones) | project title block (4.2) |
+| Hairline category rows (overline + count left, two icon columns right) | project amenities (4.2) |
+| Plan on greige beside a hairline spec list, underline tabs | unit types (4.2) |
+| Masonry with underline category filters | project gallery section (4.2) |
 
 ## 6. Component patterns
 
@@ -81,6 +86,8 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 - **Stats:** big light numbers (`text-stat` 300, teal) with a small suffix and a muted label below; typographic, never icons in circles.
 - **Carousels:** prev/next arrows in the heading row, **no dots, no autoplay** (hero slider excepted), native scroll-snap strip before hydration, mobile peek.
 - **Listing filters (4.1, DEC-53):** single-select facets (type, status) are always-visible text rows — overline label, options with a muted count, the active one underlined by a 1 px foreground line (links when the target is indexable, buttons otherwise). The sticky bar under the header is white/95 with blur between hairlines; triggers are `h-11 rounded-md` hairline boxes (foreground border + "Label: value" when set). Panel choices (presets, bedrooms, availability) are hairline `rounded-md` buttons that fill with foreground when pressed; never coral. Active chips are neutral hairline buttons with an ×, plus a teal "Clear all" text link. Counts are plain muted numbers, never pills.
+- **Project detail (4.2, DEC-55):** status/booking chips only on the gallery's main photo; the title block uses overline links (segment · area), light H1, lead tagline and a closed facts band (overline label, `text-fact` value). Sections sit in 8 of 12 columns, each a light H2 on a hairline. The sticky section tab bar copies the listing filter bar (white/95, blur, hairlines, 1 px foreground underline on the active link) and fades in the project name + price on the right once stuck (≥ 1024 px). At a glance and unit specs are typographic hairline lists — no icon tiles; amenity icons are thin teal Lucide line icons, never in circles. Lightbox: stone-950 at 96 %, category buttons with an underline, caption + credit centred at the bottom.
+- **Taka sign:** `৳` comes from the local `'Taka Sign'` face (DEC-55); never style it by hand.
 - **Quotes:** coral quote mark, the quote as large light text, person with 48 px photo or initials behind a hairline.
 
 ## 7. Motion feel

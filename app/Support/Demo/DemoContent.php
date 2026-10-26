@@ -78,6 +78,9 @@ final class DemoContent
             'title_template' => '{title} | Gemcon City',
             'home_title' => 'Gemcon City Limited – Real Estate Developer in Bangladesh',
             'home_description' => 'Apartments, commercial spaces and land projects by Gemcon City Limited in Dhaka and across Bangladesh. Explore ongoing and upcoming projects and book a site visit.',
+            // SEO-ONP-001/002 project templates (ProjectMeta).
+            'project_title_template' => '{name} – {bedrooms_range} Bed {segment_label} in {area}, {city} | Gemcon City',
+            'project_description_template' => '{name} by Gemcon City: {size_range} sft {segment_label_lower} in {area}, {city}. {status_label}, handover {handover}. Book a site visit.',
             'noindex' => false,
             'gsc_verification' => null,
             'bing_verification' => null,

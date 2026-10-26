@@ -3,6 +3,7 @@
 use App\Http\Controllers\Site\ClientErrorController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\PageController;
+use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\StyleguideController;
 use App\Support\Errors\ErrorPage;
@@ -20,6 +21,10 @@ Route::get('projects/type/{segment}', [ProjectListingController::class, 'segment
 Route::get('projects/status/{status}', [ProjectListingController::class, 'status'])
     ->whereIn('status', ['upcoming', 'ongoing', 'ready', 'handed-over', 'handed_over'])
     ->name('site.projects.status');
+// PG-04 (4.2). After the facet routes: `type/…` and `status/…` never reach it.
+Route::get('projects/{slug}', [ProjectController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('site.projects.show');
 
 Route::post('internal/client-errors', ClientErrorController::class)
     ->middleware('throttle:client-errors')

@@ -18,7 +18,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ✅     |
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ✅     |
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ✅     |
-| 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ⬜     |
+| 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ✅     |
 | 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ⬜     |
 | 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ⬜     |
 | 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ⬜     |
@@ -283,6 +283,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 4.1 · **Read:** spec/projects.md FR-PROJ-001..003, FR-PROJ-009, AC-PROJ-01/02, edge cases; spec/pages.md PG-04; design/layouts.md LAY-PROJ-DETAIL; design/components.md CMP-GAL-01, CMP-TABS-02, CMP-FACTS-01, CMP-UNIT-01; design/foundations.md §5.3 (gallery, floor plan rows); spec/seo.md SEO-ONP-001/002 (project templates), SEO-ONP-005.
 **Build:** owner approves `photoswipe` 5.4. Route `site.projects.show` + `ProjectDetail` type. Gallery hero (desktop 1 + 4 tiles, "View all n photos"; mobile Embla strip + counter); PhotoSwipe lightbox with category tabs and captions. Title block (badges, H1, tagline, area link, facts strip). Sticky section tab bar (IntersectionObserver, empty sections hidden, Lenis offset). Overview + highlights. At a glance `<dl>` (RAJUK copy button, custom facts). Amenities grid (Lucide allowlist). Unit types: tabs, or a select < 640; floor plan → lightbox; price rules; sold out styling. Meta title/description templates.
 **Test:** lightbox ←/→/Esc, pinch on a phone, focus returns to the tile; the tab bar follows the scroll; a land demo project has no Plans tab; only `show_price` units show a price (view-source); breadcrumb Home › Projects › name.
+
+**Done notes (2026-10-26):**
+- `photoswipe` 5.4.4 (exact), loaded on first open only (`composables/useLightbox.ts`: category jump buttons, caption + credit, Lenis paused, focus returned). Reuse it for 4.3's progress photo strips.
+- `Site\ProjectController@show` → `Site/Project`; props `project` (`types/project.ts` ProjectDetail) + `copy`. Data from `App\Support\Demo\DemoProjectDetail` (derived from the 26 DemoProjects rows; `DemoProjects::card()` now typed `ProjectCardData`). 13.3 swaps in ProjectDetailResource with the same shape and adds AC-PROJ-06 (410/redirect) and slug history.
+- Price rule (DEC-54): unit `price_bdt` only when project **and** unit show prices; `price_from_bdt` = min shown unit price. `App\Support\Seo\ProjectMeta` fills the SEO-ONP-001/002 templates (settings `seo.project_*_template`).
+- Components in `components/site/project/`; `ProjectSection` = anchor section (id + H2). Sections/tabs hide when empty (land → no Plans). 4.3 adds its sections there and the enquiry panel in columns 9–12 of the content grid in `pages/Site/Project.vue` (currently empty); the tab bar already shows name + price once stuck.
+- `SectionTabs` sets the anchor offset through `html:has(.section-tabs) { --tabbar-height }`. New presets `gallery-tile`, `gallery-masonry`, `project-highlight`; amenity icon allowlist `lib/amenity-icons.ts` (13.2 admin uses it).
+- Demo floor plans: `GenerateDemoFloorPlans` (SVG, `demo:images --placeholders`, group `plans`). "Enquire about Type X" links to `{header cta}?project=…&unit=…` until 7.1 opens the form.
+- `৳` renders via the local-only `'Taka Sign'` @font-face (app.css), first in both font stacks — site-wide.
 
 ### 4.3 — Project detail II — video, progress, location, documents, enquiry panel
 

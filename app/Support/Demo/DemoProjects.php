@@ -15,6 +15,9 @@ use InvalidArgumentException;
  * @phpstan-type DemoProjectRow array{slug: string, name: string, tagline: string, segment: string, lifecycle: string, booking_state: string, featured: bool, area: string, image: string, size: array{0: int|null, 1: int|null}, beds: array{0: int|null, 1: int|null}, baths: array{0: int|null, 1: int|null}, katha: int|float|null, price: int|null, price_visible: bool, published_at: string, handover: string|null}
  * @phpstan-type DemoProject array{id: int, featured_order: int|null, slug: string, name: string, tagline: string, segment: string, lifecycle: string, booking_state: string, featured: bool, area: string, image: string, size: array{0: int|null, 1: int|null}, beds: array{0: int|null, 1: int|null}, baths: array{0: int|null, 1: int|null}, katha: int|float|null, price: int|null, price_visible: bool, published_at: string, handover: string|null}
  * @phpstan-type DemoArea array{slug: string, name: string, city: string, count: int}
+ * @phpstan-type ProjectCardData array{id: int, slug: string, url: string, name: string, segment: string, segment_label: string, lifecycle: string, lifecycle_label: string, booking_state: string, booking_label: string|null, is_featured: bool, location: array{area: string, city: string}, cover: MediaImage|null, size_min_sft: int|null, size_max_sft: int|null, beds_min: int|null, beds_max: int|null, baths_min: int|null, baths_max: int|null, land_katha: int|float|null, price_from_bdt: int|null, price_note: string|null}
+ *
+ * @phpstan-import-type MediaImage from DemoMedia
  */
 final class DemoProjects
 {
@@ -154,7 +157,7 @@ final class DemoProjects
      * ProjectCardResource shape (ProjectCard in types/site.ts, CMP-CARD-01).
      *
      * @param  DemoProject  $row
-     * @return array<string, mixed>
+     * @return ProjectCardData
      */
     public static function card(array $row): array
     {

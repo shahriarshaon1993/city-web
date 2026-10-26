@@ -47,6 +47,30 @@ export const imagePresets = {
         loading: 'eager',
         placeholder: 'media',
     },
+    /** PG-04 hero mosaic tiles 2–5: 2 of 12 columns from 768 px, slides below (4.2; not in §5.3). */
+    'gallery-tile': {
+        sizes: '(min-width:1280px) 216px, (min-width:768px) 17vw, 100vw',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** PG-04 gallery section, masonry columns in the 8-column content (4.2; not in §5.3). */
+    'gallery-masonry': {
+        sizes: '(min-width:1280px) 264px, (min-width:768px) 28vw, 46vw',
+        aspect: 'intrinsic',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** PG-04 overview highlights, half of the 8-column content (4.2; not in §5.3). */
+    'project-highlight': {
+        sizes: '(min-width:1280px) 400px, (min-width:640px) 45vw, 92vw',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     'gallery-thumb': {
         sizes: '160px',
         aspect: 'aspect-square',
