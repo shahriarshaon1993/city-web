@@ -20,11 +20,14 @@ const props = withDefaults(
         project: ProjectCard;
         variant?: 'default' | 'horizontal' | 'mini' | 'featured';
         headingAs?: 'h2' | 'h3' | 'h4';
+        /** The page's LCP image (listing: the first card). */
+        priority?: boolean;
         class?: string;
     }>(),
     {
         variant: 'default',
         headingAs: 'h3',
+        priority: false,
         class: undefined,
     },
 );
@@ -126,6 +129,7 @@ const stretchedLink =
             <ProjectCardMedia
                 :project="project"
                 :fill="horizontal"
+                :priority="priority"
                 :class="
                     cn(
                         'shrink-0 rounded-xl',

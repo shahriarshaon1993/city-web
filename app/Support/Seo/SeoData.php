@@ -175,9 +175,10 @@ final class SeoData
         $siteName = (string) DemoContent::settings('general')['site_name'];
         $indexable = $this->robots === self::ROBOTS_INDEX;
 
-        // A noindex page has no canonical (SEO-TEC-004). The environment-wide
+        // A noindex page has no canonical (SEO-TEC-004) unless it names its
+        // closest indexable page (filter URLs, SEO-TEC-021). The environment-wide
         // noindex below changes only the robots value, so local output matches production.
-        $canonical = $indexable ? ($this->canonicalSet ? $this->canonical : self::cleanUrl($request)) : null;
+        $canonical = $this->canonicalSet ? $this->canonical : ($indexable ? self::cleanUrl($request) : null);
         $image = $this->image ?? DemoMedia::ogImage((string) DemoContent::settings('general')['default_og_image']);
 
         return [
@@ -207,6 +208,14 @@ final class SeoData
     public static function siteNoindex(): bool
     {
         return ! app()->isProduction() || (bool) DemoContent::settings('seo')['noindex'];
+    }
+
+    /**
+     * A root-relative path (and query) on the configured domain.
+     */
+    public static function absoluteUrl(string $path): string
+    {
+        return rtrim((string) config('app.url'), '/').'/'.ltrim($path, '/');
     }
 
     /**

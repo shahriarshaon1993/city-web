@@ -16,9 +16,11 @@ const props = withDefaults(
         fill?: boolean;
         /** Off when the parent places the heart itself (featured). */
         withHeart?: boolean;
+        /** The page's one LCP image (SEO-PERF-006): eager + fetchpriority high. */
+        priority?: boolean;
         class?: string;
     }>(),
-    { fill: false, withHeart: true, class: undefined },
+    { fill: false, withHeart: true, priority: false, class: undefined },
 );
 </script>
 
@@ -28,6 +30,7 @@ const props = withDefaults(
             :image="project.cover"
             preset="project-card"
             img-class="media-zoom"
+            :priority="priority"
             :class="fill ? 'absolute inset-0 aspect-auto size-full' : undefined"
         />
         <slot />

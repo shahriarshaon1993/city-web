@@ -65,7 +65,13 @@ export function useNavigationFeedback(
                 pending = true;
                 lastVisit = visit;
 
-                if (visit.async || visit.prefetch || !visit.showProgress) {
+                // Partial reloads show their own loading state (UX-07, 4.1 listing).
+                if (
+                    visit.async ||
+                    visit.prefetch ||
+                    !visit.showProgress ||
+                    visit.only.length > 0
+                ) {
                     return;
                 }
 

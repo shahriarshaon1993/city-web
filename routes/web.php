@@ -3,6 +3,7 @@
 use App\Http\Controllers\Site\ClientErrorController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\PageController;
+use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\StyleguideController;
 use App\Support\Errors\ErrorPage;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('about', [PageController::class, 'about'])->name('about');
 Route::get('about/leadership', [PageController::class, 'leadership'])->name('about.leadership');
+
+// PG-02 / PG-03. Facet slugs use hyphens; the underscore form 301s (owner, 4.1).
+Route::get('projects', [ProjectListingController::class, 'index'])->name('site.projects.index');
+Route::get('projects/type/{segment}', [ProjectListingController::class, 'segment'])
+    ->whereIn('segment', ['residential', 'commercial', 'mixed-use', 'mixed_use', 'land'])
+    ->name('site.projects.segment');
+Route::get('projects/status/{status}', [ProjectListingController::class, 'status'])
+    ->whereIn('status', ['upcoming', 'ongoing', 'ready', 'handed-over', 'handed_over'])
+    ->name('site.projects.status');
 
 Route::post('internal/client-errors', ClientErrorController::class)
     ->middleware('throttle:client-errors')

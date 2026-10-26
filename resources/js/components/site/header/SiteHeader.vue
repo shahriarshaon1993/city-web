@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { Phone } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import DesktopNav from '@/components/site/header/DesktopNav.vue';
 import MobileMenu from '@/components/site/header/MobileMenu.vue';
 import ShortlistLink from '@/components/site/header/ShortlistLink.vue';
@@ -36,6 +36,15 @@ const { scrolled, hidden } = useHeadroom({
     pinned: computed(
         () => focusInside.value || megaOpen.value !== '' || mobileOpen.value,
     ),
+});
+
+// Sticky bars below the header (`.sticky-under-header`) follow it out of view.
+watch(hidden, (isHidden) => {
+    document.documentElement.toggleAttribute('data-header-hidden', isHidden);
+});
+
+onBeforeUnmount(() => {
+    document.documentElement.removeAttribute('data-header-hidden');
 });
 
 // §8.3: Lenis stops while the mega menu or the mobile menu is open.

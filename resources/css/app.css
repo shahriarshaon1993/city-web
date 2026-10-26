@@ -653,6 +653,26 @@ html.lenis body {
 }
 
 /*
+ * Sticky bars under the header (4.1 filter bar, 4.2 section tabs): they sit
+ * below it and slide up with it while headroom hides it. Transform only.
+ */
+.sticky-under-header {
+    top: var(--header-height);
+    transition: transform var(--dur-base) var(--ease-standard);
+}
+:root[data-header-hidden] .sticky-under-header {
+    transform: translateY(calc(-1 * var(--header-height)));
+}
+
+/* UX-07 / MOT-SKELETON: the result grid dims while a filter reload runs. */
+.listing-results {
+    transition: opacity var(--dur-base) var(--ease-standard);
+}
+.listing-results[aria-busy='true'] {
+    opacity: 0.6;
+}
+
+/*
  * CMP-HERO-01/03 (2.1): MOT-CUE scroll cue (stopped after the first scroll by
  * HeroShell) and the Ken Burns zoom on the current slide (play state follows
  * the autoplay). Transform only (MOT-R01); none of it under reduced motion.

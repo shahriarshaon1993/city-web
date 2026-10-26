@@ -2,7 +2,7 @@
 
 namespace App\Support\Demo;
 
-use InvalidArgumentException;
+use App\Support\Search\ProjectFilters;
 
 /**
  * Part A content source (DEC-29): site settings, menus and page copy shaped
@@ -132,34 +132,6 @@ final class DemoContent
     ];
 
     /**
-     * `auto:locations` and the footer's top 8 areas (CMS-NAV-003,
-     * SEO-ONP-005): name, slug, published project count.
-     *
-     * @var list<array{0: string, 1: string, 2: int}>
-     */
-    private const array TOP_AREAS = [
-        ['Bashundhara R/A', 'bashundhara-ra', 6],
-        ['Gulshan', 'gulshan', 5],
-        ['Banani', 'banani', 4],
-        ['Baridhara', 'baridhara', 3],
-        ['Dhanmondi', 'dhanmondi', 3],
-        ['Uttara', 'uttara', 2],
-        ['Mirpur', 'mirpur', 2],
-        ['Mohammadpur', 'mohammadpur', 1],
-    ];
-
-    /**
-     * Areas outside Dhaka for the search widget's city groups (HERO-040);
-     * placeholders like TOP_AREAS: name, slug, published project count, city.
-     *
-     * @var list<array{0: string, 1: string, 2: int, 3: string}>
-     */
-    private const array OTHER_AREAS = [
-        ['Khulshi', 'khulshi', 1, 'Chattogram'],
-        ['Panchlaish', 'panchlaish', 1, 'Chattogram'],
-    ];
-
-    /**
      * DM-OFF rows (spec/social.md); placeholder addresses until the client's arrive.
      *
      * @var list<array<string, mixed>>
@@ -208,30 +180,6 @@ final class DemoContent
             'description' => 'Meet the board and management team leading Gemcon City Limited.',
         ],
     ];
-
-    /**
-     * Demo projects for ProjectCardResource rows (CMP-CARD-01); placeholder
-     * names until the client's list arrives. Prices of `price_visible: false`
-     * rows never leave the server (AC-PROJ-01).
-     *
-     * @var list<array{slug: string, name: string, segment: string, lifecycle: string, booking_state: string, featured: bool, area: string, image: string, size: array{0: int|null, 1: int|null}, beds: array{0: int|null, 1: int|null}, baths: array{0: int|null, 1: int|null}, katha: int|float|null, price: int|null, price_visible: bool}>
-     */
-    private const array PROJECTS = [
-        ['slug' => 'gemcon-lakeview', 'name' => 'Gemcon Lakeview', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Bashundhara R/A', 'image' => 'projects/projects-01', 'size' => [1650, 2100], 'beds' => [3, 4], 'baths' => [3, 4], 'katha' => null, 'price' => 14_500_000, 'price_visible' => true],
-        ['slug' => 'gemcon-orchid-heights', 'name' => 'Gemcon Orchid Heights', 'segment' => 'residential', 'lifecycle' => 'upcoming', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Gulshan', 'image' => 'projects/projects-02', 'size' => [2400, 3200], 'beds' => [4, 4], 'baths' => [4, 5], 'katha' => null, 'price' => 42_000_000, 'price_visible' => false],
-        ['slug' => 'gemcon-trade-centre', 'name' => 'Gemcon Trade Centre', 'segment' => 'commercial', 'lifecycle' => 'ongoing', 'booking_state' => 'limited_units', 'featured' => true, 'area' => 'Banani', 'image' => 'projects/projects-03', 'size' => [850, 5200], 'beds' => [null, null], 'baths' => [null, null], 'katha' => null, 'price' => 9_500_000, 'price_visible' => true],
-        ['slug' => 'gemcon-greenfield', 'name' => 'Gemcon Greenfield', 'segment' => 'residential', 'lifecycle' => 'ready', 'booking_state' => 'limited_units', 'featured' => true, 'area' => 'Uttara', 'image' => 'projects/projects-04', 'size' => [1250, 1450], 'beds' => [3, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 8_500_000, 'price_visible' => true],
-        ['slug' => 'gemcon-riverside-plots', 'name' => 'Gemcon Riverside Plots', 'segment' => 'land', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Mirpur', 'image' => 'projects/projects-05', 'size' => [null, null], 'beds' => [null, null], 'baths' => [null, null], 'katha' => 5, 'price' => 12_500_000, 'price_visible' => true],
-        ['slug' => 'gemcon-crescent', 'name' => 'Gemcon Crescent', 'segment' => 'mixed_use', 'lifecycle' => 'upcoming', 'booking_state' => 'none', 'featured' => false, 'area' => 'Dhanmondi', 'image' => 'projects/projects-06', 'size' => [1100, 2600], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => null, 'price_visible' => false],
-        ['slug' => 'gemcon-palm-court', 'name' => 'Gemcon Palm Court', 'segment' => 'residential', 'lifecycle' => 'handed_over', 'booking_state' => 'sold_out', 'featured' => false, 'area' => 'Baridhara', 'image' => 'projects/projects-07', 'size' => [2800, 2800], 'beds' => [4, 4], 'baths' => [5, 5], 'katha' => null, 'price' => null, 'price_visible' => false],
-        ['slug' => 'gemcon-maple-residency', 'name' => 'Gemcon Maple Residency', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => true, 'area' => 'Mohammadpur', 'image' => 'projects/projects-08', 'size' => [1050, 1350], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 6_800_000, 'price_visible' => true],
-    ];
-
-    private const array SEGMENT_LABELS = ['residential' => 'Residential', 'commercial' => 'Commercial', 'mixed_use' => 'Mixed-use', 'land' => 'Land'];
-
-    private const array LIFECYCLE_LABELS = ['upcoming' => 'Upcoming', 'ongoing' => 'Ongoing', 'ready' => 'Ready', 'handed_over' => 'Handed over'];
-
-    private const array BOOKING_LABELS = ['booking_open' => 'Booking open', 'limited_units' => 'Limited units', 'sold_out' => 'Sold out'];
 
     /** Mega menu `auto:segments` descriptions, reused by the segment tiles. */
     private const array SEGMENT_DESCRIPTIONS = [
@@ -388,8 +336,8 @@ final class DemoContent
             'offices' => self::offices(),
             'locations_heading' => $footer['locations_heading'],
             'locations' => array_map(
-                fn (array $area): array => $item($area[0], '/locations/'.$area[1], count: $area[2]),
-                self::TOP_AREAS,
+                fn (array $area): array => $item($area['name'], '/locations/'.$area['slug'], count: $area['count']),
+                DemoProjects::topAreas(),
             ),
         ];
     }
@@ -452,6 +400,116 @@ final class DemoContent
     }
 
     /**
+     * PG-02/PG-03 copy: the listing's own title/intro and the DM-FACET rows
+     * (`facets["segment:residential"]`), with an optional FAQ per facet.
+     * Placeholder text until 16.4 moves facet pages to the admin.
+     *
+     * @return array{
+     *     listing: array{title: string, intro: string|null, description: string},
+     *     facets: array<string, array{title: string, intro: string|null, description: string, faq: list<array{id: int, question: string, answer: string}>}>,
+     *     copy: array<string, string>
+     * }
+     */
+    public static function projectListing(): array
+    {
+        $facet = fn (string $title, string $intro, string $description, array $faq = []): array => [
+            'title' => $title,
+            'intro' => $intro,
+            'description' => $description,
+            'faq' => array_map(
+                fn (array $item, int $index): array => ['id' => $index + 1, 'question' => $item[0], 'answer' => $item[1]],
+                $faq,
+                array_keys($faq),
+            ),
+        ];
+
+        return [
+            'listing' => [
+                'title' => 'Projects in Bangladesh',
+                'intro' => null,
+                'description' => 'Browse every Gemcon City project: apartments, commercial spaces and land in Dhaka and Chattogram. Filter by area, size, bedrooms, price and status.',
+            ],
+            'facets' => [
+                'segment:residential' => $facet(
+                    'Residential projects in Bangladesh',
+                    'Family apartments from two to five bedrooms, built to RAJUK-approved designs with clear titles. Every project lists its sizes, handover date and monthly construction progress, so you can compare homes before you visit the site.',
+                    'Apartments for sale in Dhaka and Chattogram by Gemcon City: ongoing, upcoming and ready residential projects with sizes, prices and handover dates.',
+                    [
+                        ['Can I book an apartment from abroad?', '<p>Yes. Most of our NRB buyers book by video site visit and a power of attorney. Our sales team sends the documents, payment schedule and progress photos by email.</p>'],
+                        ['What is included in the apartment price?', '<p>The price covers the apartment, its share of land and a car park where stated. Registration costs and utility connection fees are listed separately in the price sheet.</p>'],
+                        ['How do instalments work?', '<p>A booking money payment is followed by instalments linked to construction stages. The schedule for each project is in its brochure.</p>'],
+                    ],
+                ),
+                'segment:commercial' => $facet(
+                    'Commercial projects in Bangladesh',
+                    'Office floors, retail spaces and showrooms in Banani, Gulshan, Uttara and Chattogram, with flexible floor plates and professional building management.',
+                    'Office and retail spaces for sale by Gemcon City in Dhaka and Chattogram, from single suites to full floors.',
+                ),
+                'segment:mixed_use' => $facet(
+                    'Mixed-use projects in Bangladesh',
+                    'Homes above shops, markets and offices: everyday errands downstairs and a quiet apartment upstairs.',
+                    'Mixed-use developments by Gemcon City combining apartments with retail and office space in Dhaka and Chattogram.',
+                ),
+                'segment:land' => $facet(
+                    'Land projects in Bangladesh',
+                    'Residential plots with clear titles, mutation completed and roads, drainage and utilities laid before handover.',
+                    'Plots for sale by Gemcon City in Dhaka with clear titles, planned roads and utilities.',
+                ),
+                'status:upcoming' => $facet(
+                    'Upcoming projects in Bangladesh',
+                    'Projects that are approved and open for early booking, often at launch prices before construction starts.',
+                    'Upcoming Gemcon City projects open for early booking in Dhaka and Chattogram.',
+                ),
+                'status:ongoing' => $facet(
+                    'Ongoing projects in Bangladesh',
+                    'Projects under construction, with progress reports every month and handover dates we publish and keep.',
+                    'Gemcon City projects under construction in Dhaka and Chattogram, with monthly progress updates and handover dates.',
+                    [
+                        ['How do I follow construction progress?', '<p>Every ongoing project page shows the latest progress report with photos and the percentage complete. Buyers also receive the report by email each month.</p>'],
+                        ['Can I visit the site during construction?', '<p>Yes. Book a site visit and an engineer will walk you through the building with safety equipment.</p>'],
+                    ],
+                ),
+                'status:ready' => $facet(
+                    'Ready apartments and spaces in Bangladesh',
+                    'Completed projects with units still available: move in or start your fit-out within weeks of booking.',
+                    'Ready-to-move apartments and commercial spaces by Gemcon City with units available now.',
+                ),
+                'status:handed_over' => $facet(
+                    'Handed-over projects',
+                    'Buildings we have completed and handed over to their owners, a record of the promises we kept.',
+                    'Completed and handed-over Gemcon City projects in Dhaka and Chattogram.',
+                ),
+            ],
+            'copy' => [
+                'empty_title' => 'No projects match these filters',
+                'empty_body' => 'Try fewer filters or a wider size or price range. Here are our newest projects in the meantime.',
+                'newest_heading' => 'Newest projects',
+                'locations_heading' => 'Explore by area',
+                'faq_heading' => 'Frequently asked questions',
+                'map_title' => 'Map view is on its way',
+                'map_body' => 'The interactive map arrives with the locations pages. The list shows the same projects in the meantime.',
+            ],
+        ];
+    }
+
+    /**
+     * The listing pages' closing CTA band (PG-02 "CTA band", CMP-BLK-CTA).
+     *
+     * @return array<string, mixed>
+     */
+    public static function projectListingCta(): array
+    {
+        return self::block(900, 'cta_band', [
+            'heading' => 'Not sure which project fits?',
+            'text' => 'Tell us your budget, preferred area and timeline, and our sales team will shortlist projects for you.',
+            'primary_cta' => ['label' => 'Talk to our team', 'url' => '/contact', 'new_tab' => false],
+            'secondary_cta' => ['label' => 'Call the hotline', 'url' => 'tel:'.self::SETTINGS['contact']['hotline'], 'new_tab' => false],
+            'style' => 'gradient',
+            'image' => null,
+        ], background: 'dark', spacing: 'lg');
+    }
+
+    /**
      * The home page blocks (DM-BLOCK shape, types/blocks.ts) in LAY-HOME
      * order. Project, testimonial, partner and post lists are resolved here
      * the way the Part B block data loaders will (ARC-002). `$variant` switches the hero for the local previews at
@@ -482,12 +540,12 @@ final class DemoContent
                 'tiles' => array_map(
                     fn (string $segment, string $image): array => [
                         'segment' => $segment,
-                        'label' => self::SEGMENT_LABELS[$segment],
+                        'label' => DemoProjects::SEGMENT_LABELS[$segment],
                         'description' => self::SEGMENT_DESCRIPTIONS[$segment],
                         'image' => DemoMedia::image($image),
                         'url' => '/projects/type/'.str_replace('_', '-', $segment),
                     ],
-                    array_keys(self::SEGMENT_LABELS),
+                    array_keys(DemoProjects::SEGMENT_LABELS),
                     ['projects/projects-01', 'projects/projects-03', 'projects/projects-06', 'projects/projects-05'],
                 ),
             ]),
@@ -589,7 +647,7 @@ final class DemoContent
                 continue;
             }
 
-            $project = $row['project'] === null ? null : self::projectRow($row['project']);
+            $project = $row['project'] === null ? null : DemoProjects::row($row['project']);
 
             $cards[] = [
                 'id' => $index + 1,
@@ -635,14 +693,14 @@ final class DemoContent
         $summaries = [];
 
         foreach (self::PROGRESS as $update) {
-            $project = self::projectRow($update['project']);
+            $project = DemoProjects::row($update['project']);
 
             $summaries[] = [
                 'project' => [
                     'id' => $project['id'],
                     'name' => $project['name'],
                     'url' => '/projects/'.$project['slug'],
-                    'location' => ['area' => $project['area'], 'city' => 'Dhaka'],
+                    'location' => ['area' => DemoProjects::area($project['area'])['name'], 'city' => DemoProjects::area($project['area'])['city']],
                 ],
                 'percent' => $update['percent'],
                 'stage' => $update['stage'],
@@ -657,22 +715,6 @@ final class DemoContent
     }
 
     /**
-     * A PROJECTS row by slug, with its card ID.
-     *
-     * @return array{id: int, slug: string, name: string, area: string}
-     */
-    private static function projectRow(string $slug): array
-    {
-        foreach (self::PROJECTS as $index => $row) {
-            if ($row['slug'] === $slug) {
-                return ['id' => $index + 1, 'slug' => $row['slug'], 'name' => $row['name'], 'area' => $row['area']];
-            }
-        }
-
-        throw new InvalidArgumentException("Unknown demo project {$slug}.");
-    }
-
-    /**
      * CMP-SEARCH-01 options (ProjectSearchOptions in types/search.ts):
      * values are FR-SRCH-002 query values, `url` the clean landing page a
      * single facet goes to (HERO-041, FR-SRCH-008).
@@ -682,25 +724,24 @@ final class DemoContent
     public static function projectSearch(): array
     {
         $option = fn (string $value, string $label, ?string $url): array => ['value' => $value, 'label' => $label, 'url' => $url];
-        // Facet URL slugs use hyphens (`handed-over`); awaiting owner confirmation (see menus()).
-        $slug = fn (string $value): string => str_replace('_', '-', $value);
+        // Facet URL slugs use hyphens (`handed-over`, owner in 4.1).
+        $slug = ProjectFilters::urlSlug(...);
 
         $cities = [];
-        $areas = [...array_map(fn (array $area): array => [...$area, 'Dhaka'], self::TOP_AREAS), ...self::OTHER_AREAS];
 
-        foreach ($areas as [$name, $areaSlug, , $city]) {
-            $cities[$city][] = $option($areaSlug, $name, '/locations/'.$areaSlug);
+        foreach (DemoProjects::areas() as $area) {
+            $cities[$area['city']][] = $option($area['slug'], $area['name'], '/locations/'.$area['slug']);
         }
 
         return [
             'action' => '/projects',
             'segments' => array_map(
-                fn (string $value): array => $option($value, self::SEGMENT_LABELS[$value], '/projects/type/'.$slug($value)),
+                fn (string $value): array => $option($value, DemoProjects::SEGMENT_LABELS[$value], '/projects/type/'.$slug($value)),
                 ['residential', 'commercial', 'land'],
             ),
             'statuses' => array_map(
-                fn (string $value): array => $option($value, self::LIFECYCLE_LABELS[$value], '/projects/status/'.$slug($value)),
-                array_keys(self::LIFECYCLE_LABELS),
+                fn (string $value): array => $option($value, DemoProjects::LIFECYCLE_LABELS[$value], '/projects/status/'.$slug($value)),
+                array_keys(DemoProjects::LIFECYCLE_LABELS),
             ),
             'cities' => array_map(
                 fn (string $city, array $cityAreas): array => ['city' => $city, 'areas' => $cityAreas],
@@ -734,7 +775,7 @@ final class DemoContent
     {
         $cards = [];
 
-        foreach (self::PROJECTS as $index => $row) {
+        foreach (DemoProjects::rows() as $row) {
             if (($featuredOnly && ! $row['featured'])
                 || ($segment !== null && $row['segment'] !== $segment)
                 || ($lifecycle !== null && $row['lifecycle'] !== $lifecycle)) {
@@ -745,30 +786,7 @@ final class DemoContent
                 break;
             }
 
-            $cards[] = [
-                'id' => $index + 1,
-                'slug' => $row['slug'],
-                'url' => '/projects/'.$row['slug'],
-                'name' => $row['name'],
-                'segment' => $row['segment'],
-                'segment_label' => self::SEGMENT_LABELS[$row['segment']],
-                'lifecycle' => $row['lifecycle'],
-                'lifecycle_label' => self::LIFECYCLE_LABELS[$row['lifecycle']],
-                'booking_state' => $row['booking_state'],
-                'booking_label' => self::BOOKING_LABELS[$row['booking_state']] ?? null,
-                'is_featured' => $row['featured'],
-                'location' => ['area' => $row['area'], 'city' => 'Dhaka'],
-                'cover' => DemoMedia::image($row['image']),
-                'size_min_sft' => $row['size'][0],
-                'size_max_sft' => $row['size'][1],
-                'beds_min' => $row['beds'][0],
-                'beds_max' => $row['beds'][1],
-                'baths_min' => $row['baths'][0],
-                'baths_max' => $row['baths'][1],
-                'land_katha' => $row['katha'],
-                'price_from_bdt' => $row['price_visible'] ? $row['price'] : null,
-                'price_note' => $row['price_visible'] ? null : 'Price on request',
-            ];
+            $cards[] = DemoProjects::card($row);
         }
 
         return $cards;
@@ -803,12 +821,12 @@ final class DemoContent
 
         // `auto:locations`: top 8 areas by project count (CMS-NAV-003).
         $locations = array_map(
-            fn (array $area): array => $item($area[0], '/locations/'.$area[1], count: $area[2]),
-            self::TOP_AREAS,
+            fn (array $area): array => $item($area['name'], '/locations/'.$area['slug'], count: $area['count']),
+            DemoProjects::topAreas(),
         );
 
         // Contact is not a header item: the Enquire button links there (DEC-40).
-        // Facet URL slugs `mixed-use` / `handed-over` (enum values use underscores): awaiting owner confirmation.
+        // Facet URL slugs use hyphens (`mixed-use`, `handed-over`; owner in 4.1).
         $header = [
             $item('Projects', '/projects', mega: [
                 ['kind' => 'segments', 'heading' => 'By type', 'items' => $segments],

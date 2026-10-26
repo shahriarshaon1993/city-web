@@ -17,7 +17,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 2.4  | Home blocks II (progress, testimonials, marquee, news, CTA)                | 2.3            | ✅     |
 | 3.1  | Motion runtime, smooth scroll, reveals, counters                           | 2.4            | ✅     |
 | 3.2  | Interactive effects & page transitions                                     | 3.1            | ✅     |
-| 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ⬜     |
+| 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ✅     |
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ⬜     |
 | 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ⬜     |
 | 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ⬜     |
@@ -268,6 +268,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 3.1 · **Read:** spec/search.md (all); spec/pages.md PG-02, PG-03; spec/seo.md SEO-TEC-005, SEO-TEC-020..024; design/components.md CMP-FILT-01, CMP-PAGI-01, CMP-EMPTY-01; design/layouts.md LAY-PROJ-LIST; design/patterns.md UX-07, UX-08; design/motion.md MOT-SKELETON.
 **Build:** routes `site.projects.index`, `/projects/type/{segment}`, `/projects/status/{status}`. Filter normaliser (drop unknown params, cast/clamp, swap min > max, ≤ 5 areas, `q` 80 chars, alphabetical order), single-facet 301, noindex/canonical rules — permanent code. `App\Support\Demo\DemoProjectSearch` (filters, sorts, facet counts, pagination over demo projects; 13.3's Eloquent search returns the same shape). Filter bar + mobile sheet, chips, sort, Grid/Map toggle (map arrives in 5.1), partial reload `only: projects, facets, meta`, debounce 350 ms `replace` for typing, `push` for selections, aria-live count, dim + skeleton after 300 ms, real `<a href>` pagination, page beyond last → 404, empty state with newest 3, location links, facet intro/FAQ, CTA.
 **Test:** AC-SRCH-01..04 by hand; `/projects?segment=commercial` → 301 `/projects/type/commercial`; view-source `/projects?beds=3&segment=residential` → `noindex,follow` + canonical `/projects/type/residential`; Back undoes a selection, typing adds no history entries; `?page=99` → 404; mobile sheet "Show n projects" updates live.
+
+**Done notes (2026-10-26):**
+- `App\Support\Search\ProjectFilters` (permanent): `fromQuery($query, $areaSlugs)` normalises; `url()` = the one URL (landing path for one segment/status/area, else alphabetical query, `area[]` literal); `matches($path, $rawQuery)` compares decoded → controller 301s otherwise; `isIndexable()`/`canonicalPath()` = SEO-TEC-021. `lib/listing.ts` `listingUrl()` is its client twin — change both. Facet slugs hyphenated (`ProjectFilters::urlSlug/enumValue`), DEC-52.
+- Area landing = `Route::has('site.locations.show')`: 5.1 must name the area route exactly that; single areas then 301 to it automatically (also fix the hero search, which already links `/locations/{area}`).
+- `Site\ProjectListingController` → `Site/Projects`; props `projects`/`facets`/`meta` (DemoProjectSearch shape, `types/listing.ts`) + `listing` (H1, intro, FAQ, breadcrumbs, location links), `newest`, `copy`, `cta`. 13.3 replaces `DemoProjectSearch` with a Query class returning the same arrays; 5.1's PG-06 reuses the page components with an area facet.
+- `useProjectListing` (provide/inject `useListing()`): `update()` push, `type()` 350 ms replace, partial reload `only: projects, facets, meta, listing, seo`; focus restore via `data-filter-key` (keep keys unique per instance: `idPrefix`). `useNavigationFeedback` no longer dims `main` for `only` visits.
+- Demo data: `App\Support\Demo\DemoProjects` (26 rows, IDs 1–8 unchanged, areas with cities, computed counts, `card()`); DemoContent delegates (`projectListing()`, `projectListingCta()`).
+- `SeoData`: an explicit `canonical()` now survives `noindex()` (DEC-52). `.sticky-under-header` + `data-header-hidden` on `<html>` (SiteHeader) — 4.2 section tabs use the same class. `ProjectCard`/`ProjectCardMedia` `priority` prop; listing preloads the first card.
+- Map view = list + placeholder panel (`copy.map_*`); 5.1 swaps the panel for the map.
 
 ### 4.2 — Project detail I — gallery, title, section tabs, facts, amenities, plans
 

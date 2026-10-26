@@ -66,6 +66,9 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Lead story + compact list | latest_news |
 | Edge-to-edge strip with caption | partners_marquee |
 | Centred dark band | cta_band |
+| Editorial card grid + sticky hairline filter bar | project listing PG-02/03 (4.1) |
+| Hairline link rows in 4 columns on greige (overline meta, light name, arrow) | listing location links (4.1) |
+| Heading 4 / hairline accordion 8 | facet FAQ (4.1) |
 
 ## 6. Component patterns
 
@@ -77,6 +80,7 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 - **Badges** only for status on photos (lifecycle, booking). Categories, dates, locations are overlines.
 - **Stats:** big light numbers (`text-stat` 300, teal) with a small suffix and a muted label below; typographic, never icons in circles.
 - **Carousels:** prev/next arrows in the heading row, **no dots, no autoplay** (hero slider excepted), native scroll-snap strip before hydration, mobile peek.
+- **Listing filters (4.1, DEC-53):** single-select facets (type, status) are always-visible text rows — overline label, options with a muted count, the active one underlined by a 1 px foreground line (links when the target is indexable, buttons otherwise). The sticky bar under the header is white/95 with blur between hairlines; triggers are `h-11 rounded-md` hairline boxes (foreground border + "Label: value" when set). Panel choices (presets, bedrooms, availability) are hairline `rounded-md` buttons that fill with foreground when pressed; never coral. Active chips are neutral hairline buttons with an ×, plus a teal "Clear all" text link. Counts are plain muted numbers, never pills.
 - **Quotes:** coral quote mark, the quote as large light text, person with 48 px photo or initials behind a hairline.
 
 ## 7. Motion feel
