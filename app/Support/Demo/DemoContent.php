@@ -81,6 +81,9 @@ final class DemoContent
             // SEO-ONP-001/002 project templates (ProjectMeta).
             'project_title_template' => '{name} – {bedrooms_range} Bed {segment_label} in {area}, {city} | Gemcon City',
             'project_description_template' => '{name} by Gemcon City: {size_range} sft {segment_label_lower} in {area}, {city}. {status_label}, handover {handover}. Book a site visit.',
+            // SEO-ONP-001 location templates (LocationMeta).
+            'location_title_template' => 'Flats & Commercial Spaces in {area}, {city} | Gemcon City',
+            'location_segment_title_template' => '{segment_label} in {area}, {city} | Gemcon City',
             'noindex' => false,
             'gsc_verification' => null,
             'bing_verification' => null,
@@ -489,8 +492,6 @@ final class DemoContent
                 'newest_heading' => 'Newest projects',
                 'locations_heading' => 'Explore by area',
                 'faq_heading' => 'Frequently asked questions',
-                'map_title' => 'Map view is on its way',
-                'map_body' => 'The interactive map arrives with the locations pages. The list shows the same projects in the meantime.',
             ],
         ];
     }

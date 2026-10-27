@@ -151,6 +151,7 @@ onMounted(() => {
 
                 <ListingResults
                     :projects="projects"
+                    :markers="map"
                     :newest="newest"
                     :copy="copy"
                 />

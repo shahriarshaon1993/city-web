@@ -1,25 +1,33 @@
 <script setup lang="ts">
-import { MapPinned } from '@lucide/vue';
-import { computed } from 'vue';
+import { MapIcon } from '@lucide/vue';
+import { computed, ref, watch } from 'vue';
 import EmptyState from '@/components/site/EmptyState.vue';
+import MapSheet from '@/components/site/map/MapSheet.vue';
+import ProjectMap from '@/components/site/map/ProjectMap.vue';
 import ProjectCard from '@/components/site/ProjectCard.vue';
 import SkeletonShape from '@/components/site/SkeletonShape.vue';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { useListing } from '@/composables/useProjectListing';
+import { formatNumber } from '@/lib/format';
 import { emptyFilters } from '@/lib/listing';
 import { cn } from '@/lib/utils';
 import type { ListingCopy } from '@/types/listing';
+import type { MapProject } from '@/types/location';
 import type { ProjectCard as ProjectCardData } from '@/types/site';
 
 // LAY-PROJ-LIST results. Grid: CMP-CARD-01, 1/2/3 columns, 48 px between
 // rows; the first card is the page's LCP image (preloaded by the server).
-// Map (`view=map`): horizontal cards in 5 columns beside the map's 7 — a
-// placeholder panel until 5.1 brings the map. While a filter reload runs the
+// Map (`view=map`, FR-SRCH-006): horizontal cards in 5 columns beside the
+// sticky map's 7 (CMP-MAP-01, every result a marker); below 1024 px the list
+// stays and the map opens as a full-screen sheet — at once when the visitor
+// switches to map view, else from "Show map". While a filter reload runs the
 // results dim (aria-busy) and after 300 ms a skeleton covers them
 // (UX-07, MOT-SKELETON). No results: AC-SRCH-04 empty state + newest 3.
 // No scroll reveals here: the cards change under the visitor's hand.
 const props = defineProps<{
     projects: ProjectCardData[];
+    /** Every result with coordinates; null outside map view. */
+    markers: MapProject[] | null;
     newest: ProjectCardData[];
     copy: ListingCopy;
 }>();
@@ -27,6 +35,20 @@ const props = defineProps<{
 const listing = useListing();
 
 const map = computed(() => listing.state.view === 'map');
+const sheetOpen = ref(false);
+const sheetTitle = computed(() => {
+    const total = listing.meta.value.total;
+
+    return total === 1
+        ? '1 project on the map'
+        : `${formatNumber(total)} projects on the map`;
+});
+
+watch(map, (isMap, wasMap) => {
+    if (isMap && !wasMap && window.matchMedia('(max-width: 1023px)').matches) {
+        sheetOpen.value = true;
+    }
+});
 const clearUrl = computed(() => listing.urlFor(emptyFilters()));
 
 function clear(event: MouseEvent): void {
@@ -51,36 +73,43 @@ function clear(event: MouseEvent): void {
     >
         <template v-if="props.projects.length > 0">
             <div v-if="map" class="grid gap-8 lg:grid-cols-12">
-                <ul class="flex flex-col gap-8 lg:col-span-5">
-                    <li
-                        v-for="(project, index) in props.projects"
-                        :key="project.id"
+                <div class="flex flex-col gap-8 lg:col-span-5">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="self-start lg:hidden"
+                        @click="sheetOpen = true"
                     >
-                        <ProjectCard
-                            :project="project"
-                            variant="horizontal"
-                            heading-as="h2"
-                            :priority="index === 0"
-                        />
-                    </li>
-                </ul>
-                <div class="lg:col-span-7">
-                    <div
-                        class="flex min-h-80 flex-col items-center justify-center gap-4 rounded-xl bg-surface-subtle p-8 text-center lg:sticky lg:top-[calc(var(--header-height)+6rem)] lg:h-[calc(100svh-var(--header-height)-8rem)]"
-                    >
-                        <MapPinned
-                            class="size-10 text-muted-foreground"
-                            stroke-width="1.25"
-                            aria-hidden="true"
-                        />
-                        <p class="font-display text-h4">
-                            {{ props.copy.map_title }}
-                        </p>
-                        <p class="max-w-sm text-body text-muted-foreground">
-                            {{ props.copy.map_body }}
-                        </p>
-                    </div>
+                        <MapIcon class="size-4" aria-hidden="true" />
+                        Show map
+                    </Button>
+                    <ul class="flex flex-col gap-8">
+                        <li
+                            v-for="(project, index) in props.projects"
+                            :key="project.id"
+                        >
+                            <ProjectCard
+                                :project="project"
+                                variant="horizontal"
+                                heading-as="h2"
+                                :priority="index === 0"
+                            />
+                        </li>
+                    </ul>
                 </div>
+                <div class="hidden lg:col-span-7 lg:block">
+                    <ProjectMap
+                        :projects="props.markers ?? []"
+                        label="Map of the projects found"
+                        class="sticky top-[calc(var(--header-height)+6rem)] h-[calc(100svh-var(--header-height)-8rem)] min-h-140 rounded-xl"
+                    />
+                </div>
+                <MapSheet
+                    v-model:open="sheetOpen"
+                    :title="sheetTitle"
+                    :projects="props.markers ?? []"
+                    label="Map of the projects found"
+                />
             </div>
 
             <ul

@@ -52,7 +52,11 @@ export function activeCount(state: ListingFilters): number {
     );
 }
 
-/** The landing page of a single segment, status or area (null when none). */
+/**
+ * The landing page of a single segment or status (null when none). A single
+ * area stays a filter here: only direct requests 301 it to its location
+ * page (owner, 5.1), so the visitor keeps the filter bar.
+ */
 function landingUrl(state: ListingState, facets: ListingFacets): string | null {
     if (activeCount(state) !== 1) {
         return null;
@@ -69,14 +73,6 @@ function landingUrl(state: ListingState, facets: ListingFacets): string | null {
         return (
             facets.statuses.find((option) => option.value === state.status)
                 ?.url ?? null
-        );
-    }
-
-    if (state.area.length === 1) {
-        return (
-            facets.cities
-                .flatMap((city) => city.areas)
-                .find((option) => option.value === state.area[0])?.url ?? null
         );
     }
 

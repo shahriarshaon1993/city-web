@@ -2,8 +2,6 @@
 
 namespace App\Support\Search;
 
-use Illuminate\Support\Facades\Route;
-
 /**
  * The normalised project-listing state (FR-SRCH-001/002 + "Validation" and
  * "Edge cases" of spec/search.md). Built from a raw query: unknown params
@@ -11,7 +9,10 @@ use Illuminate\Support\Facades\Route;
  * stripped of tags and cut to 80 chars, invalid enum values ignored. `url()`
  * is the one URL of the state: a single segment/status/area goes to its
  * landing page (FR-SRCH-008), other params are alphabetical with empty and
- * default values omitted. Permanent code: 13.3 keeps it with Eloquent.
+ * default values omitted. A single area lands on its location page only
+ * for direct requests with the default sort and grid view: filter visits
+ * inside the listing keep `/projects?area[]=…` (owner, 5.1). Permanent
+ * code: 13.3 keeps it with Eloquent.
  *
  * @phpstan-type Pair array{0: string, 1: string}
  */
@@ -64,6 +65,8 @@ final class ProjectFilters
         public readonly string $view,
         public readonly int $page,
         private readonly array $tracking,
+        private readonly bool $areaLanding = true,
+        private readonly ?string $landingPath = null,
     ) {}
 
     /**
@@ -129,6 +132,25 @@ final class ProjectFilters
         return $this->with(page: $page);
     }
 
+    /**
+     * Inertia filter visits inside the listing: a single area stays a
+     * filter instead of moving to its location page (owner, 5.1).
+     */
+    public function withoutAreaLanding(): self
+    {
+        return $this->with(areaLanding: false);
+    }
+
+    /**
+     * The state as shown on a page that is itself its landing, e.g. an area
+     * × segment page (FR-LOC-004): `url()` keeps that path and adds only
+     * page, sort and view.
+     */
+    public function onLanding(string $path): self
+    {
+        return $this->with(landingPath: $path);
+    }
+
     /** Number of active filters (sort, view and page are not filters). */
     public function activeCount(): int
     {
@@ -153,7 +175,7 @@ final class ProjectFilters
         $facet = match (true) {
             $this->segment !== null => ['segment', $this->segment],
             $this->status !== null => ['status', $this->status],
-            count($this->areas) === 1 => ['area', $this->areas[0]],
+            count($this->areas) === 1 && $this->areaLanding && $this->sort === self::DEFAULT_SORT && $this->view === 'grid' => ['area', $this->areas[0]],
             default => null,
         };
 
@@ -206,8 +228,8 @@ final class ProjectFilters
      */
     public function url(bool $withTracking = true): string
     {
-        $landing = $this->landing();
-        $pairs = $this->pairs(skipFilters: $landing !== null);
+        $landingUrl = $this->landingPath ?? $this->landing()['url'] ?? null;
+        $pairs = $this->pairs(skipFilters: $landingUrl !== null);
 
         if ($withTracking) {
             $pairs = [...$pairs, ...$this->tracking];
@@ -219,7 +241,7 @@ final class ProjectFilters
             $pairs,
         ));
 
-        return ($landing['url'] ?? self::basePath()).($query === '' ? '' : '?'.$query);
+        return ($landingUrl ?? self::basePath()).($query === '' ? '' : '?'.$query);
     }
 
     /**
@@ -237,16 +259,14 @@ final class ProjectFilters
     }
 
     /**
-     * The landing URL of one facet value, or null when it has no page (yet):
-     * location pages arrive in 5.1, so single areas stay on the listing until
-     * the route exists.
+     * The landing URL of one facet value, or null when it has no page.
      */
     public static function landingUrl(string $kind, string $value): ?string
     {
         return match ($kind) {
             'segment' => route('site.projects.segment', self::urlSlug($value), false),
             'status' => route('site.projects.status', self::urlSlug($value), false),
-            'area' => Route::has('site.locations.show') ? route('site.locations.show', $value, false) : null,
+            'area' => route('site.locations.show', $value, false),
             default => null,
         };
     }
@@ -322,7 +342,7 @@ final class ProjectFilters
             'sizeMin' => $this->sizeMin, 'sizeMax' => $this->sizeMax, 'beds' => $this->beds,
             'priceMin' => $this->priceMin, 'priceMax' => $this->priceMax, 'booking' => $this->booking,
             'featured' => $this->featured, 'sort' => $this->sort, 'view' => $this->view, 'page' => $this->page,
-            'tracking' => $this->tracking,
+            'tracking' => $this->tracking, 'areaLanding' => $this->areaLanding, 'landingPath' => $this->landingPath,
         ];
 
         return new self(...array_merge($values, $changes));

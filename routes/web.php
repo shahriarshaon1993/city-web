@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Site\ClientErrorController;
 use App\Http\Controllers\Site\HomeController;
+use App\Http\Controllers\Site\LocationController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
@@ -25,6 +26,16 @@ Route::get('projects/status/{status}', [ProjectListingController::class, 'status
 Route::get('projects/{slug}', [ProjectController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('site.projects.show');
+
+// PG-05 / PG-06 (5.1). Area × segment pages exist only with ≥ 2 projects (FR-LOC-004).
+Route::get('locations', [LocationController::class, 'index'])->name('site.locations.index');
+Route::get('locations/{area}', [LocationController::class, 'show'])
+    ->where('area', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('site.locations.show');
+Route::get('locations/{area}/{segment}', [LocationController::class, 'segment'])
+    ->where('area', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->whereIn('segment', ['residential', 'commercial', 'mixed-use', 'mixed_use', 'land'])
+    ->name('site.locations.segment');
 
 Route::post('internal/client-errors', ClientErrorController::class)
     ->middleware('throttle:client-errors')

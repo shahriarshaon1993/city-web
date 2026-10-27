@@ -20,7 +20,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 4.1  | Project listing & facet pages (filters, URL state, SEO rules)              | 3.1            | ✅     |
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ✅     |
 | 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ✅     |
-| 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ⬜     |
+| 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ✅     |
 | 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ⬜     |
 | 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ⬜     |
 | 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ⬜     |
@@ -315,6 +315,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 4.3 · **Read:** spec/locations.md (all); spec/pages.md PG-05, PG-06; spec/search.md FR-SRCH-006; design/layouts.md LAY-LOC-LIST, LAY-LOC-DETAIL, LAY-PROJ-LIST (map view); design/components.md CMP-MAP-01; design/motion.md §8.3 (maps).
 **Build:** owner approves `leaflet` 1.9.4 + `leaflet.markercluster` 1.5.3. Routes `/locations`, `/locations/{area}`, `/locations/{area}/{segment}` (exists only with ≥ 2 projects in that segment; indexability per FR-LOC-003/004). Area hero, intro, facts, segment pills, project grid + pagination, nearby areas, FAQ, CTA. `ProjectMap` (loads on viewport or toggle, hexagon markers, clusters, mini-card popups, visually hidden project list, wheel zoom only after click, `data-lenis-prevent` while active, reset view). Map view on `/projects?view=map` (list + map desktop, full-screen sheet mobile).
 **Test:** AC-LOC-01/02 on demo data; scroll the page over the map without zooming it; Tab reaches markers; mobile map view opens and closes; no tile request before the map is visible.
+
+**Done notes (2026-10-27):**
+- `leaflet` 1.9.4 + `leaflet.markercluster` 1.5.3 (exact), `@types/leaflet` 1.9.22 + `@types/leaflet.markercluster` 1.5.6 (dev). `lib/leaflet.ts` loads them + `resources/css/map.css` on first map only (sets `window.L` first: the cluster plugin is UMD). **19.4:** CSP must allow `tile.openstreetmap.org` (img-src).
+- `Site\LocationController` → `Site/Locations` (`directory`) and `Site/Location` (`area`, `map`, `copy` + the listing's `projects`/`facets`/`meta`, so `ListingPagination`/`useProjectListing` work there). Area pages accept only `page`; anything else 301s to `/projects?…`. Area × segment 404 below 2 projects. 13.3 swaps `DemoLocations` / `DemoProjectSearch::mapProjects()` / `segmentCounts()` for the Location model + Query (same shapes).
+- `ProjectFilters` (DEC-58): area landing only for direct requests with default sort + grid view (`withoutAreaLanding()` on `X-Inertia`), `onLanding($path)` for area × segment URLs; `lib/listing.ts` never lands on an area. `Route::has` guard removed.
+- `App\Support\Seo\LocationMeta`: settings `seo.location_title_template` / `location_segment_title_template`, description = first 155 chars of the intro, FR-LOC-003/004 rules. 19.2's `locations.xml` must reuse `areaIndexable()` + "own segment intro".
+- `components/site/map/`: `ProjectMap` (props `projects`, `label`, `centre`/`zoom` or fit bounds, `eager`, `popups`, `v-model:active`), `MapSheet` (full-screen + synced card strip), `MapProjectCard`. Listing prop `map` (markers, only in map view; in `RELOAD_ONLY`). Reuse for 6.2 locations block.
+- `Breadcrumbs` `tone="media"`; new preset `area-tile`; `DemoProjectSections` area centres moved to `DemoLocations::centre()`. Demo: Purbachal (Narayanganj, 0 projects), row 27 Gemcon Birch Residency (Uttara); six areas have ≥ 150-word intros, Uttara residential has its own intro.
 
 ## Phase 6 — Content pages
 

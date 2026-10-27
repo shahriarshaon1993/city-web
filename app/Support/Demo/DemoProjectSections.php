@@ -34,20 +34,6 @@ final class DemoProjectSections
 
     public const array DOCUMENT_LABELS = ['brochure' => 'Brochure', 'price_list' => 'Price list', 'specification' => 'Specification', 'other' => 'Document'];
 
-    /** Area centre (lat, lng); each project sits a little off it. */
-    private const array AREA_COORDINATES = [
-        'bashundhara-ra' => [23.8193, 90.4526],
-        'gulshan' => [23.7925, 90.4078],
-        'banani' => [23.7940, 90.4043],
-        'baridhara' => [23.7999, 90.4211],
-        'dhanmondi' => [23.7461, 90.3742],
-        'uttara' => [23.8759, 90.3795],
-        'mirpur' => [23.8223, 90.3654],
-        'mohammadpur' => [23.7662, 90.3589],
-        'khulshi' => [22.3601, 91.8102],
-        'panchlaish' => [22.3637, 91.8317],
-    ];
-
     /** DM-NEAR rows per area: name, category, minutes, mode (≤ 10 per project). */
     private const array AREA_NEARBY = [
         'bashundhara-ra' => [['North South University', 'school', 6, 'drive'], ['Evercare Hospital Dhaka', 'hospital', 8, 'drive'], ['Jamuna Future Park', 'mall', 10, 'drive'], ['Bashundhara Central Mosque', 'mosque', 5, 'walk'], ['Hazrat Shahjalal International Airport', 'airport', 20, 'drive']],
@@ -186,7 +172,8 @@ final class DemoProjectSections
      */
     public static function coordinates(array $row): array
     {
-        [$lat, $lng] = self::AREA_COORDINATES[$row['area']];
+        // Each project sits a little off its area's centre.
+        ['lat' => $lat, 'lng' => $lng] = DemoLocations::centre($row['area']);
         $shift = fn (int $seed): float => (($row['id'] * $seed) % 60 - 30) / 10_000;
 
         return ['lat' => round($lat + $shift(37), 6), 'lng' => round($lng + $shift(53), 6)];

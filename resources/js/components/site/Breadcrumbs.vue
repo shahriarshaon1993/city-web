@@ -14,27 +14,40 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import type { Breadcrumb as Crumb } from '@/types/site';
 
 // CMP-BREAD-01 (SEO-ONP-005): Home › Section › Page from the page's
 // `breadcrumbs` prop. The last item is plain text with aria-current. Below
 // 640 px the middle items collapse into a "…" menu; they stay in the HTML
-// (hidden by CSS) so the trail is crawlable at every width.
-const props = defineProps<{
-    items: Crumb[];
-}>();
+// (hidden by CSS) so the trail is crawlable at every width. `media` is
+// white text for a photo hero (area pages, 5.1).
+const props = withDefaults(
+    defineProps<{
+        items: Crumb[];
+        tone?: 'default' | 'media';
+    }>(),
+    { tone: 'default' },
+);
 
 const first = computed(() => props.items[0]);
 const middle = computed(() => props.items.slice(1, -1));
 const current = computed(() => props.items.at(-1));
 
-const linkClass =
-    'inline-flex min-h-6 items-center rounded-sm transition-colors duration-(--dur-fast) hover:text-foreground';
+const media = computed(() => props.tone === 'media');
+const linkClass = computed(() =>
+    cn(
+        'inline-flex min-h-6 items-center rounded-sm transition-colors duration-(--dur-fast)',
+        media.value ? 'hover:text-white' : 'hover:text-foreground',
+    ),
+);
 </script>
 
 <template>
     <Breadcrumb v-if="items.length > 1" aria-label="Breadcrumb">
-        <BreadcrumbList class="gap-1.5 text-sm sm:gap-2">
+        <BreadcrumbList
+            :class="cn('gap-1.5 text-sm sm:gap-2', media && 'text-white/80')"
+        >
             <BreadcrumbItem v-if="first">
                 <Link :href="first.url ?? '/'" :class="linkClass">
                     {{ first.label }}
@@ -46,7 +59,14 @@ const linkClass =
                 <BreadcrumbItem class="sm:hidden">
                     <DropdownMenu>
                         <DropdownMenuTrigger
-                            class="-my-2.5 inline-flex size-11 items-center justify-center rounded-md hover:text-foreground"
+                            :class="
+                                cn(
+                                    '-my-2.5 inline-flex size-11 items-center justify-center rounded-md',
+                                    media
+                                        ? 'hover:text-white'
+                                        : 'hover:text-foreground',
+                                )
+                            "
                             aria-label="Show more breadcrumbs"
                         >
                             <MoreHorizontal class="size-4" aria-hidden="true" />
@@ -81,7 +101,15 @@ const linkClass =
             <BreadcrumbSeparator v-else />
 
             <BreadcrumbItem v-if="current">
-                <span aria-current="page" class="font-medium text-foreground">
+                <span
+                    aria-current="page"
+                    :class="
+                        cn(
+                            'font-medium',
+                            media ? 'text-white' : 'text-foreground',
+                        )
+                    "
+                >
                     {{ current.label }}
                 </span>
             </BreadcrumbItem>

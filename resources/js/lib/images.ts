@@ -39,6 +39,14 @@ export const imagePresets = {
         loading: 'lazy',
         placeholder: 'media',
     },
+    /** PG-05 area tile: 3 per row in 8 columns ≥ 1024, 3 per row 640–1023, 2 below (5.1; not in §5.3). */
+    'area-tile': {
+        sizes: '(min-width:1280px) 256px, (min-width:1024px) 21vw, (min-width:640px) 31vw, 46vw',
+        aspect: 'aspect-square sm:aspect-[3/2]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     /** Eager for the first slide only; pass `loading="lazy"` for the rest. */
     'gallery-hero': {
         sizes: '(min-width:1440px) 1440px, 100vw',

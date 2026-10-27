@@ -18,7 +18,9 @@ use Inertia\Response;
  * PG-02 `/projects` and the PG-03 facet landing pages (LAY-PROJ-LIST).
  * Every request is normalised first: a URL that is not its state's one URL
  * gets a 301 (FR-SRCH-002/008, SEO-TEC-022); then robots/canonical follow
- * SEO-TEC-021 and a page beyond the last is a 404 (SEO-TEC-005).
+ * SEO-TEC-021 and a page beyond the last is a 404 (SEO-TEC-005). Inertia
+ * filter visits keep a single area on the listing; only direct requests
+ * 301 it to its location page (owner, 5.1).
  * 13.3 swaps DemoProjectSearch for the Eloquent query (same shape).
  */
 class ProjectListingController extends Controller
@@ -51,6 +53,10 @@ class ProjectListingController extends Controller
             $filters = $filters->withoutPrice();
         }
 
+        if ($request->hasHeader('X-Inertia')) {
+            $filters = $filters->withoutAreaLanding();
+        }
+
         if (! $filters->matches($request->path(), $request->server->getString('QUERY_STRING'))) {
             return redirect()->to($filters->url(), 301);
         }
@@ -80,6 +86,8 @@ class ProjectListingController extends Controller
                 'breadcrumbs' => $header['breadcrumbs'],
                 'location_links' => $this->search->areaLinks($filters->segment, $filters->status),
             ],
+            // FR-SRCH-006: every result as a marker, only in map view.
+            'map' => $filters->view === 'map' ? $this->search->mapProjects($filters) : null,
             'newest' => $this->search->newest(),
             'copy' => DemoContent::projectListing()['copy'],
             'cta' => DemoContent::projectListingCta(),

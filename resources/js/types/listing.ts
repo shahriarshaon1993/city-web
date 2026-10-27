@@ -3,6 +3,7 @@
 // page chrome. Shapes match App\Support\Demo\DemoProjectSearch, which 13.3's
 // Eloquent search keeps.
 import type { CtaBandBlock } from '@/types/blocks';
+import type { MapProject } from '@/types/location';
 import type { Breadcrumb, ProjectCard } from '@/types/site';
 
 export type ListingSort =
@@ -124,8 +125,6 @@ export type ListingCopy = {
     newest_heading: string;
     locations_heading: string;
     faq_heading: string;
-    map_title: string;
-    map_body: string;
 };
 
 export type ProjectListingProps = {
@@ -133,6 +132,8 @@ export type ProjectListingProps = {
     facets: ListingFacets;
     meta: ListingMeta;
     listing: ListingHeader;
+    /** FR-SRCH-006: every result as a marker; null outside map view. */
+    map: MapProject[] | null;
     newest: ProjectCard[];
     copy: ListingCopy;
     cta: CtaBandBlock;

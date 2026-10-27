@@ -108,6 +108,34 @@ final class DemoProjectSearch
     }
 
     /**
+     * Every result of a state (all pages, in its sort order) as a map point:
+     * the card plus its coordinates (FR-SRCH-006, CMP-MAP-01 popups).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function mapProjects(ProjectFilters $filters): array
+    {
+        $rows = array_values(array_filter(DemoProjects::rows(), fn (array $row): bool => $this->matches($row, $filters)));
+
+        return array_map(
+            fn (array $row): array => [...DemoProjects::card($row), 'coordinates' => DemoProjectSections::coordinates($row)],
+            $this->sorted($rows, $filters->sort),
+        );
+    }
+
+    /**
+     * Published projects per segment in one area (FR-LOC-004).
+     *
+     * @return array<string, int>
+     */
+    public static function segmentCounts(string $area): array
+    {
+        $rows = array_filter(DemoProjects::rows(), fn (array $row): bool => $row['area'] === $area);
+
+        return array_count_values(array_column($rows, 'segment'));
+    }
+
+    /**
      * Areas with projects of one segment/status, most projects first (LAY-PROJ-LIST location links).
      *
      * @return list<array{name: string, city: string, count: int, url: string}>

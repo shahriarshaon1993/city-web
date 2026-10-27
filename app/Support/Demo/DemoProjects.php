@@ -29,6 +29,7 @@ final class DemoProjects
 
     /**
      * DM-LOC areas: slug => [name, city], Dhaka first (HERO-040 city groups).
+     * Purbachal has no projects (AC-LOC-01); area pages live in DemoLocations.
      *
      * @var array<string, array{0: string, 1: string}>
      */
@@ -43,11 +44,13 @@ final class DemoProjects
         'mohammadpur' => ['Mohammadpur', 'Dhaka'],
         'khulshi' => ['Khulshi', 'Chattogram'],
         'panchlaish' => ['Panchlaish', 'Chattogram'],
+        'purbachal' => ['Purbachal', 'Narayanganj'],
     ];
 
     /**
      * Rows 1–8 are the original home/menu projects (featured order = row
-     * order); 9–26 were added in 4.1 so the listing has three pages.
+     * order); 9–26 were added in 4.1 so the listing has three pages; 27 in
+     * 5.1 gives Uttara three residential projects (AC-LOC-02).
      * `handover` is month precision (`Y-m`).
      *
      * @var list<DemoProjectRow>
@@ -79,6 +82,7 @@ final class DemoProjects
         ['slug' => 'gemcon-orchard-view', 'name' => 'Gemcon Orchard View', 'tagline' => 'Four-bedroom homes overlooking Gulshan Lake Park', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'gulshan', 'image' => 'projects/projects-06', 'size' => [2600, 3100], 'beds' => [4, 4], 'baths' => [4, 5], 'katha' => null, 'price' => 34_000_000, 'price_visible' => true, 'published_at' => '2026-01-25', 'handover' => '2028-09'],
         ['slug' => 'gemcon-harbour-court', 'name' => 'Gemcon Harbour Court', 'tagline' => 'Homes and studios above a shopping arcade', 'segment' => 'mixed_use', 'lifecycle' => 'upcoming', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'khulshi', 'image' => 'projects/projects-07', 'size' => [1000, 2200], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 8_900_000, 'price_visible' => true, 'published_at' => '2026-09-10', 'handover' => '2029-03'],
         ['slug' => 'gemcon-rosewood', 'name' => 'Gemcon Rosewood', 'tagline' => 'Two- and three-bedroom homes near the school zone', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'limited_units', 'featured' => false, 'area' => 'bashundhara-ra', 'image' => 'projects/projects-02', 'size' => [1200, 1450], 'beds' => [2, 3], 'baths' => [2, 3], 'katha' => null, 'price' => 7_200_000, 'price_visible' => true, 'published_at' => '2025-12-28', 'handover' => '2027-12'],
+        ['slug' => 'gemcon-birch-residency', 'name' => 'Gemcon Birch Residency', 'tagline' => 'Three-bedroom homes a short walk from the Sector 11 market', 'segment' => 'residential', 'lifecycle' => 'ongoing', 'booking_state' => 'booking_open', 'featured' => false, 'area' => 'uttara', 'image' => 'projects/projects-01', 'size' => [1300, 1600], 'beds' => [3, 3], 'baths' => [3, 3], 'katha' => null, 'price' => 9_200_000, 'price_visible' => true, 'published_at' => '2026-07-05', 'handover' => '2028-09'],
     ];
 
     /**

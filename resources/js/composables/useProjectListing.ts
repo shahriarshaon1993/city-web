@@ -4,8 +4,11 @@ import { inject, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { emptyFilters, listingUrl, stateFromMeta } from '@/lib/listing';
 import type { ListingFacets, ListingMeta, ListingState } from '@/types/listing';
 
-/** FR-SRCH-003 (+ the header and head, which change with the landing page). */
-const RELOAD_ONLY = ['projects', 'facets', 'meta', 'listing', 'seo'];
+/**
+ * FR-SRCH-003 (+ the header and head, which change with the landing page,
+ * and the map markers, FR-SRCH-006).
+ */
+const RELOAD_ONLY = ['projects', 'facets', 'meta', 'listing', 'seo', 'map'];
 
 const TYPING_DEBOUNCE = 350;
 /** MOT-SKELETON: shown after 300 ms, then for at least 400 ms. */
@@ -189,7 +192,7 @@ export function useListing(): ProjectListing {
     const listing = inject(projectListingKey);
 
     if (!listing) {
-        throw new Error('useListing() needs the Projects page provider.');
+        throw new Error('useListing() needs a listing page provider.');
     }
 
     return listing;
