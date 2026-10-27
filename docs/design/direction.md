@@ -79,6 +79,10 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Big light % + 4-stage bar, hairline month rows with photo strips | project progress (4.3) |
 | Greige triangle-grid map facade, then hairline nearby rows in 2 columns | project location (4.3) |
 | Hairline rows (icon · title · overline meta · one action) | project documents, design team credits (4.3) |
+| Sticky city heading 4 / area tiles 3-up in 8 (photo, overline count, light name) | locations directory PG-05 (5.1) |
+| Photo hero 60svh, white breadcrumb, overline "City · n projects", light H1 | area page PG-06 (5.1) |
+| Intro 7 / hairline facts `<dl>` 4 | area intro + facts (5.1) |
+| Full-width map on greige-toned tiles, heading row with overline count | area map, listing map view (5.1) |
 
 ## 6. Component patterns
 
@@ -93,6 +97,7 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 - **Listing filters (4.1, DEC-53):** single-select facets (type, status) are always-visible text rows — overline label, options with a muted count, the active one underlined by a 1 px foreground line (links when the target is indexable, buttons otherwise). The sticky bar under the header is white/95 with blur between hairlines; triggers are `h-11 rounded-md` hairline boxes (foreground border + "Label: value" when set). Panel choices (presets, bedrooms, availability) are hairline `rounded-md` buttons that fill with foreground when pressed; never coral. Active chips are neutral hairline buttons with an ×, plus a teal "Clear all" text link. Counts are plain muted numbers, never pills.
 - **Project detail (4.2, DEC-55):** status/booking chips only on the gallery's main photo; the title block uses overline links (segment · area), light H1, lead tagline and a closed facts band (overline label, `text-fact` value). Sections sit in 8 of 12 columns, each a light H2 on a hairline. The sticky section tab bar copies the listing filter bar (white/95, blur, hairlines, 1 px foreground underline on the active link) and fades in the project name + price on the right once stuck (≥ 1024 px). At a glance and unit specs are typographic hairline lists — no icon tiles; amenity icons are thin teal Lucide line icons, never in circles. Lightbox: stone-950 at 96 %, category buttons with an underline, caption + credit centred at the bottom.
 - **Project detail II (4.3, DEC-57):** the enquiry panel is the one greige surface in the content (an action panel, not a card): `rounded-xl`, no border or shadow, its Enquire is teal (the header keeps the coral one), the WhatsApp icon is the only green and never colours text. Video, progress, location, documents and team follow the hairline + overline language; the map facade never loads tiles before a click. Similar projects sit on greige; the page ends with the dark CTA band.
+- **Locations and maps (5.1, DEC-59):** area tiles and the directory follow the card rules (no surface, `rounded-xl` photo, overline count in teal, "No projects yet" muted). The area page alternates white (intro), greige (projects), white (map), greige (nearby areas), white (FAQ), dark (CTA). Segment links copy the listing facet row. Maps: OSM tiles desaturated towards greige, teal hexagon markers (coral-500 when active), teal count clusters with a soft ring, white 44 px hairline controls top-right (zoom ±, reset), `rounded-xl` popup with a shadow (floating UI) holding the compact horizontal mini card; below 768/1024 px a full-screen sheet with a snap strip of the same cards.
 - **Taka sign:** `৳` comes from the local `'Taka Sign'` face (DEC-55); never style it by hand.
 - **Quotes:** coral quote mark, the quote as large light text, person with 48 px photo or initials behind a hairline.
 
