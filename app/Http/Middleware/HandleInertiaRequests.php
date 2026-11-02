@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Demo\DemoContent;
+use App\Support\Forms\FormOptions;
 use App\Support\Seo\SeoData;
 use Closure;
 use Illuminate\Http\Request;
@@ -116,6 +117,7 @@ class HandleInertiaRequests extends Middleware
             'site' => Inertia::once(fn (): array => DemoContent::site()),
             'menus' => Inertia::once(fn (): array => DemoContent::menus()),
             'footer' => Inertia::once(fn (): array => DemoContent::footer()),
+            'forms' => Inertia::once(fn (): array => FormOptions::shared()),
             'seo' => fn (): array => SeoData::raw((string) DemoContent::settings('general')['site_name'])
                 ->noindex()
                 ->toArray($request),

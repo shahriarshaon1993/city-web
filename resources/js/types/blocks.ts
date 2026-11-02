@@ -363,15 +363,13 @@ export type OfficesBlockData = {
     offices: Office[];
 };
 
-/** Block 26, CMP-BLK-FORM. The form itself arrives with 7.1; the shell links to its page. */
+/** Block 26, CMP-BLK-FORM: the lead form of `form_type` beside a side text (7.1). */
 export type FormBlockData = {
     heading: string;
     intro: string | null;
     form_type: 'contact' | 'callback' | 'landowner' | 'nrb';
     /** Sanitised rich text beside the form. */
     side: string | null;
-    /** Where the form lives until 7.1 mounts it in the panel. */
-    fallback: BlockLink;
 };
 
 export type IntroStatementBlock = Block<

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Support\Demo\DemoBlocks;
 use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoMedia;
+use App\Support\Demo\DemoProjectDetail;
 use App\Support\Format;
 use App\Support\Seo\SeoData;
 use Illuminate\Http\Request;
@@ -49,6 +50,27 @@ class StyleguideController extends Controller
             'blocks' => $blocks,
             'starts_with_hero' => true,
             'seo' => SeoData::page('Hero: '.$variant)->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
+        ]);
+    }
+
+    /**
+     * Phase 7.1: the seven lead forms on one page, with a demo project that
+     * has unit types.
+     */
+    public function forms(Request $request): Response
+    {
+        $project = DemoProjectDetail::find('gemcon-lakeview') ?? abort(404);
+
+        return Inertia::render('Site/StyleguideForms', [
+            'project' => [
+                'slug' => $project['slug'],
+                'name' => $project['name'],
+                'unit_types' => array_map(
+                    fn (array $unit): array => ['id' => $unit['id'], 'name' => $unit['name']],
+                    $project['unit_types'],
+                ),
+            ],
+            'seo' => SeoData::page('Lead forms')->noindex(follow: false)->toArray($request),
         ]);
     }
 

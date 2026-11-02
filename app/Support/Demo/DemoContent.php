@@ -73,6 +73,33 @@ final class DemoContent
             'offices_heading' => 'Offices',
             'locations_heading' => 'Popular areas',
         ],
+        // Settings → Forms (cms.md §8.2): consent text per form (FR-LEAD-014)
+        // and the thank-you copy per form (PG-22, built out in 7.2).
+        'forms' => [
+            'privacy_url' => '/privacy-policy',
+            'callback_dialog' => [
+                'title' => 'Request a call back',
+                'text' => 'Leave your number and a time that suits you. Our team will call you.',
+            ],
+            'consent' => [
+                'project_inquiry' => 'I agree that Gemcon City Limited may contact me by phone, WhatsApp or email about this project, as described in the privacy policy.',
+                'site_visit' => 'I agree that Gemcon City Limited may contact me to confirm my site visit, as described in the privacy policy.',
+                'brochure_download' => 'I agree that Gemcon City Limited may contact me about this project, as described in the privacy policy.',
+                'callback' => 'I agree that Gemcon City Limited may call me back on this number, as described in the privacy policy.',
+                'contact' => 'I agree that Gemcon City Limited may reply to my message by phone, WhatsApp or email, as described in the privacy policy.',
+                'landowner' => 'I agree that Gemcon City Limited may contact me about my land and keep the documents I attach, as described in the privacy policy.',
+                'nrb' => 'I agree that Gemcon City Limited may contact me by phone, WhatsApp or email at the times I chose, as described in the privacy policy.',
+            ],
+            'thank_you' => [
+                'project_inquiry' => ['title' => 'Thank you, we have your enquiry', 'message' => 'A member of our sales team will contact you shortly, in the time you chose.'],
+                'site_visit' => ['title' => 'Your site visit request is in', 'message' => 'We will call you to confirm the date and time of your visit.'],
+                'brochure_download' => ['title' => 'Your brochure is on its way', 'message' => 'The download should start at once. Our team may call to answer any questions.'],
+                'callback' => ['title' => 'We will call you back', 'message' => 'Our team will call you at the time you chose.'],
+                'contact' => ['title' => 'Thank you for your message', 'message' => 'We will reply by phone, WhatsApp or email within one working day.'],
+                'landowner' => ['title' => 'Thank you for your land details', 'message' => 'Our land team will review them and contact you within three working days.'],
+                'nrb' => ['title' => 'Thank you, we will be in touch', 'message' => 'Our NRB desk will contact you at the time you chose, in Bangladesh time.'],
+            ],
+        ],
         'seo' => [
             'title_template' => '{title} | Gemcon City',
             'home_title' => 'Gemcon City Limited – Real Estate Developer in Bangladesh',

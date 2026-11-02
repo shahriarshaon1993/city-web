@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\Site\ClientErrorController;
+use App\Http\Controllers\Site\FormController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\LocationController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\StyleguideController;
+use App\Http\Controllers\Site\ThankYouController;
 use App\Support\Errors\ErrorPage;
+use App\Support\Forms\FormType;
 use App\Support\Pages\ReservedSlugs;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +47,15 @@ Route::get('locations/{area}/{segment}', [LocationController::class, 'segment'])
     ->whereIn('segment', ['residential', 'commercial', 'mixed-use', 'mixed_use', 'land'])
     ->name('site.locations.segment');
 
+// FR-LEAD workflow (7.1): the seven lead forms post here; PG-22 is a plain
+// confirmation until 7.2.
+Route::post('forms/{form}', [FormController::class, 'store'])
+    ->whereIn('form', FormType::slugs())
+    ->name('site.forms.store');
+Route::get('thank-you/{form}', ThankYouController::class)
+    ->whereIn('form', FormType::slugs())
+    ->name('site.thank-you');
+
 Route::post('internal/client-errors', ClientErrorController::class)
     ->middleware('throttle:client-errors')
     ->name('client-errors.store');
@@ -56,6 +68,7 @@ if (app()->isLocal()) {
         ->name('styleguide.hero');
 
     Route::get('styleguide/blocks', [StyleguideController::class, 'blocks'])->name('styleguide.blocks');
+    Route::get('styleguide/forms', [StyleguideController::class, 'forms'])->name('styleguide.forms');
 
     // Phase 1.2 error page previews (PG-26), including 500 while APP_DEBUG is on.
     Route::get('styleguide/errors/{status}', function (int $status): never {

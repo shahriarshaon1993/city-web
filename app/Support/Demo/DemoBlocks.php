@@ -216,7 +216,6 @@ final class DemoBlocks
                 'intro' => 'Tell us what you are looking for and a sales advisor will call you back within one working day.',
                 'form_type' => 'contact',
                 'side' => '<p>Prefer to speak now? Call the hotline or visit a sales lounge during opening hours.</p>',
-                'fallback' => ['label' => 'Open the contact form', 'url' => '/contact', 'new_tab' => false],
             ], background: 'muted', spacing: 'lg'),
         ];
     }

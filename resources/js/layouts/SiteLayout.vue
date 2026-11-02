@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import { useMediaQuery } from '@vueuse/core';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import MobileContactBar from '@/components/site/MobileContactBar.vue';
+import CallbackDialog from '@/components/site/forms/CallbackDialog.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
 import SkipLink from '@/components/site/SkipLink.vue';
 import SiteFooter from '@/components/site/footer/SiteFooter.vue';
@@ -10,6 +11,7 @@ import SiteHeader from '@/components/site/header/SiteHeader.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigationFeedback } from '@/composables/useNavigationFeedback';
+import { captureAttribution } from '@/lib/forms/attribution';
 import { startMotion, stopMotion } from '@/motion/bridge';
 import { useReducedMotion } from '@/motion/preference';
 import type { SitePageProps } from '@/types/site';
@@ -39,7 +41,11 @@ const motionOptions = () => ({
     smoothScroll: page.props.ui.motion.smooth_scroll,
 });
 
-onMounted(() => startMotion(motionOptions()));
+onMounted(() => {
+    // FR-LEAD-001: remember the landing page's UTM values for the lead forms.
+    captureAttribution();
+    startMotion(motionOptions());
+});
 
 watch(reducedMotion, (reduced) => {
     if (reduced) {
@@ -77,6 +83,7 @@ const toastOffset = computed(() =>
             </main>
             <SiteFooter />
             <MobileContactBar v-model:shown="barShown" />
+            <CallbackDialog />
             <p class="sr-only" aria-live="polite" aria-atomic="true">
                 {{ announcement }}
             </p>

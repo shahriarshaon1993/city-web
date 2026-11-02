@@ -7,6 +7,7 @@ import MotionToggle from '@/components/site/footer/MotionToggle.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useCallbackDialog } from '@/composables/useCallbackDialog';
 import { socialLinks } from '@/lib/contact';
 import { formatPhone } from '@/lib/format';
 import { notify } from '@/lib/toast';
@@ -22,6 +23,8 @@ const site = computed(() => page.props.site);
 const footer = computed(() => page.props.footer);
 const menus = computed(() => page.props.menus);
 const social = computed(() => socialLinks(site.value.social));
+
+const callback = useCallbackDialog();
 
 const ids = {
     newsletter: useId(),
@@ -168,6 +171,14 @@ const linkClass =
                             </address>
                         </div>
                     </div>
+                    <button
+                        type="button"
+                        aria-haspopup="dialog"
+                        class="inline-flex min-h-11 items-center self-start rounded-sm underline underline-offset-4 transition-colors duration-(--dur-fast) hover:text-primary md:min-h-9"
+                        @click="callback.open()"
+                    >
+                        Request a call back
+                    </button>
                 </section>
             </div>
 

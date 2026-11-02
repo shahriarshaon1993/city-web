@@ -324,7 +324,6 @@ final class DemoPages
                     'intro' => 'Tell us where your land is and how to reach you. The land team will review it and call you back within three working days.',
                     'form_type' => 'landowner',
                     'side' => '<p>You can also call the land team on the hotline during office hours. Your details are used only to respond to your enquiry.</p>',
-                    'fallback' => self::link('Open the contact form', '/contact'),
                 ], background: 'muted', spacing: 'lg'), 'enquire'),
             ],
         ];
@@ -399,7 +398,6 @@ final class DemoPages
                     'intro' => 'Tell us where you live and what you are looking for. An advisor will reply within one working day in your time zone.',
                     'form_type' => 'nrb',
                     'side' => '<p>Prefer a call? Message the hotline on WhatsApp and we will arrange a time that works for you.</p>',
-                    'fallback' => self::link('Open the contact form', '/contact'),
                 ], background: 'muted', spacing: 'lg'), 'enquire'),
             ],
         ];

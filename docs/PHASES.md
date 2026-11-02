@@ -24,7 +24,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ✅     |
 | 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ✅     |
 | 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ✅     |
-| 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ⬜     |
+| 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ✅     |
 | 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ⬜     |
 | 8.1  | News list, archives & article                                              | 7.2            | ⬜     |
 | 8.2  | Careers, FAQ page, site search                                             | 8.1            | ⬜     |
@@ -373,6 +373,13 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 6.3, 4.3 · **Read:** design/components.md CMP-FORM-01, CMP-FORM-02, CMP-MODAL-01; design/patterns.md UX-03, UX-04, A11Y-D10; spec/crud.md VAL-01..03, VAL-06, VAL-08, TOAST-07; spec/leads.md lead types table, FR-LEAD-001, FR-LEAD-002, FR-LEAD-005, FR-LEAD-014; spec/performance-a11y.md SEO-A11Y-006; spec/careers.md FR-CAR-002 (field rules reused by 8.2).
 **Build:** owner decides on `zod` 4 (client mirror; optional). `FormField` (label, required marker, helper, error, `aria-describedby`), `ErrorSummary` with focus, `PhoneInput` (+88 default, formatting, country), `DatePicker` (`DD MMM YYYY`, min/max), `FileUpload` (dropzone list, limits), radio-card group. Forms: project_inquiry (2 steps + Skip), site_visit, brochure, callback, contact, landowner, nrb. UTM capture into sessionStorage → hidden fields. Limits shown before errors (VAL-03), messages per VAL-02 in `lang/en/validation.php`, input kept on error (VAL-06). One Form Request per type with the exact rules + VAL-01 defaults (permanent) + `site.forms.store` that validates and redirects to `/thank-you/{form}` without storing (storage and spam in 15.1); brochure validates and returns the demo PDF link inline.
 **Test:** each form submitted empty → summary focused, every field error linked; `01712-345678` accepted, `0171` rejected; site-visit date outside tomorrow…+60 days rejected; a 4th landowner file refused; step change moves focus and is announced; mobile "Enquire" from the sticky bar opens the sheet with the project prefilled.
+
+**Done notes (2026-11-03):**
+- Server: `App\Support\Forms\{FormType,FormOptions,Countries,PhoneNumber}`, `App\Rules\PhoneNumber`, one Form Request per type in `app/Http/Requests/Site/Forms` (base `LeadFormRequest`), `App\Actions\Leads\SubmitLead` (normalises the phone, no storage until 15.1), `FormController@store` (`POST /forms/{form}`, `site.forms.store`; request class resolved from the enum), `ThankYouController` (stub PG-22, 7.2 builds it), messages in `lang/en/validation.php`. Check script: `docs/checks/7.1-forms.php`.
+- Client: `composables/useLeadForm.ts` (blur-then-change, summary focus, UTM + `source_url` + `form_location` added at submit; fields read the form via `useLeadFormContext()`), `lib/forms/{rules,phone,attribution}.ts`, `components/forms/*`, `components/site/forms/*` (seven forms, `CallbackDialog` mounted in `SiteLayout`, opened by `useCallbackDialog`). `FormDialog` is the shared lead-form dialog shell; `EnquiryDialog` uses it.
+- `forms` shared prop (choices, countries, limits, `visit_window`, consent per type, `callback_dialog`); consent and thank-you copy live in `DemoContent` settings group `forms`.
+- Brochure answers with `Inertia::flash('download', …)` + `back()`. Form block lost its `fallback` link. `/styleguide/forms` shows all seven forms. Regenerate Wayfinder with `--with-form`.
+- 7.2 must: build the real thank-you page (`generate_lead` with `lead_type`, `project`, `form_location`), the contact page using `ContactForm` (`location="contact_page"`), and consent-aware analytics. 8.2 reuses `FileUpload`, `PhoneInput`, `FormField` for the apply form.
 
 ### 7.2 — Contact, thank-you, newsletter, consent banner, analytics layer
 

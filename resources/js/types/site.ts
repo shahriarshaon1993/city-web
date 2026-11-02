@@ -2,6 +2,7 @@
 // Resources; Part A fills them from App\Support\Demo\DemoContent.
 
 import type { BookingValue, LifecycleValue } from '@/components/ui/badge';
+import type { FormsShared } from '@/types/forms';
 
 /**
  * One image with its conversions (CMS-MED-004/005, HERO-011). Output by
@@ -295,6 +296,8 @@ export type SiteShared = {
     site: SiteInfo;
     menus: Record<MenuKey, MenuItem[]>;
     footer: FooterInfo;
+    /** Choice lists, limits and consent copy of the lead forms (7.1). */
+    forms: FormsShared;
     seo: Seo;
     ui: {
         /** Settings → Motion (MOT-R03). */

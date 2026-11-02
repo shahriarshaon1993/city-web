@@ -99,6 +99,7 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Hairline rows: details 5, map facade 7 | offices (6.2) |
 | Heading, intro and side text 5, greige action panel 7 | form block (6.2) |
 | Light H1 + overline "Last updated" on a hairline, prose 8 / sticky hairline TOC list 3 (native disclosure below 1280 px) | legal pages (6.3) |
+| Hairline `rounded-md` radio cards that fill with foreground when chosen; step bar of 2 thin segments; error summary as a tinted destructive box | lead forms (7.1) |
 
 ## 6. Component patterns
 
