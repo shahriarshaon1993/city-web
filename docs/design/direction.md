@@ -98,6 +98,7 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Lead tile 5 / 12 beside area tiles three across | locations_grid (6.2) |
 | Hairline rows: details 5, map facade 7 | offices (6.2) |
 | Heading, intro and side text 5, greige action panel 7 | form block (6.2) |
+| Light H1 + overline "Last updated" on a hairline, prose 8 / sticky hairline TOC list 3 (native disclosure below 1280 px) | legal pages (6.3) |
 
 ## 6. Component patterns
 

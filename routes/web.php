@@ -8,11 +8,18 @@ use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\StyleguideController;
 use App\Support\Errors\ErrorPage;
+use App\Support\Pages\ReservedSlugs;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+// PG-07…11, PG-23/24 (6.3). The custom-page catch-all (PG-25) is registered last.
 Route::get('about', [PageController::class, 'about'])->name('about');
 Route::get('about/leadership', [PageController::class, 'leadership'])->name('about.leadership');
+Route::get('services', [PageController::class, 'services'])->name('services');
+Route::get('landowner', [PageController::class, 'landowner'])->name('landowner');
+Route::get('nrb', [PageController::class, 'nrb'])->name('nrb');
+Route::get('privacy-policy', [PageController::class, 'privacy'])->name('privacy-policy');
+Route::get('terms', [PageController::class, 'terms'])->name('terms');
 
 // PG-02 / PG-03. Facet slugs use hyphens; the underscore form 301s (owner, 4.1).
 Route::get('projects', [ProjectListingController::class, 'index'])->name('site.projects.index');
@@ -61,3 +68,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+// PG-25: any custom page. Last, so every fixed route wins; reserved slugs
+// (spec/pages.md §5.2 + the app's own paths) never match.
+Route::get('{slug}', [PageController::class, 'show'])
+    ->where('slug', ReservedSlugs::routePattern())
+    ->name('site.pages.show');

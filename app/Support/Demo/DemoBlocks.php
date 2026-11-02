@@ -9,7 +9,8 @@ use App\Support\Seo\Breadcrumbs;
  * feature_cards, process_steps, timeline, tabbed_pillars, quote,
  * parallax_band) and 6.2 (team_grid, faq, gallery, video, awards,
  * locations_grid, offices, form) in the DM-BLOCK shape of resources/js/types/blocks.ts.
- * Placeholder copy; the builder pages of 6.3 reuse these blocks. Deleted with
+ * Placeholder copy; the builder pages of 6.3 (DemoPages) reuse the envelope and
+ * the shared timeline and award items. Deleted with
  * DemoContent in 16.4.
  */
 final class DemoBlocks
@@ -84,13 +85,7 @@ final class DemoBlocks
             ], background: 'muted', spacing: 'lg'),
             self::block(7, 'timeline', [
                 'heading' => 'Two decades of building',
-                'items' => [
-                    ['year' => 2004, 'title' => 'Founded in Dhaka', 'text' => 'Gemcon City delivers its first residential building of twelve apartments in Dhanmondi.', 'image' => DemoMedia::image('projects/projects-04')],
-                    ['year' => 2010, 'title' => 'First commercial tower', 'text' => 'A fourteen-storey office building opens in Motijheel with RAJUK approval.', 'image' => null],
-                    ['year' => 2016, 'title' => 'Landowner programme', 'text' => 'The joint-venture model launches, with registered agreements and a fixed share for landowners.', 'image' => DemoMedia::image('projects/projects-02')],
-                    ['year' => 2021, 'title' => 'Progress reporting', 'text' => 'Monthly construction updates with photos become standard for every ongoing project.', 'image' => null],
-                    ['year' => 2025, 'title' => 'Fifty projects handed over', 'text' => 'More than two thousand families now live in Gemcon City buildings.', 'image' => DemoMedia::image('projects/projects-07')],
-                ],
+                'items' => self::timelineItems(),
             ], spacing: 'lg'),
             self::block(8, 'tabbed_pillars', [
                 'heading' => 'What we stand for',
@@ -159,14 +154,6 @@ final class DemoBlocks
             ],
             DemoProjects::topAreas(7),
         );
-        $awards = [
-            ['Best Residential Developer', 'Bangladesh Property Awards', 2025],
-            ['ISO 9001 certified', 'Quality management', 2024],
-            ['Safety Excellence', 'Building Safety Council', 2024],
-            ['Green Building Pioneer', 'Sustainable Dhaka Forum', 2023],
-            ['Customer Trust Award', 'Real Estate Association', 2022],
-            ['Member', 'REHAB', null],
-        ];
 
         return [
             self::block(14, 'team_grid', [
@@ -192,16 +179,7 @@ final class DemoBlocks
             ]),
             self::block(17, 'awards', [
                 'heading' => 'Recognition and certifications',
-                'items' => array_map(
-                    fn (array $award, int $index): array => [
-                        'image' => DemoMedia::image(sprintf('partners/partners-%02d', $index + 1)),
-                        'title' => $award[0],
-                        'issuer' => $award[1],
-                        'year' => $award[2],
-                    ],
-                    $awards,
-                    array_keys($awards),
-                ),
+                'items' => self::awardItems(),
             ], background: 'muted'),
             self::block(18, 'locations_grid', [
                 'heading' => 'Where we build',
@@ -244,6 +222,50 @@ final class DemoBlocks
     }
 
     /**
+     * Company milestones, oldest first (timeline block; also the About page).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function timelineItems(): array
+    {
+        return [
+            ['year' => 2004, 'title' => 'Founded in Dhaka', 'text' => 'Gemcon City delivers its first residential building of twelve apartments in Dhanmondi.', 'image' => DemoMedia::image('projects/projects-04')],
+            ['year' => 2010, 'title' => 'First commercial tower', 'text' => 'A fourteen-storey office building opens in Motijheel with RAJUK approval.', 'image' => null],
+            ['year' => 2016, 'title' => 'Landowner programme', 'text' => 'The joint-venture model launches, with registered agreements and a fixed share for landowners.', 'image' => DemoMedia::image('projects/projects-02')],
+            ['year' => 2021, 'title' => 'Progress reporting', 'text' => 'Monthly construction updates with photos become standard for every ongoing project.', 'image' => null],
+            ['year' => 2025, 'title' => 'Fifty projects handed over', 'text' => 'More than two thousand families now live in Gemcon City buildings.', 'image' => DemoMedia::image('projects/projects-07')],
+        ];
+    }
+
+    /**
+     * Awards and certifications (FR-SOC-006); the marks are the demo partner wordmarks.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function awardItems(): array
+    {
+        $awards = [
+            ['Best Residential Developer', 'Bangladesh Property Awards', 2025],
+            ['ISO 9001 certified', 'Quality management', 2024],
+            ['Safety Excellence', 'Building Safety Council', 2024],
+            ['Green Building Pioneer', 'Sustainable Dhaka Forum', 2023],
+            ['Customer Trust Award', 'Real Estate Association', 2022],
+            ['Member', 'REHAB', null],
+        ];
+
+        return array_map(
+            fn (array $award, int $index): array => [
+                'image' => DemoMedia::image(sprintf('partners/partners-%02d', $index + 1)),
+                'title' => $award[0],
+                'issuer' => $award[1],
+                'year' => $award[2],
+            ],
+            $awards,
+            array_keys($awards),
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private static function pageHeader(string $variant): array
@@ -264,7 +286,7 @@ final class DemoBlocks
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private static function block(int $id, string $type, array $data, string $background = 'default', string $spacing = 'md'): array
+    public static function block(int $id, string $type, array $data, string $background = 'default', string $spacing = 'md'): array
     {
         return [
             'id' => $id,

@@ -284,6 +284,12 @@ export type Breadcrumb = {
     url: string | null;
 };
 
+/** LAY-LEGAL table-of-contents entry: an H2 of the body and its `id`. */
+export type TocItem = {
+    id: string;
+    label: string;
+};
+
 /** Shared props of every public page (ARC-003, HandleInertiaRequests). */
 export type SiteShared = {
     site: SiteInfo;

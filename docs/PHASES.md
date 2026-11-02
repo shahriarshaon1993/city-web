@@ -23,7 +23,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ✅     |
 | 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ✅     |
 | 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ✅     |
-| 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ⬜     |
+| 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ✅     |
 | 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ⬜     |
 | 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ⬜     |
 | 8.1  | News list, archives & article                                              | 7.2            | ⬜     |
@@ -358,6 +358,13 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 6.2 · **Read:** spec/pages.md PG-07..11, PG-23..25, reserved slugs; design/layouts.md LAY-ABOUT/SERVICES/LANDOWNER/NRB/CUSTOM (seeded blocks table), LAY-TEAM, LAY-LEGAL; spec/social.md FR-SOC-004.
 **Build:** routes `/about`, `/about/leadership`, `/services`, `/landowner`, `/nrb`, `/privacy-policy`, `/terms`, catch-all `/{page-slug}` that excludes the reserved list. Demo pages in the seeded block order; legal template (H1, last updated, TOC from H2s, sticky ≥ 1280); leadership page (leadership / management / team groups).
 **Test:** each page matches the seeded-blocks table; legal TOC collapses on mobile; a demo custom slug renders, `/admin`-like reserved slugs are never caught; one H1 per page.
+
+**Done notes (2026-11-03):**
+- `Site\PageController`: `about`, `leadership`, `services`, `landowner`, `nrb`, `show($slug)` (PG-25) render `Site/Page` (`blocks`, `starts_with_hero` = first block is a hero or a photo `page_header`, LCP via `lcpFromBlocks`; `index=false` → `noindex`); `privacy`/`terms` render `Site/Legal`. Content: `App\Support\Demo\DemoPages` (seeded orders of LAY-ABOUT/SERVICES/LANDOWNER/NRB, leadership, legal, custom `sustainability` + `buyer-guide` noindex). 16.1 replaces it with the `pages` table; same prop shapes.
+- Catch-all `Route::get('{slug}')` is last in `routes/web.php`; `App\Support\Pages\ReservedSlugs` (spec list + app paths) builds its constraint — 16.2's slug rule must reuse `ReservedSlugs::isReserved()`.
+- `App\Support\Pages\LegalToc::build()` adds ids to H2s and returns `toc`; `Legal.vue` + `components/site/legal/LegalToc.vue` (sticky `sticky-under-tabs` column ≥ 1280, native `<details>` below). Draft legal copy: the client must supply the real text.
+- Landowner/NRB: anchors `#enquire` (form block, `anchor_id`) and `#how-it-works`; the form block is still the 6.2 shell until 7.1 (`form_type` landowner/nrb).
+- Shared demo data: `DemoBlocks::block()` is public, `timelineItems()`, `awardItems()`; `DemoContent::statItems()`; `DemoContent::page()` removed. No new packages, no new `sizes` presets.
 
 ## Phase 7 — Forms UI
 

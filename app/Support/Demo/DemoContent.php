@@ -21,7 +21,6 @@ use App\Support\Search\ProjectFilters;
  *     children: list<array<string, mixed>>,
  *     mega: list<array<string, mixed>>|null
  * }
- * @phpstan-type DemoPage array{title: string, intro: string, description: string}
  */
 final class DemoContent
 {
@@ -166,24 +165,6 @@ final class DemoContent
             'latitude' => 23.8193,
             'longitude' => 90.4526,
             'is_head_office' => false,
-        ],
-    ];
-
-    /**
-     * Stub pages until their phases build them (6.3 builder pages).
-     *
-     * @var array<string, DemoPage>
-     */
-    private const array PAGES = [
-        'about' => [
-            'title' => 'About us',
-            'intro' => 'Our story, values and the people behind every project. This page is built in phase 6.',
-            'description' => 'Gemcon City Limited is a Bangladeshi real estate developer, part of Gemcon Group, building apartments, commercial spaces and land projects since its founding.',
-        ],
-        'leadership' => [
-            'title' => 'Leadership',
-            'intro' => 'The board and management team of Gemcon City Limited. This page is built in phase 6.',
-            'description' => 'Meet the board and management team leading Gemcon City Limited.',
         ],
     ];
 
@@ -396,16 +377,6 @@ final class DemoContent
     }
 
     /**
-     * Stub page copy (title, intro, meta description).
-     *
-     * @return DemoPage
-     */
-    public static function page(string $key): array
-    {
-        return self::PAGES[$key];
-    }
-
-    /**
      * PG-02/PG-03 copy: the listing's own title/intro and the DM-FACET rows
      * (`facets["segment:residential"]`), with an optional FAQ per facet.
      * Placeholder text until 16.4 moves facet pages to the admin.
@@ -556,12 +527,7 @@ final class DemoContent
             // Placeholder figures until the client's arrive.
             self::block(5, 'stats_counters', [
                 'heading' => 'Built on a track record',
-                'items' => [
-                    ['value' => 20, 'suffix' => '+', 'label' => 'Years of experience', 'decimals' => 0],
-                    ['value' => 48, 'suffix' => null, 'label' => 'Projects handed over', 'decimals' => 0],
-                    ['value' => 3.2, 'suffix' => 'M sft', 'label' => 'Space delivered', 'decimals' => 1],
-                    ['value' => 2500, 'suffix' => '+', 'label' => 'Families at home', 'decimals' => 0],
-                ],
+                'items' => self::statItems(),
             ], background: 'dark', spacing: 'lg'),
             self::block(6, 'project_grid', [
                 'heading' => 'Ongoing projects',
@@ -597,6 +563,21 @@ final class DemoContent
                 'style' => 'gradient',
                 'image' => null,
             ], background: 'dark', spacing: 'lg'),
+        ];
+    }
+
+    /**
+     * Company figures for stats_counters blocks (home, About).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function statItems(): array
+    {
+        return [
+            ['value' => 20, 'suffix' => '+', 'label' => 'Years of experience', 'decimals' => 0],
+            ['value' => 48, 'suffix' => null, 'label' => 'Projects handed over', 'decimals' => 0],
+            ['value' => 3.2, 'suffix' => 'M sft', 'label' => 'Space delivered', 'decimals' => 1],
+            ['value' => 2500, 'suffix' => '+', 'label' => 'Families at home', 'decimals' => 0],
         ];
     }
 
