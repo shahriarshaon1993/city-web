@@ -581,6 +581,92 @@
     }
 }
 
+/* Prose for sanitised rich text (rich_text block, 6.1; design/foundations.md
+   §3.2: ≤ 68ch, Inter body, light Manrope headings, hairline rules). The
+   server allows p, h2, h3, ul, ol, blockquote, a, strong, em, hr, table. */
+@layer components {
+    .rich-text {
+        @apply text-body-lg text-foreground;
+    }
+    .rich-text > * + * {
+        margin-top: 1.25rem;
+    }
+    .rich-text h2,
+    .rich-text h3 {
+        @apply font-display text-balance;
+        break-after: avoid;
+    }
+    .rich-text h2 {
+        @apply text-h3;
+        margin-top: 3rem;
+    }
+    .rich-text h3 {
+        @apply text-h4;
+        margin-top: 2.25rem;
+    }
+    .rich-text > :first-child {
+        margin-top: 0;
+    }
+    .rich-text p {
+        @apply text-pretty;
+    }
+    .rich-text a {
+        @apply text-primary underline decoration-primary/40 underline-offset-4 transition-colors;
+        transition-duration: var(--dur-fast);
+    }
+    .rich-text a:hover {
+        text-decoration-color: currentColor;
+    }
+    .rich-text strong {
+        @apply font-medium;
+    }
+    .rich-text ul,
+    .rich-text ol {
+        padding-left: 1.5rem;
+    }
+    .rich-text ul {
+        list-style: disc;
+    }
+    .rich-text ol {
+        list-style: decimal;
+    }
+    .rich-text li {
+        padding-left: 0.25rem;
+    }
+    .rich-text li + li {
+        margin-top: 0.5rem;
+    }
+    .rich-text li::marker {
+        @apply text-primary;
+    }
+    .rich-text blockquote {
+        @apply border-l border-foreground font-display text-h4 font-light text-pretty;
+        padding-left: 1.5rem;
+    }
+    .rich-text hr {
+        @apply border-border;
+        margin-block: 2.5rem;
+    }
+    .rich-text table {
+        @apply w-full border-collapse text-sm;
+    }
+    .rich-text th,
+    .rich-text td {
+        @apply border-b border-border text-left;
+        padding: 0.75rem 1rem 0.75rem 0;
+    }
+    .rich-text th {
+        @apply text-overline text-muted-foreground uppercase;
+    }
+    .rich-text > h2,
+    .rich-text > h3,
+    .rich-text > blockquote,
+    .rich-text > table,
+    .rich-text li {
+        break-inside: avoid;
+    }
+}
+
 /* Lenis (lenis/dist/lenis.css, minus `.lenis-stopped { overflow: clip }`:
    Reka dialogs lock the page themselves, and hiding the scrollbar while the
    hover mega menu is open would shift the layout). */

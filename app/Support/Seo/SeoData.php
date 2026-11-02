@@ -130,7 +130,7 @@ final class SeoData
 
     /**
      * The LCP image of a block page: the first block's hero image, video
-     * poster (HERO-021) or first slide (CMP-HERO-03); none for other blocks.
+     * poster (HERO-021) or first slide (CMP-HERO-03), or a page_header photo; none for other blocks.
      *
      * @param  list<array<string, mixed>>  $blocks  DM-BLOCK shape
      */
@@ -138,7 +138,15 @@ final class SeoData
     {
         $first = $blocks[0] ?? null;
 
-        if (($first['type'] ?? null) !== 'hero' || ! is_array($first['data'] ?? null)) {
+        if (! is_array($first['data'] ?? null)) {
+            return $this->lcp(null);
+        }
+
+        if (($first['type'] ?? null) === 'page_header') {
+            return $this->lcp($first['data']['image'] ?? null);
+        }
+
+        if (($first['type'] ?? null) !== 'hero') {
             return $this->lcp(null);
         }
 

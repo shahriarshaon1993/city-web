@@ -292,11 +292,13 @@ function run(entry: MotionEntry, within: Within): Cleanup {
         case 'counter':
             return counter(el, value ?? 0, within);
         case 'parallax':
-            return parallax(el, value ?? 10);
+            // 0 = switched off (parallax_band with `parallax: false`).
+            return value === 0 ? undefined : parallax(el, value ?? 10);
         case 'magnetic':
             return magnetic(el);
         case 'tilt':
-            return tilt(el);
+            // 0 = switched off (feature_cards with `tilt: false`).
+            return value === 0 ? undefined : tilt(el);
         case 'line':
             return line(el);
     }

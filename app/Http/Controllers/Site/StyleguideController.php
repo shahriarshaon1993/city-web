@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Support\Demo\DemoBlocks;
 use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoMedia;
 use App\Support\Format;
@@ -12,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Local-only UI kit reference (0.2, 0.3, project cards 2.2) and hero previews (2.1). Registered only when app()->isLocal().
+ * Local-only UI kit reference (0.2, 0.3, project cards 2.2), hero previews (2.1) and content blocks (6.1). Registered only when app()->isLocal().
  */
 class StyleguideController extends Controller
 {
@@ -48,6 +49,22 @@ class StyleguideController extends Controller
             'blocks' => $blocks,
             'starts_with_hero' => true,
             'seo' => SeoData::page('Hero: '.$variant)->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
+        ]);
+    }
+
+    /**
+     * Phase 6.1 content blocks, with `?header=plain` for the header without a
+     * photo.
+     */
+    public function blocks(Request $request): Response
+    {
+        $plain = $request->query('header') === 'plain';
+        $blocks = DemoBlocks::styleguide($plain ? 'plain' : 'image');
+
+        return Inertia::render('Site/StyleguideBlocks', [
+            'blocks' => $blocks,
+            'starts_with_hero' => ! $plain,
+            'seo' => SeoData::page('Content blocks')->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
         ]);
     }
 

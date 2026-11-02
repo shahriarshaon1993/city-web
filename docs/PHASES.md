@@ -21,7 +21,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 4.2  | Project detail I — gallery, title, section tabs, facts, amenities, plans   | 4.1            | ✅     |
 | 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ✅     |
 | 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ✅     |
-| 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ⬜     |
+| 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ✅     |
 | 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ⬜     |
 | 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ⬜     |
 | 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ⬜     |
@@ -331,6 +331,13 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 3.2 · **Read:** spec/page-builder.md block rows 2, 3, 13–18, 27, 28; design/components.md §6.5 rows page_header, rich_text, image_text, feature_cards, process_steps, timeline, tabbed_pillars, quote, parallax_band; design/foundations.md §3.2 (prose rules); design/motion.md MOT-MASK, MOT-LINE, MOT-PARALLAX, MOT-TILT.
 **Build:** page_header, rich_text (prose styles, narrow/wide), image_text, feature_cards (icon allowlist or image, 2/3/4 cols, tilt), process_steps (numbered, line draw), timeline, tabbed_pillars, quote, parallax_band. Local `/styleguide/blocks` page renders every block with demo data.
 **Test:** `/styleguide/blocks` at 360/768/1440; heading levels H2 → H3 only (HeadingsMap-style check in DevTools); keyboard on tabs; reduced motion → no parallax/line animation, content complete.
+
+**Done notes (2026-11-03):**
+- Blocks in `components/blocks/`: `PageHeaderBlock` (photo = area-hero pattern, `data-hero`, parallax 8, LCP via `SeoData::lcpFromBlocks`; plain = 7/5 on a hairline), `RichTextBlock` (`.rich-text` in app.css), `ImageTextBlock`, `FeatureCardsBlock` (`lib/feature-icons.ts` allowlist), `ProcessStepsBlock` (`v-line`), `TimelineBlock` (hairline rows, not alternating), `TabbedPillarsBlock` (force-mounted panels, opacity crossfade), `QuoteBlock`, `ParallaxBandBlock`. All lazy in `BlockRenderer`; types in `types/blocks.ts`.
+- Demo data: `App\Support\Demo\DemoBlocks::styleguide()`; local page `/styleguide/blocks` (`?header=plain`) via `StyleguideController::blocks` → `Site/StyleguideBlocks`. 6.3 builds its seeded pages from the same block shapes.
+- `v-parallax="0"` / `v-tilt="0"` switch the effect off (block toggles). New presets: `media-text`, `feature-image`, `timeline-photo`, `pillar-image`.
+- A block without a heading renders item titles as H2 (feature_cards, tabbed_pillars); rich_text, quote and a heading-less parallax_band are unlabelled sections.
+- Motion chunk 55.32 KB gzip (0.01 KB over DEC-51's 55.31 KB; budget decision still due in 9.1).
 
 ### 6.2 — Content blocks II
 

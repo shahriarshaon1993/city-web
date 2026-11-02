@@ -7,7 +7,8 @@ import type { MotionKind } from '@/motion/types';
 // MOT-MASK (`v-mask`), MOT-COUNTER (`v-counter`, on a `[data-counter]`
 // element; value = its index for the stagger); the value of those is a
 // delay in ms (0–300). MOT-PARALLAX (`v-parallax="8"`, intensity in %),
-// MOT-MAGNETIC (`v-magnetic`), MOT-TILT (`v-tilt`), MOT-LINE (`v-line`).
+// MOT-MAGNETIC (`v-magnetic`), MOT-TILT (`v-tilt`), MOT-LINE (`v-line`);
+// a value of 0 switches parallax and tilt off (block toggles).
 // No-ops in SSR and until the runtime loads.
 export type MotionDirective = Directive<HTMLElement, number | undefined>;
 

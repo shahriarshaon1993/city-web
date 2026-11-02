@@ -83,6 +83,14 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Photo hero 60svh, white breadcrumb, overline "City · n projects", light H1 | area page PG-06 (5.1) |
 | Intro 7 / hairline facts `<dl>` 4 | area intro + facts (5.1) |
 | Full-width map on greige-toned tiles, heading row with overline count | area map, listing map view (5.1) |
+| Plain header: light H1 in 7, lead in 5 on a bottom hairline; or the photo hero of the area page | page_header (6.1) |
+| Hairline columns, thin teal line icon or photo, light title, text link (no cards, no icon circles) | feature_cards (6.1) |
+| Sticky heading 4 / steps 8, light teal numbers, hexagon nodes on a scroll-drawn line | process_steps (6.1) |
+| Hairline rows: light teal year · milestone · optional 4:3 photo | timeline (6.1) |
+| Underline tabs, text beside a crossfading 5:4 photo | tabbed_pillars (6.1) |
+| Photo 6 / text 5 with a one-column gap, sides swappable | image_text (6.1) |
+| Coral mark, large light quote, person behind a hairline | quote (6.1) |
+| Full-bleed photo band 60 / 80svh, white text on a bottom scrim, parallax 10 % | parallax_band (6.1) |
 
 ## 6. Component patterns
 

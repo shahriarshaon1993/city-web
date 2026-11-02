@@ -1,0 +1,53 @@
+import {
+    Award,
+    BadgeCheck,
+    Banknote,
+    Building2,
+    Compass,
+    FileCheck,
+    Hammer,
+    Handshake,
+    HardHat,
+    KeyRound,
+    Landmark,
+    Layers,
+    Leaf,
+    MapPin,
+    Phone,
+    Ruler,
+    Scale,
+    ShieldCheck,
+    Sun,
+    Trees,
+    Users,
+    Wrench,
+} from '@lucide/vue';
+import type { Component } from 'vue';
+
+// feature_cards `icon` allowlist by Lucide name (block 15); the page builder
+// (16.2) offers the same names. Kept apart from lib/icons.ts so the icons stay
+// in the feature_cards chunk. An unknown name renders no icon.
+export const featureIcons: Record<string, Component> = {
+    award: Award,
+    'badge-check': BadgeCheck,
+    banknote: Banknote,
+    'building-2': Building2,
+    compass: Compass,
+    'file-check': FileCheck,
+    hammer: Hammer,
+    handshake: Handshake,
+    'hard-hat': HardHat,
+    'key-round': KeyRound,
+    landmark: Landmark,
+    layers: Layers,
+    leaf: Leaf,
+    'map-pin': MapPin,
+    phone: Phone,
+    ruler: Ruler,
+    scale: Scale,
+    'shield-check': ShieldCheck,
+    sun: Sun,
+    trees: Trees,
+    users: Users,
+    wrench: Wrench,
+};

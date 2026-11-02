@@ -7,7 +7,8 @@ import type { PageBlock, PageBlockType } from '@/types/blocks';
 // CMS-PB-001: renders an ordered block list. Hidden blocks are skipped and
 // the first visible block owns the H1 (CMS-PB-004). Each type is its own
 // lazy chunk, except the hero: it is the usual first block and holds the LCP
-// image, so it ships with the page instead of after an extra request.
+// image, so it ships with the page instead of after an extra request. A first
+// `page_header` photo is preloaded by the root view instead (SeoData::lcpFromBlocks).
 const props = defineProps<{
     blocks: PageBlock[];
 }>();
@@ -43,6 +44,33 @@ const components: Record<PageBlockType, Component> = {
     ),
     cta_band: defineAsyncComponent(
         () => import('@/components/blocks/CtaBandBlock.vue'),
+    ),
+    page_header: defineAsyncComponent(
+        () => import('@/components/blocks/PageHeaderBlock.vue'),
+    ),
+    rich_text: defineAsyncComponent(
+        () => import('@/components/blocks/RichTextBlock.vue'),
+    ),
+    image_text: defineAsyncComponent(
+        () => import('@/components/blocks/ImageTextBlock.vue'),
+    ),
+    feature_cards: defineAsyncComponent(
+        () => import('@/components/blocks/FeatureCardsBlock.vue'),
+    ),
+    process_steps: defineAsyncComponent(
+        () => import('@/components/blocks/ProcessStepsBlock.vue'),
+    ),
+    timeline: defineAsyncComponent(
+        () => import('@/components/blocks/TimelineBlock.vue'),
+    ),
+    tabbed_pillars: defineAsyncComponent(
+        () => import('@/components/blocks/TabbedPillarsBlock.vue'),
+    ),
+    quote: defineAsyncComponent(
+        () => import('@/components/blocks/QuoteBlock.vue'),
+    ),
+    parallax_band: defineAsyncComponent(
+        () => import('@/components/blocks/ParallaxBandBlock.vue'),
     ),
 };
 

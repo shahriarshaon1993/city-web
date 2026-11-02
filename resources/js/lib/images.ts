@@ -147,6 +147,38 @@ export const imagePresets = {
         loading: 'lazy',
         placeholder: 'media',
     },
+    /** image_text photo, 6 of 12 columns (6.1; not in §5.3). */
+    'media-text': {
+        sizes: '(min-width:1280px) 600px, (min-width:1024px) 48vw, 92vw',
+        aspect: 'aspect-[5/4]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** feature_cards image item, up to 4 per row (6.1; not in §5.3). */
+    'feature-image': {
+        sizes: '(min-width:1280px) 300px, (min-width:1024px) 24vw, (min-width:640px) 45vw, 92vw',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** timeline row photo, 4 of 12 columns from 1024 px (6.1; not in §5.3). */
+    'timeline-photo': {
+        sizes: '(min-width:1280px) 360px, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** tabbed_pillars crossfade stack, 7 of 12 columns; the parent sets the box (6.1; not in §5.3). */
+    'pillar-image': {
+        sizes: '(min-width:1280px) 700px, (min-width:1024px) 56vw, 92vw',
+        aspect: 'fill',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     /** Testimonial person, 48 px circle (DEC-47; not in §5.3). */
     avatar: {
         sizes: '48px',

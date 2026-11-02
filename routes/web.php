@@ -48,6 +48,8 @@ if (app()->isLocal()) {
         ->whereIn('variant', ['image', 'video', 'slider', 'centered'])
         ->name('styleguide.hero');
 
+    Route::get('styleguide/blocks', [StyleguideController::class, 'blocks'])->name('styleguide.blocks');
+
     // Phase 1.2 error page previews (PG-26), including 500 while APP_DEBUG is on.
     Route::get('styleguide/errors/{status}', function (int $status): never {
         abort($status, headers: $status === 429 ? ['Retry-After' => '60'] : []);

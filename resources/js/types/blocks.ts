@@ -4,6 +4,7 @@
 
 import type { ProjectSearchOptions } from '@/types/search';
 import type {
+    Breadcrumb,
     MediaImage,
     MediaVideo,
     NewsCard,
@@ -180,6 +181,109 @@ export type CtaBandBlockData = {
     image: MediaImage | null;
 };
 
+/** Block 2, CMP-BLK-PAGEHEAD. `breadcrumbs` is null when the block's toggle is off. */
+export type PageHeaderBlockData = {
+    /** ≤ 80 chars. */
+    title: string;
+    intro: string | null;
+    /** A photo turns the header into a hero under the transparent header. */
+    image: MediaImage | null;
+    breadcrumbs: Breadcrumb[] | null;
+};
+
+/** Block 13, CMP-BLK-RICH. */
+export type RichTextBlockData = {
+    /** Sanitised rich text: p, h2, h3, ul, ol, blockquote, a, strong, em, hr, table. */
+    body: string;
+    /** `narrow` 68ch, `wide` two columns from 1024 px. */
+    width: 'narrow' | 'wide';
+};
+
+/** Block 14, CMP-BLK-IMGTXT. */
+export type ImageTextBlockData = {
+    heading: string;
+    /** Sanitised rich text. */
+    body: string;
+    image: MediaImage;
+    image_side: 'left' | 'right';
+    cta: BlockLink | null;
+    reveal: 'mask' | 'none';
+};
+
+export type FeatureItem = {
+    /** Lucide name from the allowlist (lib/feature-icons.ts); null when `image` is used. */
+    icon: string | null;
+    image: MediaImage | null;
+    title: string;
+    text: string | null;
+    link: BlockLink | null;
+};
+
+/** Block 15, CMP-BLK-FEATURES: 2–12 items. */
+export type FeatureCardsBlockData = {
+    heading: string | null;
+    columns: 2 | 3 | 4;
+    tilt: boolean;
+    items: FeatureItem[];
+};
+
+export type ProcessStep = {
+    title: string;
+    text: string;
+};
+
+/** Block 16, CMP-BLK-STEPS: 2–8 steps. */
+export type ProcessStepsBlockData = {
+    heading: string;
+    steps: ProcessStep[];
+};
+
+export type TimelineItem = {
+    /** 1950–2100. */
+    year: number;
+    title: string;
+    text: string | null;
+    image: MediaImage | null;
+};
+
+/** Block 17, CMP-BLK-TIMELINE: 2–30 items, oldest first. */
+export type TimelineBlockData = {
+    heading: string;
+    items: TimelineItem[];
+};
+
+export type Pillar = {
+    label: string;
+    title: string;
+    text: string;
+    image: MediaImage | null;
+};
+
+/** Block 18, CMP-BLK-PILLARS: 2–5 tabs. */
+export type TabbedPillarsBlockData = {
+    heading: string | null;
+    tabs: Pillar[];
+};
+
+/** Block 27, CMP-BLK-QUOTE. */
+export type QuoteBlockData = {
+    /** ≤ 400 chars. */
+    quote: string;
+    person: string;
+    role: string | null;
+    photo: MediaImage | null;
+};
+
+/** Block 28, CMP-BLK-PARALLAX. */
+export type ParallaxBandBlockData = {
+    image: MediaImage;
+    heading: string | null;
+    text: string | null;
+    /** `md` 60vh, `lg` 80vh. */
+    height: 'md' | 'lg';
+    parallax: boolean;
+};
+
 export type IntroStatementBlock = Block<
     'intro_statement',
     IntroStatementBlockData
@@ -207,8 +311,22 @@ export type PartnersMarqueeBlock = Block<
 export type LatestNewsBlock = Block<'latest_news', LatestNewsBlockData>;
 export type CtaBandBlock = Block<'cta_band', CtaBandBlockData>;
 
+export type PageHeaderBlock = Block<'page_header', PageHeaderBlockData>;
+export type RichTextBlock = Block<'rich_text', RichTextBlockData>;
+export type ImageTextBlock = Block<'image_text', ImageTextBlockData>;
+export type FeatureCardsBlock = Block<'feature_cards', FeatureCardsBlockData>;
+export type ProcessStepsBlock = Block<'process_steps', ProcessStepsBlockData>;
+export type TimelineBlock = Block<'timeline', TimelineBlockData>;
+export type TabbedPillarsBlock = Block<
+    'tabbed_pillars',
+    TabbedPillarsBlockData
+>;
+export type QuoteBlock = Block<'quote', QuoteBlockData>;
+export type ParallaxBandBlock = Block<'parallax_band', ParallaxBandBlockData>;
+
 export type PageBlock =
     | HeroBlock
+    | PageHeaderBlock
     | IntroStatementBlock
     | FeaturedProjectsBlock
     | ProjectGridBlock
@@ -218,6 +336,14 @@ export type PageBlock =
     | TestimonialsBlock
     | PartnersMarqueeBlock
     | LatestNewsBlock
-    | CtaBandBlock;
+    | CtaBandBlock
+    | RichTextBlock
+    | ImageTextBlock
+    | FeatureCardsBlock
+    | ProcessStepsBlock
+    | TimelineBlock
+    | TabbedPillarsBlock
+    | QuoteBlock
+    | ParallaxBandBlock;
 
 export type PageBlockType = PageBlock['type'];
