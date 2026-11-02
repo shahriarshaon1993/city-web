@@ -923,6 +923,25 @@ html:has(.section-tabs) {
 }
 
 /*
+ * MOT-PORTRAIT (6.2): team portraits are grey until the person's card is
+ * hovered or holds focus — fine pointers only. Touch and reduced motion keep
+ * colour (nothing animates), so the grey is never the only state a visitor
+ * can reach.
+ */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    :root:not([data-reduce-motion]) {
+        .portrait-tone {
+            filter: grayscale(1);
+            transition: filter 480ms var(--ease-standard);
+        }
+        .team-card:hover .portrait-tone,
+        .team-card:focus-within .portrait-tone {
+            filter: none;
+        }
+    }
+}
+
+/*
  * CMP-MARQ-01 / MOT-MARQUEE (2.4): the track holds two copies and moves -50%
  * per loop (`--marquee-duration` from the block's speed). Paused on hover,
  * focus-within, the pause button and off-screen. Logos are grey at 70 % until

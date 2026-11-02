@@ -72,6 +72,28 @@ const components: Record<PageBlockType, Component> = {
     parallax_band: defineAsyncComponent(
         () => import('@/components/blocks/ParallaxBandBlock.vue'),
     ),
+    team_grid: defineAsyncComponent(
+        () => import('@/components/blocks/TeamGridBlock.vue'),
+    ),
+    faq: defineAsyncComponent(() => import('@/components/blocks/FaqBlock.vue')),
+    gallery: defineAsyncComponent(
+        () => import('@/components/blocks/GalleryBlock.vue'),
+    ),
+    video: defineAsyncComponent(
+        () => import('@/components/blocks/VideoBlock.vue'),
+    ),
+    awards: defineAsyncComponent(
+        () => import('@/components/blocks/AwardsBlock.vue'),
+    ),
+    locations_grid: defineAsyncComponent(
+        () => import('@/components/blocks/LocationsGridBlock.vue'),
+    ),
+    offices: defineAsyncComponent(
+        () => import('@/components/blocks/OfficesBlock.vue'),
+    ),
+    form: defineAsyncComponent(
+        () => import('@/components/blocks/FormBlock.vue'),
+    ),
 };
 
 const visible = computed(() =>

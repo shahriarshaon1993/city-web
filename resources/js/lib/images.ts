@@ -179,6 +179,30 @@ export const imagePresets = {
         loading: 'lazy',
         placeholder: 'media',
     },
+    /** gallery block `grid`: 2 across, 3 from 1024 px in the 80rem content (6.2; not in §5.3). */
+    'gallery-block': {
+        sizes: '(min-width:1280px) 384px, (min-width:1024px) 31vw, 46vw',
+        aspect: 'aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** gallery block `masonry`: same columns, each photo keeps its ratio (6.2; not in §5.3). */
+    'gallery-block-masonry': {
+        sizes: '(min-width:1280px) 384px, (min-width:1024px) 31vw, 46vw',
+        aspect: 'intrinsic',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
+    /** locations_grid lead tile, 5 of 12 columns from 1024 px, full width below (6.2; not in §5.3). */
+    'area-feature': {
+        sizes: '(min-width:1280px) 460px, (min-width:1024px) 38vw, 92vw',
+        aspect: 'aspect-video lg:aspect-[4/3]',
+        fit: 'cover',
+        loading: 'lazy',
+        placeholder: 'media',
+    },
     /** Testimonial person, 48 px circle (DEC-47; not in §5.3). */
     avatar: {
         sizes: '48px',

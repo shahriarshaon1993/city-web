@@ -21,9 +21,9 @@ use Illuminate\Support\Carbon;
 final class DemoProjectSections
 {
     /** Owner, 4.3: Blender's "Big Buck Bunny" until Gemcon's own films arrive. */
-    private const string DEMO_YOUTUBE_ID = 'aqz-KE-bpKQ';
+    public const string DEMO_YOUTUBE_ID = 'aqz-KE-bpKQ';
 
-    private const int DEMO_YOUTUBE_SECONDS = 634;
+    public const int DEMO_YOUTUBE_SECONDS = 634;
 
     /** Placeholder tour on an allowed host (FR-PROJ media: my.matterport.com, kuula.co, www.youtube.com). */
     private const string DEMO_TOUR_URL = 'https://my.matterport.com/show/?m=SxQL3iGyoDo';

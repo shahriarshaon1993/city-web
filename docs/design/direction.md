@@ -91,6 +91,13 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Photo 6 / text 5 with a one-column gap, sides swappable | image_text (6.1) |
 | Coral mark, large light quote, person behind a hairline | quote (6.1) |
 | Full-bleed photo band 60 / 80svh, white text on a bottom scrim, parallax 10 % | parallax_band (6.1) |
+| Borderless 4:5 portraits, light name, overline role; grey → colour on hover with a fine pointer | team_grid (6.2) |
+| Heading 4 (sticky) / hairline accordion 8 | faq block (6.2) |
+| Uniform 4:3 grid or masonry, PhotoSwipe lightbox | gallery (6.2) |
+| Closed hairline grid: mark, light title, overline issuer · year | awards (6.2) |
+| Lead tile 5 / 12 beside area tiles three across | locations_grid (6.2) |
+| Hairline rows: details 5, map facade 7 | offices (6.2) |
+| Heading, intro and side text 5, greige action panel 7 | form block (6.2) |
 
 ## 6. Component patterns
 

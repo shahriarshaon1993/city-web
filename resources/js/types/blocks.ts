@@ -2,12 +2,15 @@
 // resources (ARC-002): editor-only fields (manual IDs, preset filters, limit)
 // are resolved server-side by the block data loaders and not sent.
 
+import type { DirectoryArea } from '@/types/location';
+import type { ProjectVideo } from '@/types/project';
 import type { ProjectSearchOptions } from '@/types/search';
 import type {
     Breadcrumb,
     MediaImage,
     MediaVideo,
     NewsCard,
+    Office,
     Partner,
     ProgressStage,
     ProgressSummary,
@@ -284,6 +287,93 @@ export type ParallaxBandBlockData = {
     parallax: boolean;
 };
 
+export type TeamMember = {
+    id: number;
+    name: string;
+    /** Role title. */
+    role: string;
+    /** Portrait 4:5. */
+    photo: MediaImage | null;
+    /** ≤ 400 chars; shown when present. */
+    bio: string | null;
+    linkedin_url: string | null;
+    /** Only sent when the member's `show_email` is on (FR-SOC-004). */
+    email: string | null;
+};
+
+/** Block 19, CMP-BLK-TEAM: the members of one group, in order (FR-SOC-004). */
+export type TeamGridBlockData = {
+    heading: string | null;
+    group: 'leadership' | 'management' | 'team';
+    members: TeamMember[];
+};
+
+export type FaqItem = {
+    id: number;
+    question: string;
+    /** Sanitised rich text: p, strong, a, ul, ol. */
+    answer: string;
+};
+
+/** Block 20, CMP-BLK-FAQ; the category or manual picks are resolved server-side. */
+export type FaqBlockData = {
+    heading: string | null;
+    items: FaqItem[];
+};
+
+/** Block 21, CMP-BLK-GALLERY: 2–40 images, alt text required. */
+export type GalleryBlockData = {
+    heading: string | null;
+    layout: 'grid' | 'masonry';
+    images: MediaImage[];
+};
+
+/** Block 22, CMP-BLK-VIDEO (CMP-VIDEO-01). */
+export type VideoBlockData = {
+    heading: string | null;
+    video: ProjectVideo;
+    caption: string | null;
+};
+
+export type AwardItem = {
+    image: MediaImage;
+    title: string;
+    issuer: string | null;
+    year: number | null;
+};
+
+/** Block 23, CMP-BLK-AWARDS: 1–24 items. */
+export type AwardsBlockData = {
+    heading: string | null;
+    items: AwardItem[];
+};
+
+/** Block 24, CMP-BLK-LOCATIONS; the city filter and limit are resolved server-side. */
+export type LocationsGridBlockData = {
+    heading: string | null;
+    areas: DirectoryArea[];
+    /** Label for a project-less area ("No projects yet"). */
+    no_projects: string;
+    view_all: BlockLink | null;
+};
+
+/** Block 25, CMP-BLK-OFFICES; empty office IDs resolve to all offices. */
+export type OfficesBlockData = {
+    heading: string | null;
+    offices: Office[];
+};
+
+/** Block 26, CMP-BLK-FORM. The form itself arrives with 7.1; the shell links to its page. */
+export type FormBlockData = {
+    heading: string;
+    intro: string | null;
+    form_type: 'contact' | 'callback' | 'landowner' | 'nrb';
+    /** Sanitised rich text beside the form. */
+    side: string | null;
+    /** Where the form lives until 7.1 mounts it in the panel. */
+    fallback: BlockLink;
+};
+
 export type IntroStatementBlock = Block<
     'intro_statement',
     IntroStatementBlockData
@@ -324,6 +414,18 @@ export type TabbedPillarsBlock = Block<
 export type QuoteBlock = Block<'quote', QuoteBlockData>;
 export type ParallaxBandBlock = Block<'parallax_band', ParallaxBandBlockData>;
 
+export type TeamGridBlock = Block<'team_grid', TeamGridBlockData>;
+export type FaqBlock = Block<'faq', FaqBlockData>;
+export type GalleryBlock = Block<'gallery', GalleryBlockData>;
+export type VideoBlock = Block<'video', VideoBlockData>;
+export type AwardsBlock = Block<'awards', AwardsBlockData>;
+export type LocationsGridBlock = Block<
+    'locations_grid',
+    LocationsGridBlockData
+>;
+export type OfficesBlock = Block<'offices', OfficesBlockData>;
+export type FormBlock = Block<'form', FormBlockData>;
+
 export type PageBlock =
     | HeroBlock
     | PageHeaderBlock
@@ -344,6 +446,14 @@ export type PageBlock =
     | TimelineBlock
     | TabbedPillarsBlock
     | QuoteBlock
-    | ParallaxBandBlock;
+    | ParallaxBandBlock
+    | TeamGridBlock
+    | FaqBlock
+    | GalleryBlock
+    | VideoBlock
+    | AwardsBlock
+    | LocationsGridBlock
+    | OfficesBlock
+    | FormBlock;
 
 export type PageBlockType = PageBlock['type'];

@@ -22,7 +22,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 4.3  | Project detail II — video, progress, location, documents, enquiry panel    | 4.2            | ✅     |
 | 5.1  | Locations directory, area pages & interactive maps                         | 4.3            | ✅     |
 | 6.1  | Content blocks I (page header, text, media, steps, timeline, pillars)      | 3.2            | ✅     |
-| 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ⬜     |
+| 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ✅     |
 | 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ⬜     |
 | 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ⬜     |
 | 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ⬜     |
@@ -344,6 +344,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 6.1, 5.1 · **Read:** spec/page-builder.md block rows 19–26; design/components.md §6.5 rows team_grid, faq, gallery, video, awards, locations_grid, offices, form; CMP-PERSON-01, CMP-ACC-01, CMP-GAL-01, CMP-VIDEO-01, CMP-MAP-02; spec/social.md FR-SOC-003..006.
 **Build:** team_grid, faq (accordion), gallery (grid/masonry + PhotoSwipe), video, awards, locations_grid, offices (cards + map facade), form block shell (form inside comes in 7.1); all added to `/styleguide/blocks`.
 **Test:** gallery lightbox from the block; offices map loads only on click; FAQ single-open; portraits grayscale → colour on hover only with a fine pointer.
+
+**Done notes (2026-11-03):**
+- Blocks in `components/blocks/`: `TeamGridBlock` (`.portrait-tone` grey → colour, fine pointer + motion only), `FaqBlock` (reuses `ProjectFaq`), `GalleryBlock` (`useLightbox`, presets `gallery-block` / `gallery-block-masonry`), `VideoBlock` (reuses `ProjectVideo`, no tour), `AwardsBlock` (closed hairline grid, `partner-logo` preset), `LocationsGridBlock` (lead tile + 3-across, preset `area-feature`), `OfficesBlock` (`MapFacade` + `lib/offices.ts` hours), `FormBlock` (shell). All lazy in `BlockRenderer`; types in `types/blocks.ts`.
+- `components/site/location/AreaTile.vue` is now shared by `/locations` and the locations_grid block.
+- **7.1:** mount CMP-FORM-01 inside `FormBlock`'s `[data-form]` panel (type in `form_type`); until then it links to `data.fallback` (`/contact`).
+- Demo data: `DemoTeam::members('leadership'|'management'|'team')` (6.3 leadership page reuses it); `DemoBlocks::peopleAndPlaces()` = blocks 14–23 on `/styleguide/blocks`. `DemoProjectSections::DEMO_YOUTUBE_*` are public.
+- Faq block is single-open only; the multiple-open variant for PG-18 is 8.2's.
+- Motion chunk unchanged at 55.32 KB gzip.
 
 ### 6.3 — Builder pages, legal pages, leadership, custom pages
 

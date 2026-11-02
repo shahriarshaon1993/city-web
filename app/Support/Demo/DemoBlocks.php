@@ -7,7 +7,8 @@ use App\Support\Seo\Breadcrumbs;
 /**
  * Demo data for the content blocks of 6.1 (page_header, rich_text, image_text,
  * feature_cards, process_steps, timeline, tabbed_pillars, quote,
- * parallax_band) in the DM-BLOCK shape of resources/js/types/blocks.ts.
+ * parallax_band) and 6.2 (team_grid, faq, gallery, video, awards,
+ * locations_grid, offices, form) in the DM-BLOCK shape of resources/js/types/blocks.ts.
  * Placeholder copy; the builder pages of 6.3 reuse these blocks. Deleted with
  * DemoContent in 16.4.
  */
@@ -28,7 +29,7 @@ final class DemoBlocks
         .'<table><thead><tr><th>Stage</th><th>Typical time</th></tr></thead><tbody><tr><td>Land due diligence</td><td>6–8 weeks</td></tr><tr><td>Design approval</td><td>3–4 months</td></tr><tr><td>Structure</td><td>14–18 months</td></tr></tbody></table>';
 
     /**
-     * All nine blocks for `/styleguide/blocks`. `$header` picks the page
+     * All blocks of 6.1 and 6.2 for `/styleguide/blocks`. `$header` picks the page
      * header (`image` = photo under the transparent header, `plain`).
      *
      * @return list<array<string, mixed>>
@@ -136,6 +137,109 @@ final class DemoBlocks
                 'body' => self::RICH_BODY,
                 'width' => 'wide',
             ], background: 'muted'),
+            ...self::peopleAndPlaces(),
+        ];
+    }
+
+    /**
+     * The blocks of 6.2, ids 14–23, alternating default and muted.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function peopleAndPlaces(): array
+    {
+        $images = fn (array $keys): array => array_values(array_filter(array_map(DemoMedia::image(...), $keys)));
+        $areas = array_map(
+            fn (array $area): array => [
+                'slug' => $area['slug'],
+                'name' => $area['name'],
+                'url' => route('site.locations.show', $area['slug'], false),
+                'count' => $area['count'],
+                'image' => ($detail = DemoLocations::detail($area['slug'])) === null ? null : DemoMedia::image($detail['image']),
+            ],
+            DemoProjects::topAreas(7),
+        );
+        $awards = [
+            ['Best Residential Developer', 'Bangladesh Property Awards', 2025],
+            ['ISO 9001 certified', 'Quality management', 2024],
+            ['Safety Excellence', 'Building Safety Council', 2024],
+            ['Green Building Pioneer', 'Sustainable Dhaka Forum', 2023],
+            ['Customer Trust Award', 'Real Estate Association', 2022],
+            ['Member', 'REHAB', null],
+        ];
+
+        return [
+            self::block(14, 'team_grid', [
+                'heading' => 'The people who lead Gemcon City',
+                'group' => 'leadership',
+                'members' => DemoTeam::members('leadership'),
+            ], spacing: 'lg'),
+            self::block(15, 'video', [
+                'heading' => 'A walk through our latest handover',
+                'video' => [
+                    'type' => 'youtube',
+                    'title' => 'Gemcon City handover film',
+                    'poster' => DemoMedia::image('hero/hero-02'),
+                    'duration_seconds' => DemoProjectSections::DEMO_YOUTUBE_SECONDS,
+                    'youtube_id' => DemoProjectSections::DEMO_YOUTUBE_ID,
+                ],
+                'caption' => 'Placeholder film: owners’ stories and the site walk-through replace it once the client supplies footage.',
+            ], background: 'muted', spacing: 'lg'),
+            self::block(16, 'gallery', [
+                'heading' => 'Our buildings, up close',
+                'layout' => 'grid',
+                'images' => $images(['projects/projects-01', 'projects/projects-02', 'projects/projects-03', 'interiors/interiors-01', 'interiors/interiors-02', 'progress/progress-01']),
+            ]),
+            self::block(17, 'awards', [
+                'heading' => 'Recognition and certifications',
+                'items' => array_map(
+                    fn (array $award, int $index): array => [
+                        'image' => DemoMedia::image(sprintf('partners/partners-%02d', $index + 1)),
+                        'title' => $award[0],
+                        'issuer' => $award[1],
+                        'year' => $award[2],
+                    ],
+                    $awards,
+                    array_keys($awards),
+                ),
+            ], background: 'muted'),
+            self::block(18, 'locations_grid', [
+                'heading' => 'Where we build',
+                'areas' => $areas,
+                'no_projects' => DemoLocations::copy()['no_projects'],
+                'view_all' => ['label' => 'All locations', 'url' => '/locations', 'new_tab' => false],
+            ], spacing: 'lg'),
+            self::block(19, 'faq', [
+                'heading' => 'Questions buyers ask us',
+                'items' => [
+                    ['id' => 1, 'question' => 'How do I know the land title is clear?', 'answer' => '<p>Our legal team checks the chain of ownership before any plot is purchased or developed. The summary of that check, with the deed and mutation references, is available to every buyer before booking.</p>'],
+                    ['id' => 2, 'question' => 'What does the booking amount cover?', 'answer' => '<p>The booking amount reserves your unit at the quoted price. It is credited against the first instalment and recorded on a receipt the same day.</p><p>If you decide not to proceed within the cooling-off period stated in your booking letter, it is refunded in full.</p>'],
+                    ['id' => 3, 'question' => 'Can I pay in instalments?', 'answer' => '<p>Yes. Payment follows construction stages, with a schedule written into the allotment agreement. Bank financing is available through our partner banks.</p>'],
+                    ['id' => 4, 'question' => 'What happens if handover is delayed?', 'answer' => '<p>The handover date is part of the agreement. If we miss it for reasons within our control, the agreement sets out the compensation that applies for each month of delay.</p>'],
+                    ['id' => 5, 'question' => 'Do you build on landowners’ plots?', 'answer' => '<p>Yes, under a registered joint-venture agreement with a fixed share of the finished building for the landowner. <a href="/landowner">Read how the landowner programme works</a>.</p>'],
+                ],
+            ], background: 'muted', spacing: 'lg'),
+            self::block(20, 'team_grid', [
+                'heading' => 'Management',
+                'group' => 'management',
+                'members' => DemoTeam::members('management'),
+            ], spacing: 'lg'),
+            self::block(21, 'gallery', [
+                'heading' => 'Light, air and detail',
+                'layout' => 'masonry',
+                'images' => $images(['interiors/interiors-03', 'locations/locations-02', 'interiors/interiors-04', 'projects/projects-05', 'progress/progress-02', 'locations/locations-05', 'projects/projects-07']),
+            ], background: 'muted', spacing: 'lg'),
+            self::block(22, 'offices', [
+                'heading' => 'Visit us',
+                'offices' => DemoContent::offices(),
+            ], spacing: 'lg'),
+            self::block(23, 'form', [
+                'heading' => 'Talk to our team',
+                'intro' => 'Tell us what you are looking for and a sales advisor will call you back within one working day.',
+                'form_type' => 'contact',
+                'side' => '<p>Prefer to speak now? Call the hotline or visit a sales lounge during opening hours.</p>',
+                'fallback' => ['label' => 'Open the contact form', 'url' => '/contact', 'new_tab' => false],
+            ], background: 'muted', spacing: 'lg'),
         ];
     }
 

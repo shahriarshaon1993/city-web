@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { ArrowRight } from '@lucide/vue';
 import CtaBandBlock from '@/components/blocks/CtaBandBlock.vue';
 import Breadcrumbs from '@/components/site/Breadcrumbs.vue';
-import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
+import AreaTile from '@/components/site/location/AreaTile.vue';
 import { formatNumber } from '@/lib/format';
-import { cn } from '@/lib/utils';
 import type { LocationsPageProps } from '@/types/location';
 
 // PG-05 `/locations` (LAY-LOC-LIST, FR-LOC-005): breadcrumb, light H1 +
@@ -84,47 +81,11 @@ function countLabel(count: number): string {
                     class="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:col-span-8 xl:gap-x-8"
                 >
                     <li v-for="area in city.areas" :key="area.slug">
-                        <article
-                            class="media-card group/tile relative flex flex-col gap-4 rounded-xl has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4 has-[a:focus-visible]:outline-ring has-[a:focus-visible]:outline-solid"
-                        >
-                            <ResponsiveImage
-                                :image="area.image"
-                                preset="area-tile"
-                                img-class="media-zoom"
-                                :priority="area.slug === firstSlug"
-                                class="overflow-hidden rounded-xl"
-                            />
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="flex min-w-0 flex-col gap-1">
-                                    <p
-                                        :class="
-                                            cn(
-                                                'text-overline uppercase',
-                                                area.count === 0
-                                                    ? 'text-muted-foreground'
-                                                    : 'text-primary',
-                                            )
-                                        "
-                                    >
-                                        {{ countLabel(area.count) }}
-                                    </p>
-                                    <h3
-                                        class="font-display text-h4 text-balance"
-                                    >
-                                        <Link
-                                            :href="area.url"
-                                            class="transition-colors duration-(--dur-fast) outline-none group-hover/tile:text-primary after:absolute after:inset-0 after:rounded-xl after:content-['']"
-                                        >
-                                            {{ area.name }}
-                                        </Link>
-                                    </h3>
-                                </div>
-                                <ArrowRight
-                                    class="mt-6 size-5 shrink-0 text-muted-foreground transition-[color,transform] duration-(--dur-base) group-hover/tile:text-primary motion-safe:group-hover/tile:translate-x-0.5 max-sm:hidden"
-                                    aria-hidden="true"
-                                />
-                            </div>
-                        </article>
+                        <AreaTile
+                            :area="area"
+                            :no-projects="directory.no_projects"
+                            :priority="area.slug === firstSlug"
+                        />
                     </li>
                 </ul>
             </section>
