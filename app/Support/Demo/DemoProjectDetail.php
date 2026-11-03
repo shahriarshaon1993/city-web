@@ -334,6 +334,16 @@ final class DemoProjectDetail
     }
 
     /**
+     * The overview as plain text, for the site search (FR-SRCH-010, 8.2).
+     *
+     * @param  DemoProject  $row
+     */
+    public static function overviewText(array $row): string
+    {
+        return strip_tags(self::overview($row, DemoProjects::area($row['area'])));
+    }
+
+    /**
      * Overview rich text (sanitised HTML in Part B, ≥ 120 words to publish).
      *
      * @param  DemoProject  $row

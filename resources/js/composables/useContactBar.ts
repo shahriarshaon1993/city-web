@@ -9,6 +9,8 @@ export type ContactBarOverride = {
     whatsapp: string | null;
     whatsappText: string | null;
     onEnquire: () => void;
+    /** Replaces the Enquire label (PG-16: "Apply now"). */
+    label?: string;
 };
 
 const override = shallowRef<ContactBarOverride | null>(null);

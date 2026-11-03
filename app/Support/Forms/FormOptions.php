@@ -33,6 +33,16 @@ final class FormOptions
     /** @var list<string> */
     public const array FILE_MIMES = ['application/pdf', 'image/jpeg', 'image/png'];
 
+    /** FR-CAR-002: the CV (PDF/DOC/DOCX, MAX_FILE_KB), cover letter and experience limits. */
+    public const array CV_EXTENSIONS = ['pdf', 'doc', 'docx'];
+
+    /** @var list<string> */
+    public const array CV_MIMES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+    public const int COVER_LETTER_MAX = 3000;
+
+    public const int YEARS_EXPERIENCE_MAX = 50;
+
     /**
      * @var array<string, array<string, string>>
      */
@@ -146,6 +156,14 @@ final class FormOptions
                     'label' => 'PDF, JPG or PNG',
                 ],
                 'visitors' => ['min' => 1, 'max' => 10],
+                'cv' => [
+                    'max_mb' => self::MAX_FILE_KB / 1024,
+                    'mimes' => self::CV_MIMES,
+                    'extensions' => self::CV_EXTENSIONS,
+                    'label' => 'PDF, DOC or DOCX',
+                ],
+                'cover_letter_max' => self::COVER_LETTER_MAX,
+                'years_experience_max' => self::YEARS_EXPERIENCE_MAX,
             ],
             'visit_window' => [
                 'min' => $window['min']->toDateString(),

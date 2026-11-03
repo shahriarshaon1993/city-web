@@ -92,6 +92,7 @@ final class DemoContent
                 'contact' => 'I agree that Gemcon City Limited may reply to my message by phone, WhatsApp or email, as described in the privacy policy.',
                 'landowner' => 'I agree that Gemcon City Limited may contact me about my land and keep the documents I attach, as described in the privacy policy.',
                 'nrb' => 'I agree that Gemcon City Limited may contact me by phone, WhatsApp or email at the times I chose, as described in the privacy policy.',
+                'job_application' => 'I agree that Gemcon City Limited may keep my application and CV for twelve months and contact me about roles, as described in the privacy policy.',
                 'newsletter' => 'I agree to receive project updates from Gemcon City Limited by email, as described in the privacy policy.',
             ],
             'thank_you' => [

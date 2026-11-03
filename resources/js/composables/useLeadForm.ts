@@ -6,7 +6,7 @@ import type { InjectionKey, Ref } from 'vue';
 import { readAttribution } from '@/lib/forms/attribution';
 import { firstError } from '@/lib/forms/rules';
 import type { Rules } from '@/lib/forms/rules';
-import type { FormLocation, FormSlug } from '@/types/forms';
+import type { FormLocation, LeadFormSlug } from '@/types/forms';
 
 /** The error summary's exposed API (components/forms/ErrorSummary.vue). */
 type SummaryHandle = { focus: () => void };
@@ -29,8 +29,10 @@ type LooseForm = {
 };
 
 type Config<T extends FormValues> = {
-    slug: FormSlug;
+    slug: LeadFormSlug;
     location: FormLocation;
+    /** Where the form posts; defaults to `/forms/{slug}` (the lead forms). */
+    url?: string;
     initial: T;
     rules: Rules<T>;
     /** Extra fields sent with the form (e.g. the project slug). */
@@ -180,7 +182,7 @@ export function useLeadForm<T extends FormValues>(config: Config<T>) {
             return;
         }
 
-        loose.post(`/forms/${config.slug}`, {
+        loose.post(config.url ?? `/forms/${config.slug}`, {
             preserveScroll: true,
             preserveState: true,
             ...options,

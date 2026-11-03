@@ -9,7 +9,9 @@ import { cn } from '@/lib/utils';
 // the list of chosen files. Types, size and count are stated up front and
 // wrong files are refused before anything is sent (VAL-03); `rejected`
 // carries the reason for the field's error line. The server re-checks by
-// content (FR-LEAD-011, VAL-01).
+// content (FR-LEAD-011, VAL-01). With `max` 1 (the CV, FR-CAR-002) a new
+// file replaces the chosen one; `extensions` also accepts files whose type
+// the browser does not report (DOC/DOCX on some systems).
 const props = defineProps<{
     id: string;
     /** MIME types accepted. */
@@ -18,6 +20,11 @@ const props = defineProps<{
     maxMb: number;
     /** e.g. "PDF, JPG or PNG". */
     typesLabel: string;
+    /** Lower-case extensions accepted as well as the MIME types. */
+    extensions?: string[];
+    /** Overrides the size and type messages (AC-CAR-01 wording). */
+    sizeMessage?: string;
+    typeMessage?: string;
     invalid?: boolean;
     describedby?: string;
 }>();
@@ -35,7 +42,21 @@ const EXTENSIONS: Record<string, string> = {
     'application/pdf': '.pdf',
     'image/jpeg': '.jpg,.jpeg',
     'image/png': '.png',
+    'application/msword': '.doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        '.docx',
 };
+
+const single = () => props.max === 1;
+
+function isAccepted(file: File): boolean {
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+
+    return (
+        props.accept.includes(file.type) ||
+        (props.extensions?.includes(extension) ?? false)
+    );
+}
 
 const acceptAttribute = () =>
     props.accept.map((mime) => EXTENSIONS[mime] ?? mime).join(',');
@@ -45,10 +66,15 @@ function add(incoming: FileList | File[]): void {
     let problem: string | null = null;
 
     for (const file of Array.from(incoming)) {
-        if (!props.accept.includes(file.type)) {
-            problem ??= `Attach ${props.typesLabel} files only.`;
+        if (!isAccepted(file)) {
+            problem ??=
+                props.typeMessage ?? `Attach ${props.typesLabel} files only.`;
         } else if (file.size > props.maxMb * 1024 * 1024) {
-            problem ??= `Each file must be ${props.maxMb} MB or smaller.`;
+            problem ??=
+                props.sizeMessage ??
+                `Each file must be ${props.maxMb} MB or smaller.`;
+        } else if (single()) {
+            next = [file];
         } else if (next.length >= props.max) {
             problem ??= `You can attach up to ${props.max} files.`;
         } else if (
@@ -116,16 +142,19 @@ function remove(index: number): void {
                 @click="input?.click()"
             >
                 <Paperclip aria-hidden="true" />
-                Choose files
+                {{ single() ? 'Choose a file' : 'Choose files' }}
             </Button>
-            <p class="text-sm text-muted-foreground">
+            <p v-if="single()" class="text-sm text-muted-foreground">
+                or drop it here. {{ typesLabel }}, {{ maxMb }} MB at most.
+            </p>
+            <p v-else class="text-sm text-muted-foreground">
                 or drop them here. Up to {{ max }} files, {{ typesLabel }},
                 {{ maxMb }} MB each.
             </p>
             <input
                 ref="input"
                 type="file"
-                multiple
+                :multiple="!single()"
                 class="sr-only"
                 tabindex="-1"
                 aria-hidden="true"
@@ -137,7 +166,7 @@ function remove(index: number): void {
         <ul
             v-if="files.length"
             class="divide-y divide-border border-y border-border"
-            aria-label="Attached files"
+            :aria-label="single() ? 'Attached file' : 'Attached files'"
         >
             <li
                 v-for="(file, index) in files"

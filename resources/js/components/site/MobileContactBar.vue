@@ -16,7 +16,8 @@ import type { SiteShared } from '@/types/site';
 // and while the footer is visible. Hidden = inert, so it is never tabbable.
 // A page can override WhatsApp and Enquire (useContactBar): PG-04 prefills
 // the project in WhatsApp and opens its enquiry dialog (4.3, owner: same
-// three buttons on every page).
+// three buttons on every page); PG-16 turns Enquire into "Apply now" (8.2,
+// LAY-CAREER-DETAIL's sticky Apply).
 const page = usePage<SiteShared>();
 const site = computed(() => page.props.site);
 const override = useContactBarOverride();
@@ -179,10 +180,10 @@ onBeforeUnmount(() => {
                     type="button"
                     variant="accent"
                     class="h-12 w-full gap-1.5 px-2"
-                    aria-haspopup="dialog"
+                    :aria-haspopup="override.label ? undefined : 'dialog'"
                     @click="override.onEnquire()"
                 >
-                    {{ site.header.cta.label }}
+                    {{ override.label ?? site.header.cta.label }}
                 </Button>
                 <Button
                     v-else

@@ -27,7 +27,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ✅     |
 | 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ✅     |
 | 8.1  | News list, archives & article                                              | 7.2            | ✅     |
-| 8.2  | Careers, FAQ page, site search                                             | 8.1            | ⬜     |
+| 8.2  | Careers, FAQ page, site search                                             | 8.1            | ✅     |
 | 8.3  | Shortlist & compare                                                        | 8.2            | ⬜     |
 | 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ⬜     |
 | 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ⬜     |
@@ -416,6 +416,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 8.1 · **Read:** spec/careers.md FR-CAR-001..004, AC-CAR-01; spec/pages.md PG-15, PG-16, PG-18, PG-19; design/layouts.md LAY-CAREERS, LAY-CAREER-DETAIL, LAY-FAQ, LAY-SEARCH; spec/social.md FR-SOC-003; spec/search.md FR-SRCH-010 (result grouping only); spec/seo.md SEO-TEC-024.
 **Build:** `/careers` (intro blocks, filters, role rows, empty state with CV drop), `/careers/{slug}` (summary card, apply form validated like 7.1, closed → "Applications closed", 410 30 days after close), `/faq` (category tabs, client-side filter, multi-open accordions), `/search?q=` (grouped demo results, empty state, `noindex`).
 **Test:** a 6 MB CV → "CV must be 5 MB or smaller"; closed demo job older than 30 days → 410; FAQ filter narrows the list as you type; search with 1 character shows the minimum-length message.
+
+**Done notes (2026-11-03):**
+- `CareerController` (index/show/apply) + `DemoCareers` (6 open roles, deadlines relative to today; `quantity-surveyor` closed < 30 days, `customer-relations-manager` → 410, `project-manager` draft → 404). Closing = deadline + 1 day 00:05 Dhaka (FR-CAR-003). 17.1 swaps in the JobPost model (same shapes, `types/careers.ts`) and stores applications + CV (private disk) in `Actions/Careers/SubmitJobApplication`.
+- `POST /careers/apply` (throttle 6/min) takes the apply form and the CV drop (`job` empty) via `JobApplicationRequest`; success = inline confirmation + toast, no thank-you page, no `generate_lead`. Size is checked before type (AC-CAR-01). Local preview of the CV drop: `/careers?preview=empty`.
+- Person/consent/tracking rules moved to `Requests/Site/Concerns/ContactFieldRules` (used by `LeadFormRequest` too). `useLeadForm` takes `url`; `FileUpload` has single-file mode (`max` 1), `extensions` fallback and custom messages; contact-bar override takes `label` (PG-16 "Apply now").
+- `FaqController` + `DemoFaqs` (21 FAQs, FR-SOC-003 categories); 16.4 replaces it with the FAQ model. Answers use Reka `unmount-on-hide=false` (in HTML, `hidden=until-found`).
+- `SearchController` + `DemoSiteSearch` (all words must match, title hits first, 10 per group, min 2 chars); 17.2 swaps in Scout with the same group shape (`types/site-search.ts`). FAQs are not searched.
+- Visual patterns and rules: DEC-67, DEC-68.
 
 ### 8.3 — Shortlist & compare
 

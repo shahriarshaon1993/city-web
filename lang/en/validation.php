@@ -252,6 +252,28 @@ return [
             'mimetypes' => 'Attach PDF, JPG or PNG files only.',
             'uploaded' => 'The file could not be uploaded. It must be 5 MB or smaller.',
         ],
+        'job' => [
+            'in' => 'Applications for this role are closed. Reload the page to see the open roles.',
+        ],
+        'years_experience' => [
+            'integer' => 'Enter your experience in whole years, e.g. 3.',
+            'min' => 'Enter between 0 and :max years.',
+            'max' => 'Enter between 0 and :max years.',
+        ],
+        'linkedin_url' => [
+            'url' => 'Enter your LinkedIn profile link, e.g. https://www.linkedin.com/in/your-name.',
+        ],
+        'cv' => [
+            'required' => 'Attach your CV.',
+            'file' => 'Attach your CV.',
+            'mimes' => 'Attach your CV as a PDF, DOC or DOCX file.',
+            'extensions' => 'Attach your CV as a PDF, DOC or DOCX file.',
+            'max' => 'CV must be 5 MB or smaller.',
+            'uploaded' => 'CV must be 5 MB or smaller.',
+        ],
+        'cover_letter' => [
+            'max' => 'Your cover letter can be up to :max characters.',
+        ],
     ],
 
     /*
@@ -283,6 +305,12 @@ return [
         'unit_type' => 'unit type',
         'documents' => 'documents',
         'documents.*' => 'file',
+        'current_position' => 'current position',
+        'years_experience' => 'years of experience',
+        'expected_salary' => 'expected salary',
+        'linkedin_url' => 'LinkedIn profile',
+        'cv' => 'CV',
+        'cover_letter' => 'cover letter',
     ],
 
 ];

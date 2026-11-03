@@ -10,6 +10,9 @@ export type FormSlug =
     | 'landowner'
     | 'nrb';
 
+/** A form that uses the lead-form toolkit: the lead types and the job application (8.2). */
+export type LeadFormSlug = FormSlug | 'job-application';
+
 export type FormOption = {
     value: string;
     label: string;
@@ -51,6 +54,15 @@ export type FormsShared = {
             label: string;
         };
         visitors: { min: number; max: number };
+        /** FR-CAR-002: one CV, PDF/DOC/DOCX. */
+        cv: {
+            max_mb: number;
+            mimes: string[];
+            extensions: string[];
+            label: string;
+        };
+        cover_letter_max: number;
+        years_experience_max: number;
     };
     /** Site-visit window in `timezone` (tomorrow … +60 days), ISO dates. */
     visit_window: { min: string; max: string; timezone: string };
@@ -76,4 +88,6 @@ export type FormLocation =
     | 'brochure_dialog'
     | 'page_block'
     | 'contact_page'
-    | 'footer';
+    | 'footer'
+    | 'careers_page'
+    | 'job_page';

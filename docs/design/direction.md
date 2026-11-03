@@ -102,6 +102,10 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Hairline `rounded-md` radio cards that fill with foreground when chosen; step bar of 2 thin segments; error summary as a tinted destructive box | lead forms (7.1) |
 | Light H1 7 / lead 5 on a hairline, underline category row between hairlines, featured horizontal card, results in tiers 2 large · 3 standard · 4 compact rows | news list and archives (8.1) |
 | 768 px column with overline meta, light H1, lead, byline; 16:9 cover in 1040 px (full-bleed on phones); 68ch prose; hairline projects / tags / share / author; related posts on greige, newsletter on white | news article (8.1) |
+| Heading row with overline count, facet rows (department · location · type) between hairlines, hairline role rows (overline department, light title, location · type, deadline + countdown, arrow) | careers open roles (8.2) |
+| Overline meta, light H1, lead on a hairline; sections 8 beside a sticky greige summary panel 4 (deadline, hairline `<dl>`, teal Apply now); apply form as text 5 / greige panel 7 | job detail (8.2) |
+| Light H1 7 / intro + search box 5 on a hairline; topics as a sticky underline list 3 (sideways row on phones) beside category groups 9 (H2 + multi-open hairline accordion); dark CTA band | FAQ page (8.2) |
+| Narrow column: light H1, large search box on a hairline, overline result count, groups (horizontal project cards · compact news rows · hairline page rows) each with a "see all" link; popular areas as hairline link rows | site search (8.2) |
 
 ## 6. Component patterns
 

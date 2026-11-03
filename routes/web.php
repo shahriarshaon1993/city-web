@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Site\CareerController;
 use App\Http\Controllers\Site\ClientErrorController;
 use App\Http\Controllers\Site\ContactController;
+use App\Http\Controllers\Site\FaqController;
 use App\Http\Controllers\Site\FormController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\LocationController;
@@ -10,6 +12,7 @@ use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
+use App\Http\Controllers\Site\SearchController;
 use App\Http\Controllers\Site\StyleguideController;
 use App\Http\Controllers\Site\ThankYouController;
 use App\Support\Errors\ErrorPage;
@@ -61,6 +64,19 @@ Route::get('news/tag/{tag}', [NewsController::class, 'tag'])
 Route::get('news/{slug}', [NewsController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('site.news.show');
+
+// PG-15 / PG-16 (8.2). Applications and the general CV drop post to one route.
+Route::get('careers', [CareerController::class, 'index'])->name('site.careers.index');
+Route::post('careers/apply', [CareerController::class, 'apply'])
+    ->middleware('throttle:6,1')
+    ->name('site.careers.apply');
+Route::get('careers/{slug}', [CareerController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('site.careers.show');
+
+// PG-18 / PG-19 (8.2).
+Route::get('faq', FaqController::class)->name('site.faq');
+Route::get('search', SearchController::class)->name('site.search');
 
 // PG-17 (7.2).
 Route::get('contact', ContactController::class)->name('site.contact');
