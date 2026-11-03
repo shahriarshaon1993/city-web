@@ -5,6 +5,7 @@ use App\Http\Controllers\Site\ContactController;
 use App\Http\Controllers\Site\FormController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\LocationController;
+use App\Http\Controllers\Site\NewsController;
 use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
@@ -48,6 +49,18 @@ Route::get('locations/{area}/{segment}', [LocationController::class, 'segment'])
     ->where('area', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->whereIn('segment', ['residential', 'commercial', 'mixed-use', 'mixed_use', 'land'])
     ->name('site.locations.segment');
+
+// PG-12…14 (8.1). Category and tag archives are two segments, so a post slug never collides.
+Route::get('news', [NewsController::class, 'index'])->name('site.news.index');
+Route::get('news/category/{category}', [NewsController::class, 'category'])
+    ->where('category', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('site.news.category');
+Route::get('news/tag/{tag}', [NewsController::class, 'tag'])
+    ->where('tag', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('site.news.tag');
+Route::get('news/{slug}', [NewsController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('site.news.show');
 
 // PG-17 (7.2).
 Route::get('contact', ContactController::class)->name('site.contact');

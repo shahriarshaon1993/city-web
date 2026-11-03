@@ -647,6 +647,21 @@
         @apply border-border;
         margin-block: 2.5rem;
     }
+    .rich-text h4 {
+        @apply font-display text-lg;
+        margin-top: 1.75rem;
+        break-after: avoid;
+    }
+    /* FR-NEWS-006: library image with its caption (8.1). */
+    .rich-text figure {
+        margin-block: 2.5rem;
+    }
+    .rich-text figure img {
+        @apply h-auto w-full rounded-xl;
+    }
+    .rich-text figcaption {
+        @apply mt-3 text-sm text-muted-foreground;
+    }
     .rich-text table {
         @apply w-full border-collapse text-sm;
     }

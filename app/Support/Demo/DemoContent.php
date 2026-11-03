@@ -314,23 +314,6 @@ final class DemoContent
         ['Redbrick Group', 'group_company'],
     ];
 
-    /** DM-PCAT defaults (FR-NEWS-002): slug => name. */
-    private const array POST_CATEGORIES = ['news' => 'News', 'press-releases' => 'Press releases', 'buying-guides' => 'Buying guides', 'construction-updates' => 'Construction updates', 'events' => 'Events'];
-
-    /**
-     * DM-POST rows for news cards (CMP-NEWS-01), newest first; placeholders.
-     *
-     * @var list<array{slug: string, title: string, excerpt: string, category: string, published_at: string, read_minutes: int, cover: string}>
-     */
-    private const array POSTS = [
-        ['slug' => 'gemcon-trade-centre-tops-out', 'title' => 'Gemcon Trade Centre tops out at 18 floors in Banani', 'excerpt' => 'The final roof slab was cast this month, keeping the commercial tower on track for handover in mid-2027.', 'category' => 'construction-updates', 'published_at' => '2026-10-18', 'read_minutes' => 3, 'cover' => 'news/news-01'],
-        ['slug' => 'buying-an-apartment-from-abroad', 'title' => 'Buying an apartment in Dhaka from abroad: a step-by-step guide for NRBs', 'excerpt' => 'Power of attorney, remittance rules and site visits by video. Everything you need before booking from overseas.', 'category' => 'buying-guides', 'published_at' => '2026-10-02', 'read_minutes' => 7, 'cover' => 'news/news-02'],
-        ['slug' => 'rehab-fair-2026', 'title' => 'Meet us at the REHAB Fair 2026', 'excerpt' => 'Visit our pavilion for fair-only booking offers on Gemcon Lakeview and Gemcon Maple Residency.', 'category' => 'events', 'published_at' => '2026-09-21', 'read_minutes' => 2, 'cover' => 'news/news-03'],
-        ['slug' => 'gemcon-orchid-heights-launch', 'title' => 'Gemcon Orchid Heights launches in Gulshan', 'excerpt' => 'Twenty-four four-bedroom residences on a quiet lakeside plot, with bookings now open.', 'category' => 'press-releases', 'published_at' => '2026-09-05', 'read_minutes' => 4, 'cover' => 'news/news-04'],
-        ['slug' => 'understanding-rajuk-approval', 'title' => 'What a RAJUK approval tells you about a project', 'excerpt' => 'How to read an approval letter and which documents to ask for before you sign.', 'category' => 'buying-guides', 'published_at' => '2026-08-17', 'read_minutes' => 6, 'cover' => 'news/news-05'],
-        ['slug' => 'handover-gemcon-palm-court', 'title' => 'Keys handed over at Gemcon Palm Court', 'excerpt' => 'Families moved into all 32 apartments of our Baridhara project this summer.', 'category' => 'news', 'published_at' => '2026-07-29', 'read_minutes' => 3, 'cover' => 'news/news-06'],
-    ];
-
     private static int $menuItemId = 0;
 
     /**
@@ -709,36 +692,13 @@ final class DemoContent
     }
 
     /**
-     * News cards (NewsCardResource, types/site.ts), newest first.
+     * News cards (NewsCardResource, types/news.ts), newest published first.
      *
      * @return list<array<string, mixed>>
      */
     public static function newsCards(?string $category = null, ?int $limit = null): array
     {
-        $posts = array_slice(array_values(array_filter(
-            self::POSTS,
-            fn (array $post): bool => $category === null || $post['category'] === $category,
-        )), 0, $limit);
-
-        return array_map(
-            fn (array $post, int $index): array => [
-                'id' => $index + 1,
-                'slug' => $post['slug'],
-                'url' => '/news/'.$post['slug'],
-                'title' => $post['title'],
-                'excerpt' => $post['excerpt'],
-                'cover' => DemoMedia::image($post['cover']),
-                'category' => [
-                    'name' => self::POST_CATEGORIES[$post['category']],
-                    'slug' => $post['category'],
-                    'url' => '/news/category/'.$post['category'],
-                ],
-                'published_at' => $post['published_at'],
-                'read_minutes' => $post['read_minutes'],
-            ],
-            $posts,
-            array_keys($posts),
-        );
+        return DemoNews::cards($category, $limit);
     }
 
     /**

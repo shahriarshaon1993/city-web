@@ -26,7 +26,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ✅     |
 | 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ✅     |
 | 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ✅     |
-| 8.1  | News list, archives & article                                              | 7.2            | ⬜     |
+| 8.1  | News list, archives & article                                              | 7.2            | ✅     |
 | 8.2  | Careers, FAQ page, site search                                             | 8.1            | ⬜     |
 | 8.3  | Shortlist & compare                                                        | 8.2            | ⬜     |
 | 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ⬜     |
@@ -402,6 +402,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 7.2 · **Read:** spec/news.md FR-NEWS-001..007, AC-NEWS-01 (404 part); spec/pages.md PG-12..14; design/layouts.md LAY-NEWS-LIST, LAY-NEWS-DETAIL; design/components.md CMP-NEWS-01, CMP-SHARE-01, CMP-TABS-01 (pill); spec/seo.md SEO-TEC-004, SEO-TEC-005.
 **Build:** `/news`, `/news/category/{slug}`, `/news/tag/{slug}` (noindex with < 3 posts), `/news/{slug}`: featured post, category pills, grid 9/page, article prose, cover, meta row with read time, tags, share row (no SDKs), related projects, related posts, newsletter CTA. Future-dated demo post → 404.
 **Test:** pagination canonical `/news?page=2` is self; tag page with 2 posts is `noindex,follow`; share "Copy link" toast; article at 390 px has a full-bleed cover.
+
+**Done notes (2026-11-03):**
+- `NewsController` (index/category/tag/show) + `App\Support\Demo\DemoNews` (13 published posts, 1 scheduled → 404, 5 categories, tags, bodies as block lists → HTML, read time from the body, `related()` per FR-NEWS-007, `share()` URLs). `DemoContent::newsCards()` now delegates to it; 16.3 swaps it for the Post model/Resources (same shapes, `types/news.ts`).
+- `App\Support\Pagination\PageLinks` + `site/PaginationNav.vue` (emits `navigate`) are the shared `?page=n` links; `ListingPagination` is now a thin wrapper. Reuse for careers/search (8.2).
+- Pages `Site/News` (PG-12/13) and `Site/NewsArticle` (PG-14); `site/news/NewsCategoryNav` (underline links), `NewsGrid` (2 large · 3 standard · 4 compact tiers), `site/ShareRow` (CMP-SHARE-01; Copy link after mount only). `NewsCard` gained `priority`; its `featured` variant uses `news-lead`.
+- Featured post = newest published with the flag, shown on `/news` page 1 only and never repeated in the grid. Tag page indexable from 3 posts (`DemoNews::TAG_INDEX_MIN`); an empty category is noindex. Locally every page is `noindex,nofollow` (SEO-TEC-010); an unindexable page simply has no canonical.
+- `.rich-text` gained `h4`, `figure`, `figcaption`. Wayfinder must be regenerated with `--with-form` (`php artisan wayfinder:generate --with-form`), else admin pages fail `types:check`.
+- Not done (later): `/news/feed.xml` (16.3), signed preview ribbon (14.1). Visual patterns: DEC-66.
 
 ### 8.2 — Careers, FAQ page, site search
 

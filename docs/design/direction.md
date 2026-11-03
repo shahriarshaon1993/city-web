@@ -100,6 +100,8 @@ Quiet, editorial, architectural — a developer that builds landmark buildings, 
 | Heading, intro and side text 5, greige action panel 7 | form block (6.2) |
 | Light H1 + overline "Last updated" on a hairline, prose 8 / sticky hairline TOC list 3 (native disclosure below 1280 px) | legal pages (6.3) |
 | Hairline `rounded-md` radio cards that fill with foreground when chosen; step bar of 2 thin segments; error summary as a tinted destructive box | lead forms (7.1) |
+| Light H1 7 / lead 5 on a hairline, underline category row between hairlines, featured horizontal card, results in tiers 2 large · 3 standard · 4 compact rows | news list and archives (8.1) |
+| 768 px column with overline meta, light H1, lead, byline; 16:9 cover in 1040 px (full-bleed on phones); 68ch prose; hairline projects / tags / share / author; related posts on greige, newsletter on white | news article (8.1) |
 
 ## 6. Component patterns
 

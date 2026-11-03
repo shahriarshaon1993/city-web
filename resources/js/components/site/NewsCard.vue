@@ -11,23 +11,30 @@ import type { NewsCard } from '@/types/site';
 // instead of a chip) · title · excerpt. Read time only where asked
 // (FR-NEWS-004: never on home). Variants: `default` (16:10, `text-h4`, 3-line
 // title), `lead` (latest_news lead story, `text-h3`), `compact` (thumbnail
-// row, no excerpt), `featured` (horizontal, 60 % cover from 768 px). One
-// link: the title, stretched over the card.
+// row, no excerpt), `featured` (horizontal, 60 % cover from 768 px, PG-12).
+// One link: the title, stretched over the card.
 const props = withDefaults(
     defineProps<{
         post: NewsCard;
         variant?: 'default' | 'lead' | 'compact' | 'featured';
         headingAs?: 'h2' | 'h3';
         showReadTime?: boolean;
+        /** The page's LCP image (8.1: the first card in view). */
+        priority?: boolean;
     }>(),
-    { variant: 'default', headingAs: 'h3', showReadTime: false },
+    {
+        variant: 'default',
+        headingAs: 'h3',
+        showReadTime: false,
+        priority: false,
+    },
 );
 
 const presets: Record<NonNullable<typeof props.variant>, ImagePreset> = {
     default: 'news-card',
     lead: 'news-lead',
     compact: 'news-thumb',
-    featured: 'news-card',
+    featured: 'news-lead',
 };
 
 const layout = computed(
@@ -64,6 +71,7 @@ const title = computed(
         <ResponsiveImage
             :image="post.cover"
             :preset="presets[variant]"
+            :priority="priority"
             :class="
                 cn(
                     variant === 'compact'
