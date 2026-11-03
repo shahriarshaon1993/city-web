@@ -29,12 +29,29 @@ const whatsapp = computed(() =>
 );
 
 onMounted(() => {
-    if (props.lead) {
-        trackLeadOnce(props.lead.reference, {
-            lead_type: props.lead.lead_type,
-            project_slug: props.lead.project_slug,
-            form_location: props.lead.form_location,
-        });
+    const lead = props.lead;
+
+    if (!lead) {
+        return;
+    }
+
+    // A shortlist enquiry is one lead per project, so one event each (FR-SHORT-004).
+    const slugs =
+        lead.project_slugs.length > 1
+            ? lead.project_slugs
+            : [lead.project_slug];
+
+    for (const slug of slugs) {
+        trackLeadOnce(
+            slug && slugs.length > 1
+                ? `${lead.reference}.${slug}`
+                : lead.reference,
+            {
+                lead_type: lead.lead_type,
+                project_slug: slug,
+                form_location: lead.form_location,
+            },
+        );
     }
 });
 </script>

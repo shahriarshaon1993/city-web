@@ -32,6 +32,7 @@ class FormController extends Controller
             'reference' => $lead['reference'],
             'lead_type' => $type->value,
             'project_slug' => $lead['project'],
+            'project_slugs' => $lead['projects'],
             'form_location' => $lead['form_location'],
         ]);
     }

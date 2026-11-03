@@ -789,6 +789,34 @@ html.lenis body {
     transform: translateY(calc(-1 * var(--header-height)));
 }
 
+/*
+ * CMP-COMPARE-01 (8.3): below 1024 px the table scrolls inside its box, so
+ * its header row and first column can both stick; from 1024 px the page
+ * scrolls and the header row sticks under the site header (and moves up
+ * with it while headroom hides it).
+ */
+.compare-scroll {
+    overflow: auto;
+    max-height: calc(100svh - var(--header-height) - 1.5rem);
+    overscroll-behavior-x: contain;
+}
+.compare-head {
+    top: 0;
+}
+@media (min-width: 1024px) {
+    .compare-scroll {
+        overflow: visible;
+        max-height: none;
+    }
+    .compare-head {
+        top: var(--header-height);
+        transition: transform var(--dur-base) var(--ease-standard);
+    }
+    :root[data-header-hidden] .compare-head {
+        transform: translateY(calc(-1 * var(--header-height)));
+    }
+}
+
 /* CMP-ENQ-01 (4.3): the desktop enquiry panel sticks below the tab bar and
  * moves up with it when the header hides. */
 .sticky-under-tabs {

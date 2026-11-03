@@ -13,6 +13,7 @@ use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\SearchController;
+use App\Http\Controllers\Site\ShortlistController;
 use App\Http\Controllers\Site\StyleguideController;
 use App\Http\Controllers\Site\ThankYouController;
 use App\Support\Errors\ErrorPage;
@@ -77,6 +78,10 @@ Route::get('careers/{slug}', [CareerController::class, 'show'])
 // PG-18 / PG-19 (8.2).
 Route::get('faq', FaqController::class)->name('site.faq');
 Route::get('search', SearchController::class)->name('site.search');
+
+// PG-20 / PG-21 (8.3): IDs come from the visitor's browser storage.
+Route::get('shortlist', [ShortlistController::class, 'index'])->name('site.shortlist');
+Route::get('compare', [ShortlistController::class, 'compare'])->name('site.compare');
 
 // PG-17 (7.2).
 Route::get('contact', ContactController::class)->name('site.contact');

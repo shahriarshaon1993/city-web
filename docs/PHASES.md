@@ -28,7 +28,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ✅     |
 | 8.1  | News list, archives & article                                              | 7.2            | ✅     |
 | 8.2  | Careers, FAQ page, site search                                             | 8.1            | ✅     |
-| 8.3  | Shortlist & compare                                                        | 8.2            | ⬜     |
+| 8.3  | Shortlist & compare                                                        | 8.2            | ✅     |
 | 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ⬜     |
 | 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ⬜     |
 | 10.2 | Admin shell, navigation, profile                                           | 10.1           | ⬜     |
@@ -430,6 +430,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 8.2 · **Read:** spec/shortlist.md (all); spec/pages.md PG-20, PG-21; design/layouts.md LAY-SHORTLIST, LAY-COMPARE; design/components.md CMP-COMPARE-01, CMP-CARD-01 (compare checkbox).
 **Build:** `/shortlist?ids=` (Inertia visit, unknown ids dropped from storage, "Saved on this device only", Enquire about all → project_inquiry with a multi-select); compare checkbox on cards (max 3, toast on the 4th), floating compare bar above the mobile bar, `/compare?ids=` table (sticky first column and header, differing values highlighted, price only when shown).
 **Test:** AC-SHORT-01; remove a project from the shortlist page and reload; compare table scrolls sideways on 390 px with the first column pinned; both pages are `noindex,nofollow`.
+
+**Done notes (2026-11-03):**
+- `ShortlistController` (index/compare) + `DemoShortlist` (ids parsing, published rows in request order, FR-SHORT-003 compare rows formatted with `Format`, `differs` flag, amenity ✓/– rows). 13.3 swaps in Project queries/Resources with the same shapes (`types/shortlist.ts`).
+- Stores: `useShortlist` (localStorage, gained `add/remove/keepOnly/ready`, fires `shortlist_add`) and `useCompare` (sessionStorage `gc.compare`, memory fallback, max 3, AC-SHORT-01 toast). Both fill in onMounted only (SSR-safe).
+- `lib/shortlist.ts` builds `?ids=3,1` links (header heart, bar). PG-20 visits itself with the stored IDs unless the URL already holds the same set, drops unknown IDs, and handles removals/Undo with `router.replace` (no request). PG-21: URL IDs win and become the selection.
+- `ProjectCard` `compare` prop → `CompareToggle` in the price row (replaces the arrow); on listing grid/map, area page, shortlist. `CompareBar` lives in `SiteLayout` (hidden on PG-20/21 and while the cookie card is open; toasts lift above it).
+- "Enquire about all": `ProjectInquiryForm` multi mode (`projects` prop → `CheckboxList`, no unit type); `ProjectInquiryRequest` takes `projects[]` (a `projects` key excludes `project`/`unit_type`); flash + thank-you carry `project_slugs`, one `generate_lead` each. 15.1 must create one lead per project in `SubmitLead`.
+- PG-04 got the FR-SHORT-001 heart (title block, `tone="plain"`). Table sticky rules: `.compare-scroll`/`.compare-head` in app.css. Rules and visuals: DEC-69, DEC-70.
 
 ## Phase 9 — Frontend sign-off
 

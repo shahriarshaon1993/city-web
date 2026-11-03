@@ -64,6 +64,7 @@ const props = withDefaults(
             v-if="withHeart"
             :project-id="project.id"
             :project-name="project.name"
+            :project-slug="project.slug"
             class="absolute top-3 right-3 z-(--z-raised) backdrop-blur-sm"
         />
     </div>

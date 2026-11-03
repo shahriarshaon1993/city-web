@@ -55,7 +55,7 @@ const transparent = computed(
 );
 
 // FR-SHORT-001 count badge.
-const { count: shortlistCount } = useShortlist();
+const { ids: shortlistIds } = useShortlist();
 
 function currentPath(): string {
     return page.url.split(/[?#]/)[0];
@@ -153,7 +153,7 @@ function onFocusOut(event: FocusEvent): void {
 
                 <ShortlistLink
                     v-if="header.show_shortlist"
-                    :count="shortlistCount"
+                    :ids="shortlistIds"
                     :on-media="transparent"
                 />
 

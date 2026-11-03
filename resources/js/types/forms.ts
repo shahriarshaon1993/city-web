@@ -79,6 +79,8 @@ export type FormProject = {
     name: string;
     /** Unit types offered in the enquiry form's select. */
     unit_types?: { id: number; name: string }[];
+    /** "Area, City": the hint in the shortlist enquiry's project list. */
+    location?: string;
 };
 
 /** Where on the site the form sits (`form_location`, SEO-ANA-004). */
@@ -90,4 +92,5 @@ export type FormLocation =
     | 'contact_page'
     | 'footer'
     | 'careers_page'
-    | 'job_page';
+    | 'job_page'
+    | 'shortlist_page';

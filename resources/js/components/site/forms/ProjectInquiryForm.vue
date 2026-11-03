@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import CheckboxList from '@/components/forms/CheckboxList.vue';
 import ErrorSummary from '@/components/forms/ErrorSummary.vue';
 import FormField from '@/components/forms/FormField.vue';
 import FormFooter from '@/components/forms/FormFooter.vue';
@@ -26,9 +27,15 @@ import type { SitePageProps } from '@/types/site';
 // (timeline, purpose, contact time), all optional with a "Skip" link; step 2
 // = name*, phone*, WhatsApp, email, unit type, message, consent*. A step
 // change moves focus to the step heading and is announced (aria-live).
+// With `projects` (PG-20 "Enquire about all", FR-SHORT-004) the unit type
+// gives way to a list of the shortlisted projects, all ticked, at least one
+// required; the server makes one lead per project.
 const props = defineProps<{
-    project: FormProject;
+    project?: FormProject;
+    projects?: FormProject[];
 }>();
+
+const multi = props.projects !== undefined;
 
 const forms = usePage<SitePageProps>().props.forms;
 const dial = (country: string) =>
@@ -36,8 +43,12 @@ const dial = (country: string) =>
 
 const lead = useLeadForm({
     slug: 'project-inquiry',
-    location: 'enquiry_dialog',
+    location: multi ? 'shortlist_page' : 'enquiry_dialog',
     initial: {
+        // Only the shortlist form sends `projects`: its key alone switches the server rules.
+        ...(multi
+            ? { projects: (props.projects ?? []).map((item) => item.slug) }
+            : {}),
         timeline: '',
         purpose: '',
         contact_time: '',
@@ -51,6 +62,7 @@ const lead = useLeadForm({
         consent: false,
     },
     rules: {
+        projects: [required('Choose at least one project.')],
         name: [
             required('Enter your full name.'),
             minLength(2, 'Your name needs at least 2 letters.'),
@@ -65,7 +77,7 @@ const lead = useLeadForm({
         ],
         consent: [accepted()],
     },
-    extra: () => ({ project: props.project.slug }),
+    extra: () => (props.project ? { project: props.project.slug } : {}),
 });
 
 const { form, summary, showSummary, summaryItems } = lead;
@@ -79,8 +91,16 @@ const step = ref(1);
 const heading = useTemplateRef<HTMLElement>('heading');
 const announcement = ref('');
 
+const projectOptions = computed(() =>
+    (props.projects ?? []).map((item) => ({
+        value: item.slug,
+        label: item.name,
+        hint: item.location,
+    })),
+);
+
 const unitOptions = computed(() =>
-    (props.project.unit_types ?? []).map((unit) => ({
+    (props.project?.unit_types ?? []).map((unit) => ({
         value: String(unit.id),
         label: unit.name,
     })),
@@ -185,7 +205,24 @@ function onSubmit(): void {
             <PersonFields whatsapp />
 
             <FormField
-                v-if="unitOptions.length"
+                v-if="multi"
+                :id="lead.fieldId('projects')"
+                label="Projects you are asking about"
+                required
+                group
+                :helper="`${form.projects?.length ?? 0} of ${projectOptions.length} chosen`"
+                :error="lead.error('projects')"
+            >
+                <CheckboxList
+                    v-model="form.projects"
+                    :options="projectOptions"
+                    :invalid="!!lead.error('projects')"
+                    @change="lead.onChange('projects')"
+                />
+            </FormField>
+
+            <FormField
+                v-else-if="unitOptions.length"
                 :id="lead.fieldId('unit_type')"
                 label="Unit type you are interested in"
                 :error="lead.error('unit_type')"

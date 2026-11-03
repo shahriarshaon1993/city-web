@@ -24,6 +24,7 @@ import type { ProjectCard as ProjectCardData } from '@/types/site';
 // results dim (aria-busy) and after 300 ms a skeleton covers them
 // (UX-07, MOT-SKELETON). No results: AC-SRCH-04 empty state + newest 3.
 // No scroll reveals here: the cards change under the visitor's hand.
+// Result cards carry the Compare checkbox (FR-SHORT-003).
 const props = defineProps<{
     projects: ProjectCardData[];
     /** Every result with coordinates; null outside map view. */
@@ -93,6 +94,7 @@ function clear(event: MouseEvent): void {
                                 variant="horizontal"
                                 heading-as="h2"
                                 :priority="index === 0"
+                                compare
                             />
                         </li>
                     </ul>
@@ -124,6 +126,7 @@ function clear(event: MouseEvent): void {
                         :project="project"
                         heading-as="h2"
                         :priority="index === 0"
+                        compare
                     />
                 </li>
             </ul>

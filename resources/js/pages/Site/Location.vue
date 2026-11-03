@@ -82,6 +82,7 @@ const mapCount = computed(() => {
                                 <ProjectCard
                                     :project="project"
                                     heading-as="h3"
+                                    compare
                                 />
                             </li>
                         </ul>

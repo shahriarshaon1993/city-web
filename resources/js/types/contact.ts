@@ -38,6 +38,8 @@ export type ThankYouProps = {
         reference: string;
         lead_type: string;
         project_slug: string | null;
+        /** FR-SHORT-004: the shortlist enquiry's projects (one lead each). */
+        project_slugs: string[];
         form_location: string | null;
     } | null;
 };

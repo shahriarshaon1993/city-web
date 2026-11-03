@@ -207,6 +207,14 @@ return [
         'unit_type' => [
             'in' => 'Choose one of the unit types listed.',
         ],
+        'projects' => [
+            'min' => 'Choose at least one project.',
+            'max' => 'Choose up to :max projects.',
+        ],
+        'projects.*' => [
+            'in' => 'One of these projects is no longer available. Reload the page and try again.',
+            'distinct' => 'Each project can be chosen once.',
+        ],
         'subject' => [
             'required' => 'Choose what your message is about.',
         ],
@@ -303,6 +311,8 @@ return [
         'road_width_ft' => 'road width (ft)',
         'plot_facing' => 'plot facing',
         'unit_type' => 'unit type',
+        'projects' => 'projects',
+        'projects.*' => 'project',
         'documents' => 'documents',
         'documents.*' => 'file',
         'current_position' => 'current position',

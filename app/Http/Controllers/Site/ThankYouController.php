@@ -17,7 +17,9 @@ use Inertia\Response;
  * steps, WhatsApp, a way back and — for the project forms — related projects.
  * `lead` is the one-request flash FormController sets after a submit
  * (FR-LEAD-005); without it (a reload, a direct visit) the page still
- * renders but `generate_lead` is not fired. Always `noindex,nofollow`.
+ * renders but `generate_lead` is not fired. A shortlist enquiry fires one
+ * `generate_lead` per project, as it creates one lead each (FR-SHORT-004).
+ * Always `noindex,nofollow`.
  *
  * @phpstan-import-type DemoProject from DemoProjects
  */
@@ -33,7 +35,12 @@ class ThankYouController extends Controller
 
         $lead = $request->session()->get('lead');
         $lead = is_array($lead) && ($lead['lead_type'] ?? null) === $type->value ? $lead : null;
-        $row = $this->projectRow($lead['project_slug'] ?? null);
+        // FR-SHORT-004: a shortlist enquiry names several projects (one lead each).
+        $slugs = array_values(array_filter(
+            is_array($lead['project_slugs'] ?? null) ? $lead['project_slugs'] : [],
+            fn (mixed $slug): bool => $this->projectRow($slug) !== null,
+        ));
+        $row = $this->projectRow($lead['project_slug'] ?? (count($slugs) === 1 ? $slugs[0] : null));
         $project = $row === null ? null : DemoProjects::card($row);
 
         $whatsappText = $row === null
@@ -54,6 +61,7 @@ class ThankYouController extends Controller
                 'reference' => (string) $lead['reference'],
                 'lead_type' => $type->value,
                 'project_slug' => $row['slug'] ?? null,
+                'project_slugs' => $slugs,
                 'form_location' => is_string($lead['form_location'] ?? null) ? $lead['form_location'] : null,
             ],
             'seo' => SeoData::page($copy['title'])->noindex(follow: false)->toArray($request),

@@ -2,6 +2,7 @@
 import { usePage } from '@inertiajs/vue3';
 import { useMediaQuery } from '@vueuse/core';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import CompareBar from '@/components/site/compare/CompareBar.vue';
 import ConsentBanner from '@/components/site/consent/ConsentBanner.vue';
 import ConsentPreferences from '@/components/site/consent/ConsentPreferences.vue';
 import MobileContactBar from '@/components/site/MobileContactBar.vue';
@@ -64,12 +65,18 @@ watch(reducedMotion, (reduced) => {
     }
 });
 
-// Between 640 and 1023 px toasts sit bottom-right: keep them above the bar.
+// From 640 px toasts sit bottom-right: keep them above the mobile bar
+// (640–1023 px) and the compare bar (FR-SHORT-003).
 const barShown = ref(false);
+const compareShown = ref(false);
 const belowLg = useMediaQuery('(max-width: 1023px)');
-const toastOffset = computed(() =>
-    barShown.value && belowLg.value ? { bottom: 88, right: 24 } : 24,
-);
+const toastOffset = computed(() => {
+    const bottom =
+        (barShown.value && belowLg.value ? 88 : 24) +
+        (compareShown.value ? 112 : 0);
+
+    return bottom === 24 ? 24 : { bottom, right: 24 };
+});
 </script>
 
 <template>
@@ -93,6 +100,10 @@ const toastOffset = computed(() =>
             </main>
             <SiteFooter />
             <MobileContactBar v-model:shown="barShown" />
+            <CompareBar
+                v-model:shown="compareShown"
+                :lifted="barShown && belowLg"
+            />
             <CallbackDialog />
             <ConsentPreferences />
             <p class="sr-only" aria-live="polite" aria-atomic="true">

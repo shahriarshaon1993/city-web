@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { MapPin } from '@lucide/vue';
 import { computed } from 'vue';
+import ShortlistHeart from '@/components/site/ShortlistHeart.vue';
 import {
     formatBdtCompact,
     formatKatha,
@@ -16,6 +17,7 @@ import type { ProjectCopy, ProjectDetail } from '@/types/project';
 // size, bedrooms, handover, price — so FR-PROJ-001's key facts sit in the
 // first screen (2 × 2 on phones). Status and booking are the chips on the
 // gallery photo. The price shows only when the server sent one (AC-PROJ-02).
+// The FR-SHORT-001 heart sits at the end of the overline row (8.3).
 const props = defineProps<{
     project: ProjectDetail;
     copy: ProjectCopy;
@@ -83,26 +85,34 @@ const facts = computed<Fact[]>(() => {
 
 <template>
     <div>
-        <p
-            class="flex flex-wrap items-center gap-x-2 gap-y-1 text-overline text-muted-foreground uppercase"
-        >
-            <Link
-                v-if="project.segment_url"
-                :href="project.segment_url"
-                class="inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline"
+        <div class="flex items-start justify-between gap-4">
+            <p
+                class="flex flex-wrap items-center gap-x-2 gap-y-1 text-overline text-muted-foreground uppercase"
             >
-                {{ project.segment_label }}
-            </Link>
-            <span v-else>{{ project.segment_label }}</span>
-            <span aria-hidden="true">·</span>
-            <Link
-                :href="project.location.url"
-                class="inline-flex min-h-11 items-center gap-1 underline-offset-4 transition-colors duration-(--dur-fast) hover:text-primary hover:underline"
-            >
-                <MapPin class="size-3.5" aria-hidden="true" />
-                {{ project.location.area }}, {{ project.location.city }}
-            </Link>
-        </p>
+                <Link
+                    v-if="project.segment_url"
+                    :href="project.segment_url"
+                    class="inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline"
+                >
+                    {{ project.segment_label }}
+                </Link>
+                <span v-else>{{ project.segment_label }}</span>
+                <span aria-hidden="true">·</span>
+                <Link
+                    :href="project.location.url"
+                    class="inline-flex min-h-11 items-center gap-1 underline-offset-4 transition-colors duration-(--dur-fast) hover:text-primary hover:underline"
+                >
+                    <MapPin class="size-3.5" aria-hidden="true" />
+                    {{ project.location.area }}, {{ project.location.city }}
+                </Link>
+            </p>
+            <ShortlistHeart
+                :project-id="project.id"
+                :project-name="project.name"
+                :project-slug="project.slug"
+                tone="plain"
+            />
+        </div>
 
         <h1 class="mt-2 font-display text-h1 text-balance">
             {{ project.name }}

@@ -8,17 +8,21 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { shortlistHref } from '@/lib/shortlist';
 import { cn } from '@/lib/utils';
 
-// CMP-HEAD-01 shortlist heart. `count` comes from useShortlist (FR-SHORT-001);
-// the URL becomes Wayfinder's `shortlist()` in 8.3.
+// CMP-HEAD-01 shortlist heart. `ids` come from useShortlist (FR-SHORT-001);
+// the link carries them, so PG-20 renders the cards at once (FR-SHORT-002).
 const props = defineProps<{
-    count: number;
+    ids: readonly number[];
     onMedia: boolean;
 }>();
 
+const count = computed(() => props.ids.length);
+const href = computed(() => shortlistHref(props.ids));
+
 const label = computed(() =>
-    props.count > 0 ? `Shortlist, ${props.count} saved` : 'Shortlist',
+    count.value > 0 ? `Shortlist, ${count.value} saved` : 'Shortlist',
 );
 </script>
 
@@ -26,7 +30,7 @@ const label = computed(() =>
     <Tooltip>
         <TooltipTrigger as-child>
             <Link
-                href="/shortlist"
+                :href="href"
                 :aria-label="label"
                 :class="
                     cn(

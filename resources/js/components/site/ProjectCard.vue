@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { MapPin } from '@lucide/vue';
 import { computed } from 'vue';
+import CompareToggle from '@/components/site/compare/CompareToggle.vue';
 import ProjectCardFacts from '@/components/site/project-card/ProjectCardFacts.vue';
 import ProjectCardMedia from '@/components/site/project-card/ProjectCardMedia.vue';
 import ProjectCardPrice from '@/components/site/project-card/ProjectCardPrice.vue';
@@ -14,7 +15,8 @@ import type { ProjectCard } from '@/types/site';
 // (the name, stretched over the card); the heart is a separate button above
 // it. `featured` is an editorial card with the text over the photo, so it
 // fills its two grid columns ≥ 1280 (the parent sets the span) at the height
-// of its row. Compare (FR-SHORT-003) arrives in 8.3. No MOT-TILT (owner, 3.2).
+// of its row. `compare` (listing, area pages, shortlist) puts the FR-SHORT-003
+// checkbox where the price row's arrow was. No MOT-TILT (owner, 3.2).
 const props = withDefaults(
     defineProps<{
         project: ProjectCard;
@@ -22,12 +24,15 @@ const props = withDefaults(
         headingAs?: 'h2' | 'h3' | 'h4';
         /** The page's LCP image (listing: the first card). */
         priority?: boolean;
+        /** FR-SHORT-003 checkbox (not on `mini`). */
+        compare?: boolean;
         class?: string;
     }>(),
     {
         variant: 'default',
         headingAs: 'h3',
         priority: false,
+        compare: false,
         class: undefined,
     },
 );
@@ -70,6 +75,7 @@ const stretchedLink =
         <ShortlistHeart
             :project-id="project.id"
             :project-name="project.name"
+            :project-slug="project.slug"
             class="absolute top-3 right-3 z-(--z-raised) backdrop-blur-sm"
         />
 
@@ -98,11 +104,11 @@ const stretchedLink =
                 </component>
             </div>
             <ProjectCardFacts :project="project" tone="media" />
-            <ProjectCardPrice
-                :project="project"
-                tone="media"
-                class="max-w-xl"
-            />
+            <ProjectCardPrice :project="project" tone="media" class="max-w-xl">
+                <template v-if="compare" #action>
+                    <CompareToggle :project="project" tone="media" />
+                </template>
+            </ProjectCardPrice>
         </div>
     </article>
 
@@ -190,7 +196,11 @@ const stretchedLink =
                     :project="project"
                     :compact="mini"
                     class="mt-auto"
-                />
+                >
+                    <template v-if="compare && !mini" #action>
+                        <CompareToggle :project="project" />
+                    </template>
+                </ProjectCardPrice>
             </div>
         </div>
     </article>

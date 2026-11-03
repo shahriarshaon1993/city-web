@@ -8,6 +8,7 @@ import type { ProjectCard } from '@/types/site';
 // CMP-CARD-01 footer (DEC-46): hairline, then price-from only when the server
 // sent one (AC-PROJ-01), else the muted note. The arrow is decoration
 // (aria-hidden, not focusable): the card's only link stays the stretched name.
+// The `action` slot takes the arrow's place (the Compare checkbox, 8.3).
 const props = withDefaults(
     defineProps<{
         project: ProjectCard;
@@ -68,16 +69,18 @@ const media = computed(() => props.tone === 'media');
             {{ project.price_note ?? 'Price on request' }}
         </p>
 
-        <ArrowUpRight
-            :class="
-                cn(
-                    'card-arrow-icon mb-1 size-5 shrink-0',
-                    media
-                        ? 'text-white'
-                        : 'text-muted-foreground group-hover/card:text-primary',
-                )
-            "
-            aria-hidden="true"
-        />
+        <slot name="action">
+            <ArrowUpRight
+                :class="
+                    cn(
+                        'card-arrow-icon mb-1 size-5 shrink-0',
+                        media
+                            ? 'text-white'
+                            : 'text-muted-foreground group-hover/card:text-primary',
+                    )
+                "
+                aria-hidden="true"
+            />
+        </slot>
     </div>
 </template>
