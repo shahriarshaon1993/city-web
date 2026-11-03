@@ -7,6 +7,7 @@ import FormFooter from '@/components/forms/FormFooter.vue';
 import PersonFields from '@/components/forms/PersonFields.vue';
 import { buttonVariants } from '@/components/ui/button';
 import { useLeadForm } from '@/composables/useLeadForm';
+import { track } from '@/lib/analytics';
 import { accepted, email, minLength, phone, required } from '@/lib/forms/rules';
 import { notify } from '@/lib/toast';
 import type { FormProject } from '@/types/forms';
@@ -72,6 +73,7 @@ function submit(): void {
             }
 
             downloadUrl.value = url;
+            track('brochure_download', { project_slug: props.project.slug });
             notify.success('Your brochure download has started.');
             startDownload(url);
             await nextTick();

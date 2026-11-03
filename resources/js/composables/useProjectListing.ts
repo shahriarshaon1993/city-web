@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/vue3';
 import type { InjectionKey, Ref } from 'vue';
 import { inject, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { track } from '@/lib/analytics';
 import { emptyFilters, listingUrl, stateFromMeta } from '@/lib/listing';
 import type { ListingFacets, ListingMeta, ListingState } from '@/types/listing';
 
@@ -121,6 +122,16 @@ export function useProjectListing(source: {
         clearTimeout(typingTimer);
         typingTimer = undefined;
         Object.assign(state, patch);
+        const applied = Object.entries(patch).filter(([, value]) =>
+            Array.isArray(value) ? value.length > 0 : !!value,
+        );
+
+        if (applied.length > 0) {
+            track('filter_apply', {
+                filters: applied.map(([key]) => key).join(','),
+            });
+        }
+
         visit(urlFor({}), false);
     }
 

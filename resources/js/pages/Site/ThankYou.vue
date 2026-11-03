@@ -1,37 +1,152 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { Check } from '@lucide/vue';
+import { computed, onMounted } from 'vue';
+import BlockHeader from '@/components/blocks/BlockHeader.vue';
+import ProjectGrid from '@/components/blocks/ProjectGrid.vue';
+import SocialIcon from '@/components/site/SocialIcon.vue';
 import { Button } from '@/components/ui/button';
+import { trackLeadOnce } from '@/lib/analytics';
+import { whatsappUrl } from '@/lib/contact';
 import { home } from '@/routes';
 import { index as projects } from '@/routes/site/projects';
+import type { ThankYouProps } from '@/types/contact';
+import type { SiteShared } from '@/types/site';
 
-// PG-22 landing for the lead forms' redirect (FR-LEAD-005). 7.1 shows the
-// per-form confirmation only; 7.2 adds next steps, related projects,
-// WhatsApp and the `generate_lead` dataLayer push.
-defineProps<{
-    form: string;
-    title: string;
-    message: string;
-}>();
+// PG-22 / LAY-THANKS in the premium language (direction.md): left-aligned,
+// an overline with a thin check, a light H1, the confirmation, then three
+// hairline steps and the actions; project forms end with related projects on
+// greige. Only one coral invitation exists per view and it is not here:
+// "Back to the project" / "Explore our projects" is teal. `generate_lead`
+// (FR-LEAD-005) fires once per lead, from the one-request flash `lead`.
+const props = defineProps<ThankYouProps>();
+
+const site = computed(() => usePage<SiteShared>().props.site);
+const whatsapp = computed(() =>
+    site.value.contact.whatsapp
+        ? whatsappUrl(site.value.contact.whatsapp, props.whatsapp_text)
+        : null,
+);
+
+onMounted(() => {
+    if (props.lead) {
+        trackLeadOnce(props.lead.reference, {
+            lead_type: props.lead.lead_type,
+            project_slug: props.lead.project_slug,
+            form_location: props.lead.form_location,
+        });
+    }
+});
 </script>
 
 <template>
-    <div
-        class="mx-auto flex min-h-[60svh] max-w-content flex-col justify-center gap-8 px-4 py-16 sm:px-6 lg:px-8 lg:py-24 xl:px-10"
-    >
-        <div class="flex max-w-2xl flex-col gap-5">
-            <p class="text-overline text-primary uppercase">Request received</p>
-            <h1 class="text-h1 text-balance">{{ title }}</h1>
-            <p class="text-lead text-pretty text-muted-foreground">
-                {{ message }}
-            </p>
-        </div>
-        <div class="flex flex-wrap gap-3">
-            <Button as-child size="lg">
-                <Link :href="projects()">Explore our projects</Link>
-            </Button>
-            <Button as-child variant="outline" size="lg">
-                <Link :href="home()">Back to home</Link>
-            </Button>
-        </div>
+    <div>
+        <section
+            aria-labelledby="thanks-heading"
+            class="mx-auto max-w-content px-4 pt-12 pb-(--section-md) sm:px-6 lg:px-8 lg:pt-20 xl:px-10"
+        >
+            <div v-reveal.hero class="flex max-w-3xl flex-col gap-5">
+                <p
+                    data-hero-line
+                    class="flex items-center gap-2 text-overline text-primary uppercase"
+                >
+                    <Check class="size-4" aria-hidden="true" />
+                    Request received
+                </p>
+                <h1
+                    id="thanks-heading"
+                    data-hero-line
+                    class="text-h1 text-balance"
+                >
+                    {{ title }}
+                </h1>
+                <p
+                    data-hero-line
+                    class="max-w-prose text-lead text-pretty text-muted-foreground"
+                >
+                    {{ message }}
+                </p>
+                <div data-hero-line class="mt-3 flex flex-wrap gap-3">
+                    <Button v-if="project" as-child size="lg">
+                        <Link :href="project.url">
+                            Back to {{ project.name }}
+                        </Link>
+                    </Button>
+                    <Button v-else as-child size="lg">
+                        <Link :href="projects()">Explore our projects</Link>
+                    </Button>
+                    <Button
+                        v-if="whatsapp"
+                        as="a"
+                        :href="whatsapp"
+                        target="_blank"
+                        rel="noopener"
+                        variant="outline"
+                        size="lg"
+                    >
+                        <SocialIcon
+                            network="whatsapp"
+                            class="size-5 text-whatsapp"
+                        />
+                        WhatsApp us
+                        <span class="sr-only">(opens in a new tab)</span>
+                    </Button>
+                    <Button as-child variant="link" size="lg">
+                        <Link :href="home()" class="text-foreground">
+                            Back to home
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+
+            <div
+                class="mt-14 grid gap-x-8 gap-y-8 border-t border-border pt-10 lg:mt-20 lg:grid-cols-12 lg:pt-14 xl:gap-x-10"
+            >
+                <h2 class="text-h2 text-balance lg:col-span-4">
+                    What happens next
+                </h2>
+                <ol
+                    v-reveal.stagger
+                    class="grid gap-x-8 gap-y-8 sm:grid-cols-3 lg:col-span-8"
+                >
+                    <li
+                        v-for="(step, index) in steps"
+                        :key="step.title"
+                        class="flex flex-col gap-3"
+                    >
+                        <span
+                            class="tabular text-stat font-light text-primary"
+                            aria-hidden="true"
+                        >
+                            {{ String(index + 1).padStart(2, '0') }}
+                        </span>
+                        <h3 class="text-h4 text-balance">{{ step.title }}</h3>
+                        <p class="text-pretty text-muted-foreground">
+                            {{ step.text }}
+                        </p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section
+            v-if="related && related.projects.length > 0"
+            aria-labelledby="related-heading"
+            class="bg-surface-subtle py-(--section-md)"
+        >
+            <div class="mx-auto max-w-content px-4 sm:px-6 lg:px-8 xl:px-10">
+                <BlockHeader
+                    heading-tag="h2"
+                    heading-id="related-heading"
+                    :heading="related.heading"
+                    :view-all="{
+                        label: 'View all projects',
+                        url: projects().url,
+                        new_tab: false,
+                    }"
+                />
+                <ProjectGrid :projects="related.projects" />
+            </div>
+        </section>
     </div>
 </template>

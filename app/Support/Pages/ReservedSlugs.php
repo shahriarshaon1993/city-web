@@ -22,7 +22,7 @@ final class ReservedSlugs
     public const array APP = [
         'dashboard', 'settings', 'styleguide', 'register', 'logout', 'forgot-password',
         'reset-password', 'two-factor-challenge', 'confirm-password', 'email', 'user',
-        'demo', 'vendor', 'index.php', 'favicon.ico',
+        'demo', 'vendor', 'index.php', 'favicon.ico', 'newsletter',
     ];
 
     /**

@@ -28,6 +28,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Settings → Analytics (cms.md §8.2, SEO-ANA-001) until 12.1 moves it to the database.
+    'analytics' => [
+        'gtm_id' => env('ANALYTICS_GTM_ID'),
+        'ga4_id' => env('ANALYTICS_GA4_ID'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

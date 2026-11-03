@@ -13,6 +13,7 @@ import BottomSheet from '@/components/site/BottomSheet.vue';
 import SearchFields from '@/components/site/search/SearchFields.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { track } from '@/lib/analytics';
 import {
     emptySearchFilters,
     projectSearchSummary,
@@ -45,6 +46,10 @@ const processing = ref(false);
 const summary = computed(() => projectSearchSummary(filters, props.options));
 
 function submit(): void {
+    track('search', {
+        search_term: '',
+        filters: Object.values(filters).filter((value) => value !== '').length,
+    });
     router.visit(projectSearchUrl(filters, props.options), {
         onStart: () => {
             processing.value = true;

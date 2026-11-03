@@ -249,6 +249,8 @@ export type SiteInfo = {
         show_parent_company: boolean;
         newsletter_title: string;
         newsletter_text: string;
+        newsletter_success_title: string;
+        newsletter_success_text: string;
     };
 };
 
@@ -306,12 +308,31 @@ export type SiteShared = {
             smooth_scroll: boolean;
             hero_video_mobile: boolean;
         };
-        /** Stored choice, null until the visitor decides. */
+        /** Stored choice, null until the visitor decides (or after a version bump). */
         consent: {
             version: number;
             analytics: boolean;
             marketing: boolean;
         } | null;
+        /** Settings → Legal & cookies (CMP-COOKIE-01). */
+        cookies: {
+            enabled: boolean;
+            title: string;
+            text: string;
+            policy_url: string;
+            /** `consent_version`: a bump re-prompts. */
+            version: number;
+            categories: {
+                key: 'necessary' | 'analytics' | 'marketing';
+                label: string;
+                description: string;
+            }[];
+        };
+        /** Settings → Analytics (SEO-ANA-001); both null = nothing loads. */
+        analytics: {
+            gtm_id: string | null;
+            ga4_id: string | null;
+        };
     };
 };
 

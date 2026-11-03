@@ -2,6 +2,7 @@
 import { ArrowUpRight, Play } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 import ResponsiveImage from '@/components/site/ResponsiveImage.vue';
+import { currentProjectSlug, track } from '@/lib/analytics';
 import type { ProjectVideo } from '@/types/project';
 
 // CMP-VIDEO-01 facade: the 16:9 poster with a 72 px glass play button and
@@ -40,6 +41,7 @@ const tourHost = computed(() =>
 
 async function play(): Promise<void> {
     playing.value = true;
+    track('video_play', { project_slug: currentProjectSlug() });
     await nextTick();
     player.value?.focus();
 }

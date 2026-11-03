@@ -70,6 +70,9 @@ final class DemoContent
             // DEC-41: footer copy keys the spec leaves out.
             'newsletter_title' => 'Project updates in your inbox',
             'newsletter_text' => 'New launches, construction progress and offers. No spam, unsubscribe any time.',
+            // 7.2: inline success state of the newsletter form (TOAST-07, FR-LEAD newsletter).
+            'newsletter_success_title' => 'You are subscribed',
+            'newsletter_success_text' => 'Thank you. We will send you project updates from time to time; every email has an unsubscribe link.',
             'offices_heading' => 'Offices',
             'locations_heading' => 'Popular areas',
         ],
@@ -89,15 +92,74 @@ final class DemoContent
                 'contact' => 'I agree that Gemcon City Limited may reply to my message by phone, WhatsApp or email, as described in the privacy policy.',
                 'landowner' => 'I agree that Gemcon City Limited may contact me about my land and keep the documents I attach, as described in the privacy policy.',
                 'nrb' => 'I agree that Gemcon City Limited may contact me by phone, WhatsApp or email at the times I chose, as described in the privacy policy.',
+                'newsletter' => 'I agree to receive project updates from Gemcon City Limited by email, as described in the privacy policy.',
             ],
             'thank_you' => [
-                'project_inquiry' => ['title' => 'Thank you, we have your enquiry', 'message' => 'A member of our sales team will contact you shortly, in the time you chose.'],
-                'site_visit' => ['title' => 'Your site visit request is in', 'message' => 'We will call you to confirm the date and time of your visit.'],
-                'brochure_download' => ['title' => 'Your brochure is on its way', 'message' => 'The download should start at once. Our team may call to answer any questions.'],
-                'callback' => ['title' => 'We will call you back', 'message' => 'Our team will call you at the time you chose.'],
-                'contact' => ['title' => 'Thank you for your message', 'message' => 'We will reply by phone, WhatsApp or email within one working day.'],
-                'landowner' => ['title' => 'Thank you for your land details', 'message' => 'Our land team will review them and contact you within three working days.'],
-                'nrb' => ['title' => 'Thank you, we will be in touch', 'message' => 'Our NRB desk will contact you at the time you chose, in Bangladesh time.'],
+                'project_inquiry' => ['title' => 'Thank you, we have your enquiry', 'message' => 'A member of our sales team will contact you shortly, in the time you chose.', 'steps' => [
+                    ['title' => 'We read your enquiry', 'text' => 'A sales advisor reviews the project and the details you shared.'],
+                    ['title' => 'We call you', 'text' => 'You hear from us at the contact time you chose, usually within one working day.'],
+                    ['title' => 'You decide at your pace', 'text' => 'Ask for floor plans, a price sheet or a site visit; there is no obligation.'],
+                ]],
+                'site_visit' => ['title' => 'Your site visit request is in', 'message' => 'We will call you to confirm the date and time of your visit.', 'steps' => [
+                    ['title' => 'We confirm your slot', 'text' => 'Our team calls to confirm the date and time you asked for.'],
+                    ['title' => 'You visit the site', 'text' => 'A sales advisor shows you the site, the model unit and the plans.'],
+                    ['title' => 'Questions answered on the spot', 'text' => 'Bring your family; we can go through payment plans and next steps.'],
+                ]],
+                'brochure_download' => ['title' => 'Your brochure is on its way', 'message' => 'The download should start at once. Our team may call to answer any questions.', 'steps' => [
+                    ['title' => 'Your brochure opens', 'text' => 'If the download did not start, use the button on the project page.'],
+                    ['title' => 'Take your time', 'text' => 'The brochure has plans, specifications and the project timeline.'],
+                    ['title' => 'Talk to us when ready', 'text' => 'A sales advisor may call to answer any questions.'],
+                ]],
+                'callback' => ['title' => 'We will call you back', 'message' => 'Our team will call you at the time you chose.', 'steps' => [
+                    ['title' => 'We note your request', 'text' => 'Your number and preferred time go straight to our sales desk.'],
+                    ['title' => 'We call you back', 'text' => 'Expect a call at the time you chose, from our hotline number.'],
+                    ['title' => 'Talk it through', 'text' => 'Ask anything about projects, prices or site visits.'],
+                ]],
+                'contact' => ['title' => 'Thank you for your message', 'message' => 'We will reply by phone, WhatsApp or email within one working day.', 'steps' => [
+                    ['title' => 'We read your message', 'text' => 'It goes to the team that handles your subject.'],
+                    ['title' => 'We reply', 'text' => 'By phone, WhatsApp or email, within one working day.'],
+                    ['title' => 'We follow up', 'text' => 'If we need more detail we will ask, and keep you posted.'],
+                ]],
+                'landowner' => ['title' => 'Thank you for your land details', 'message' => 'Our land team will review them and contact you within three working days.', 'steps' => [
+                    ['title' => 'We review your land details', 'text' => 'Our land team checks the location, size and documents you shared.'],
+                    ['title' => 'We call you', 'text' => 'Within three working days, to discuss the plot and next steps.'],
+                    ['title' => 'A site visit, if suitable', 'text' => 'We inspect the land and outline a joint-venture or purchase proposal.'],
+                ]],
+                'nrb' => ['title' => 'Thank you, we will be in touch', 'message' => 'Our NRB desk will contact you at the time you chose, in Bangladesh time.', 'steps' => [
+                    ['title' => 'We note your request', 'text' => 'Your details go to our NRB desk.'],
+                    ['title' => 'We call at your time', 'text' => 'At the hour you chose, in Bangladesh time, by phone or WhatsApp.'],
+                    ['title' => 'We guide you remotely', 'text' => 'Project selection, bookings and paperwork can all be handled from abroad.'],
+                ]],
+            ],
+            // PG-22 WhatsApp button (FR-LEAD-013 wording); `{project}` is dropped when the form has none.
+            'thank_you_whatsapp' => 'Hi, I just contacted Gemcon City through the website.',
+            'thank_you_whatsapp_project' => 'Hi, I just contacted Gemcon City through the website about {project}.',
+            'thank_you_related_heading' => 'You may also like',
+        ],
+        // PG-17 copy (LAY-CONTACT); the contact details themselves are Settings → Contact / Social and the offices.
+        'contact_page' => [
+            'title' => 'Contact us',
+            'description' => 'Call, message or visit Gemcon City Limited. Opening hours, offices and a form for questions about projects, site visits and after-sales.',
+            'intro' => 'Questions about a project, a site visit or your booking? Write to us, call the hotline or visit a sales lounge. We reply within one working day.',
+            'form_heading' => 'Send us a message',
+            'form_intro' => 'Tell us how we can help and which number suits you best.',
+            'details_heading' => 'Talk to us directly',
+            'social_heading' => 'Follow our progress',
+            'offices_heading' => 'Visit us',
+            'whatsapp_text' => "Hi, I'd like to speak to the Gemcon City sales team.",
+            'whatsapp_text_project' => "Hi, I'd like to speak to the Gemcon City sales team about {project}.",
+        ],
+        // Settings → Legal & cookies (cms.md §8.2, NFR-PRIV-01): bump `consent_version` to re-prompt everyone.
+        'legal' => [
+            'cookie_banner_enabled' => true,
+            'banner_title' => 'Your privacy choices',
+            'banner_text' => 'We use essential cookies to run this site. With your permission we also use analytics cookies to understand what is useful, and marketing cookies to measure our campaigns.',
+            'policy_link' => '/privacy-policy',
+            'consent_version' => 1,
+            'categories' => [
+                ['key' => 'necessary', 'label' => 'Essential', 'description' => 'Keep the site working: security, your saved projects and this choice. Always on.'],
+                ['key' => 'analytics', 'label' => 'Analytics', 'description' => 'Anonymous statistics about which pages and projects are useful, so we can improve them.'],
+                ['key' => 'marketing', 'label' => 'Marketing', 'description' => 'Measure whether our adverts lead to enquiries. No data is sold.'],
             ],
         ],
         'seo' => [
@@ -325,6 +387,8 @@ final class DemoContent
                 'show_parent_company' => $footer['show_parent_company'],
                 'newsletter_title' => $footer['newsletter_title'],
                 'newsletter_text' => $footer['newsletter_text'],
+                'newsletter_success_title' => $footer['newsletter_success_title'],
+                'newsletter_success_text' => $footer['newsletter_success_text'],
             ],
         ];
     }
@@ -401,6 +465,42 @@ final class DemoContent
             'smooth_scroll' => (bool) $motion['smooth_scroll_enabled'],
             'hero_video_mobile' => (bool) $motion['hero_video_mobile'],
         ];
+    }
+
+    /**
+     * `ui.cookies` (Settings → Legal & cookies, CMP-COOKIE-01).
+     *
+     * @return array{enabled: bool, title: string, text: string, policy_url: string, version: int, categories: list<array{key: string, label: string, description: string}>}
+     */
+    public static function cookies(): array
+    {
+        $legal = self::settings('legal');
+
+        return [
+            'enabled' => (bool) $legal['cookie_banner_enabled'],
+            'title' => (string) $legal['banner_title'],
+            'text' => (string) $legal['banner_text'],
+            'policy_url' => (string) $legal['policy_link'],
+            'version' => (int) $legal['consent_version'],
+            'categories' => $legal['categories'],
+        ];
+    }
+
+    /**
+     * `ui.analytics` (Settings → Analytics, SEO-ANA-001): public container /
+     * measurement IDs only. Both null means nothing ever loads. When both are
+     * set GA4 loads through GTM, so only the GTM ID is sent (cms.md §8.2).
+     *
+     * @return array{gtm_id: string|null, ga4_id: string|null}
+     */
+    public static function analytics(): array
+    {
+        $gtm = config('services.analytics.gtm_id');
+        $ga4 = config('services.analytics.ga4_id');
+        $gtm = is_string($gtm) && preg_match('/^GTM-[A-Z0-9]{6,8}$/', $gtm) === 1 ? $gtm : null;
+        $ga4 = is_string($ga4) && preg_match('/^G-[A-Z0-9]{8,12}$/', $ga4) === 1 ? $ga4 : null;
+
+        return ['gtm_id' => $gtm, 'ga4_id' => $gtm === null ? $ga4 : null];
     }
 
     /**

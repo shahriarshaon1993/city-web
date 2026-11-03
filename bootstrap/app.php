@@ -23,7 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global: runs before routing, so 404s and redirects are covered too (SEO-TEC-002, SEO-TEC-010).
         $middleware->append([AddNoindexHeader::class, NormalizeUrl::class]);
 
-        $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+        // `gc_consent` is written by the browser (cookie banner, NFR-PRIV-01) and read in plain text.
+        $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'gc_consent']);
 
         // SEO-ANA-006: error beacons carry no token; the endpoint only writes to the log.
         $middleware->preventRequestForgery(except: ['internal/client-errors']);

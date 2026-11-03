@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Consent\ConsentCookie;
 use App\Support\Demo\DemoContent;
 use App\Support\Forms\FormOptions;
 use App\Support\Seo\SeoData;
@@ -123,8 +124,11 @@ class HandleInertiaRequests extends Middleware
                 ->toArray($request),
             'ui' => [
                 'motion' => Inertia::once(fn (): array => DemoContent::motion()),
-                // Read from the consent cookie in 7.2.
-                'consent' => null,
+                // CMP-COOKIE-01: the stored choice (null until decided or after a version bump), the
+                // banner settings and the analytics IDs (SEO-ANA-001). The browser owns the cookie.
+                'consent' => fn (): ?array => ConsentCookie::read($request, DemoContent::cookies()['version']),
+                'cookies' => Inertia::once(fn (): array => DemoContent::cookies()),
+                'analytics' => Inertia::once(fn (): array => DemoContent::analytics()),
             ],
         ];
     }

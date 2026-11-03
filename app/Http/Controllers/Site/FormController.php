@@ -26,6 +26,13 @@ class FormController extends Controller
             return Inertia::flash('download', ['url' => $lead['download_url']])->back();
         }
 
-        return redirect()->route('site.thank-you', ['form' => $type->slug()]);
+        // FR-LEAD-005: what `generate_lead` needs travels with the redirect (one request),
+        // so a reload of the thank-you page cannot count the lead twice.
+        return redirect()->route('site.thank-you', ['form' => $type->slug()])->with('lead', [
+            'reference' => $lead['reference'],
+            'lead_type' => $type->value,
+            'project_slug' => $lead['project'],
+            'form_location' => $lead['form_location'],
+        ]);
     }
 }

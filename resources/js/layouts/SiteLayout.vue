@@ -2,6 +2,8 @@
 import { usePage } from '@inertiajs/vue3';
 import { useMediaQuery } from '@vueuse/core';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import ConsentBanner from '@/components/site/consent/ConsentBanner.vue';
+import ConsentPreferences from '@/components/site/consent/ConsentPreferences.vue';
 import MobileContactBar from '@/components/site/MobileContactBar.vue';
 import CallbackDialog from '@/components/site/forms/CallbackDialog.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
@@ -10,6 +12,8 @@ import SiteFooter from '@/components/site/footer/SiteFooter.vue';
 import SiteHeader from '@/components/site/header/SiteHeader.vue';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { useAnalytics } from '@/composables/useAnalytics';
+import { useConsent } from '@/composables/useConsent';
 import { useNavigationFeedback } from '@/composables/useNavigationFeedback';
 import { captureAttribution } from '@/lib/forms/attribution';
 import { startMotion, stopMotion } from '@/motion/bridge';
@@ -20,6 +24,10 @@ import type { SitePageProps } from '@/types/site';
 // (app.ts): header state survives navigation. Pages render inside <main>
 // and must not add their own; breadcrumbs are rendered by the pages.
 const page = usePage<SitePageProps>();
+
+// SEO-ANA-001…003: consent defaults, virtual page views, contact clicks.
+useAnalytics();
+const consent = useConsent();
 
 const overHero = computed(
     () =>
@@ -44,6 +52,7 @@ const motionOptions = () => ({
 onMounted(() => {
     // FR-LEAD-001: remember the landing page's UTM values for the lead forms.
     captureAttribution();
+    consent.markMounted();
     startMotion(motionOptions());
 });
 
@@ -68,6 +77,7 @@ const toastOffset = computed(() =>
         <div class="flex min-h-svh flex-col">
             <SeoHead />
             <SkipLink />
+            <ConsentBanner />
             <SiteHeader :over-hero="overHero" />
             <main
                 id="content"
@@ -84,6 +94,7 @@ const toastOffset = computed(() =>
             <SiteFooter />
             <MobileContactBar v-model:shown="barShown" />
             <CallbackDialog />
+            <ConsentPreferences />
             <p class="sr-only" aria-live="polite" aria-atomic="true">
                 {{ announcement }}
             </p>

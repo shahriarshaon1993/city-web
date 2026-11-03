@@ -25,7 +25,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 6.2  | Content blocks II (team, FAQ, gallery, video, awards, locations, offices)  | 6.1, 5.1       | ✅     |
 | 6.3  | Builder pages, legal pages, leadership, custom pages                       | 6.2            | ✅     |
 | 7.1  | Form system & the seven lead forms                                         | 6.3, 4.3       | ✅     |
-| 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ⬜     |
+| 7.2  | Contact, thank-you, newsletter, consent banner, analytics layer            | 7.1            | ✅     |
 | 8.1  | News list, archives & article                                              | 7.2            | ⬜     |
 | 8.2  | Careers, FAQ page, site search                                             | 8.1            | ⬜     |
 | 8.3  | Shortlist & compare                                                        | 8.2            | ⬜     |
@@ -386,6 +386,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 7.1 · **Read:** spec/pages.md PG-17, PG-22; design/layouts.md LAY-CONTACT, LAY-THANKS; design/components.md CMP-COOKIE-01, CMP-TOAST-01; spec/performance-a11y.md SEO-ANA-001..004, SEO-PERF-013; spec/cms.md §8.2 (Legal & cookies, Forms, Analytics groups); spec/social.md FR-SOC-005; spec/nfr-ops.md NFR-PRIV-01.
 **Build:** contact page (form, contact card, offices, social); thank-you page per form (copy from demo settings, `generate_lead` dataLayer push, next steps, WhatsApp, related projects); newsletter inline success (footer + article); consent banner + preferences dialog (equal-weight buttons, Consent Mode v2 defaults denied, version re-prompt); `lib/analytics.ts` (dataLayer events of SEO-ANA-004, virtual `page_view` on navigate); GTM/GA4 loader only after consent + `load` and only when an ID is configured.
 **Test:** contact submit → thank-you, console `dataLayer` shows `generate_lead` with the right fields; banner choice remembered, reopened from the footer link; no googletagmanager request without consent or ID; newsletter success replaces the form.
+
+**Done notes (2026-11-03):**
+- Server: `ContactController` (`/contact`, `?project=&type=` prefill), `ThankYouController` (steps, related projects, `lead` from a one-request session flash set by `FormController`; carries a ULID `reference` from `SubmitLead`), `Actions/Newsletter/SubscribeToNewsletter` + `NewsletterRequest` + `NewsletterController` (`POST /newsletter`, stores nothing until 15.1), `Support/Consent/ConsentCookie`. Check script: `docs/checks/7.2-contact-thankyou.php`.
+- Consent: cookie `gc_consent` (JSON `{version, analytics, marketing}`, 12 months, excluded from encryption) written by the browser, read by the server into `ui.consent`; an older `consent_version` counts as no consent. Copy lives in `DemoContent` groups `legal` and `contact_page`; `ui.cookies` / `ui.analytics` are once-props.
+- Analytics: `lib/analytics.ts` (SEO-ANA-004 events, Consent Mode v2 default denied, GTM or bare GA4 loaded only with an ID + granted consent + window `load`), `composables/useAnalytics.ts` (in `SiteLayout`: first + per-visit `page_view`, delegated `tel:` / wa.me click tracking). IDs from `.env` `ANALYTICS_GTM_ID` / `ANALYTICS_GA4_ID` (`config/services.php`) until 12.1.
+- Client: `consent/{ConsentBanner,ConsentPreferences}.vue`, `useConsent`, `NewsletterForm.vue` (footer; 8.1 reuses it with `location="article"`), `contact/ContactDetails.vue`, `pages/Site/{Contact,ThankYou}.vue`. Footer has a "Cookie settings" button; the mobile contact bar hides while the banner is open.
+- Events wired at the source: `generate_lead`, `site_visit_request`, `brochure_download`, `map_open`, `video_play`, `gallery_open`, `search` (hero widget), `filter_apply`. **Not yet wired:** `shortlist_add` (9.x) and `compare_open` (8.3).
+- Later phases must know: GTM/GA4 must not send their own automatic page view (the site pushes one per visit); 12.1 moves the IDs into settings; 15.1 stores newsletter and leads; `newsletter` is a reserved slug. Visual patterns: DEC-65.
 
 ## Phase 8 — Remaining public pages
 

@@ -1,6 +1,7 @@
 import type PhotoSwipe from 'photoswipe';
 import type { SlideData } from 'photoswipe';
 import { ref } from 'vue';
+import { currentProjectSlug, track } from '@/lib/analytics';
 import { usePauseSmoothScroll } from '@/motion/bridge';
 import { isMotionReduced } from '@/motion/preference';
 import type { MediaImage } from '@/types/site';
@@ -168,6 +169,7 @@ export function useLightbox() {
         }
 
         isOpen.value = true;
+        track('gallery_open', { project_slug: currentProjectSlug() });
 
         let PhotoSwipeClass: PhotoSwipeModule['default'];
 

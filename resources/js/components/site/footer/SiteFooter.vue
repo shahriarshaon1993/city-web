@@ -4,13 +4,12 @@ import { computed, useId } from 'vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
 import FooterColumn from '@/components/site/footer/FooterColumn.vue';
 import MotionToggle from '@/components/site/footer/MotionToggle.vue';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import NewsletterForm from '@/components/site/NewsletterForm.vue';
+import { buttonVariants } from '@/components/ui/button';
 import { useCallbackDialog } from '@/composables/useCallbackDialog';
+import { useConsent } from '@/composables/useConsent';
 import { socialLinks } from '@/lib/contact';
 import { formatPhone } from '@/lib/format';
-import { notify } from '@/lib/toast';
 import { home } from '@/routes';
 import type { SiteShared } from '@/types/site';
 
@@ -25,21 +24,16 @@ const menus = computed(() => page.props.menus);
 const social = computed(() => socialLinks(site.value.social));
 
 const callback = useCallbackDialog();
+const { openPreferences } = useConsent();
 
 const ids = {
     newsletter: useId(),
-    email: useId(),
     offices: useId(),
     locations: useId(),
 };
 
 function isCurrent(url: string): boolean {
     return page.url.split(/[?#]/)[0] === url;
-}
-
-// The newsletter submit (FR-LEAD newsletter) is wired in 7.2.
-function subscribe(): void {
-    notify.info('Newsletter sign-up opens soon.');
 }
 
 const linkClass =
@@ -84,28 +78,7 @@ const linkClass =
                     <p class="text-muted-foreground">
                         {{ site.footer.newsletter_text }}
                     </p>
-                    <form
-                        class="mt-1 flex flex-col gap-2"
-                        @submit.prevent="subscribe"
-                    >
-                        <Label :for="ids.email">Email address</Label>
-                        <div class="flex flex-col gap-3 sm:flex-row">
-                            <Input
-                                :id="ids.email"
-                                type="email"
-                                name="email"
-                                autocomplete="email"
-                                inputmode="email"
-                                maxlength="255"
-                                required
-                                class="h-12 sm:flex-1"
-                            />
-                            <!-- Same 48 px height as the email field. -->
-                            <Button type="submit" size="lg" class="h-12">
-                                Subscribe
-                            </Button>
-                        </div>
-                    </form>
+                    <NewsletterForm location="footer" />
                 </section>
             </div>
 
@@ -216,7 +189,7 @@ const linkClass =
                 <div
                     class="flex flex-col gap-x-6 gap-y-2 lg:flex-row lg:flex-wrap lg:items-center"
                 >
-                    <nav v-if="menus.legal.length > 0" aria-label="Legal">
+                    <nav aria-label="Legal">
                         <ul class="flex flex-wrap gap-x-6">
                             <li v-for="item in menus.legal" :key="item.id">
                                 <Link
@@ -230,6 +203,19 @@ const linkClass =
                                         item.label
                                     }}</span>
                                 </Link>
+                            </li>
+                            <li>
+                                <!-- CMP-COOKIE-01: the choice can be changed at any time. -->
+                                <button
+                                    type="button"
+                                    aria-haspopup="dialog"
+                                    :class="linkClass"
+                                    @click="openPreferences()"
+                                >
+                                    <span class="link-line"
+                                        >Cookie settings</span
+                                    >
+                                </button>
                             </li>
                         </ul>
                     </nav>

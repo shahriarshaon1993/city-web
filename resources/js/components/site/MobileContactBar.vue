@@ -4,6 +4,7 @@ import { Phone } from '@lucide/vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import SocialIcon from '@/components/site/SocialIcon.vue';
 import { Button } from '@/components/ui/button';
+import { useConsent } from '@/composables/useConsent';
 import { useContactBarOverride } from '@/composables/useContactBar';
 import { whatsappUrl } from '@/lib/contact';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,8 @@ import type { SiteShared } from '@/types/site';
 const page = usePage<SiteShared>();
 const site = computed(() => page.props.site);
 const override = useContactBarOverride();
+// The cookie card (CMP-COOKIE-01) takes the bottom edge until the visitor chooses.
+const { bannerOpen } = useConsent();
 
 const whatsapp = computed(() => {
     const number = override.value?.whatsapp ?? site.value.contact.whatsapp;
@@ -39,6 +42,7 @@ const fieldFocused = ref(false);
 const visible = computed(
     () =>
         mounted.value &&
+        !bannerOpen.value &&
         pastHero.value &&
         !footerVisible.value &&
         !fieldFocused.value,

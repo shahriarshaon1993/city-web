@@ -2,6 +2,7 @@
 import { ArrowUpRight, MapPin } from '@lucide/vue';
 import { computed, nextTick, ref, useId, useTemplateRef } from 'vue';
 import { Button } from '@/components/ui/button';
+import { track } from '@/lib/analytics';
 import { googleMapsEmbedUrl, googleMapsUrl } from '@/lib/maps';
 
 // CMP-MAP-02 / FR-LOC-007: a static map facade — greige box with the 60°
@@ -26,6 +27,7 @@ const point = computed(() => ({ lat: props.lat, lng: props.lng }));
 
 async function load(): Promise<void> {
     loaded.value = true;
+    track('map_open', { location: props.place });
     await nextTick();
     frame.value?.focus();
 }

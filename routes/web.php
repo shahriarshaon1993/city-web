@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Site\ClientErrorController;
+use App\Http\Controllers\Site\ContactController;
 use App\Http\Controllers\Site\FormController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\LocationController;
+use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
@@ -47,14 +49,21 @@ Route::get('locations/{area}/{segment}', [LocationController::class, 'segment'])
     ->whereIn('segment', ['residential', 'commercial', 'mixed-use', 'mixed_use', 'land'])
     ->name('site.locations.segment');
 
-// FR-LEAD workflow (7.1): the seven lead forms post here; PG-22 is a plain
-// confirmation until 7.2.
+// PG-17 (7.2).
+Route::get('contact', ContactController::class)->name('site.contact');
+
+// FR-LEAD workflow (7.1, 7.2): the seven lead forms post here and land on PG-22.
 Route::post('forms/{form}', [FormController::class, 'store'])
     ->whereIn('form', FormType::slugs())
     ->name('site.forms.store');
 Route::get('thank-you/{form}', ThankYouController::class)
     ->whereIn('form', FormType::slugs())
     ->name('site.thank-you');
+
+// Footer / article newsletter sign-up (7.2); the form shows its own success state.
+Route::post('newsletter', [NewsletterController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('site.newsletter.store');
 
 Route::post('internal/client-errors', ClientErrorController::class)
     ->middleware('throttle:client-errors')
