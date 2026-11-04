@@ -69,7 +69,7 @@ function show(index: number): void {
             >
                 <button
                     type="button"
-                    class="media-card block w-full overflow-hidden rounded-xl outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                    class="media-card block w-full overflow-hidden rounded-xl outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring focus-visible:outline-solid"
                     :aria-label="label(index)"
                     @click="show(index)"
                 >

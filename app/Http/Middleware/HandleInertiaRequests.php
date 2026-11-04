@@ -49,11 +49,15 @@ class HandleInertiaRequests extends Middleware
     /**
      * Handle the incoming request.
      *
-     * The admin is never server-side rendered (spec/admin.md §10).
+     * The admin is never server-side rendered (spec/admin.md §10), and nothing
+     * is when INERTIA_SSR_ENABLED is off (hosting without Node). disableSsr()
+     * replaces the config check, so the flag is folded in here.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Inertia::disableSsr(fn (): bool => self::isAdminRequest($request));
+        Inertia::disableSsr(
+            fn (): bool => ! config('inertia.ssr.enabled') || self::isAdminRequest($request),
+        );
 
         return parent::handle($request, $next);
     }

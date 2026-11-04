@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Heart } from '@lucide/vue';
+import { useMounted } from '@vueuse/core';
 import { computed } from 'vue';
 import { useShortlist } from '@/composables/useShortlist';
 import { cn } from '@/lib/utils';
 
 // FR-SHORT-001 heart, a toggle button beside (never inside) the card link.
 // Rendered only once storage proved usable (FR-SHORT-005), so it is absent
-// from the server HTML and without JavaScript.
+// from the server HTML and without JavaScript. `mounted` keeps the first
+// client render equal to the server's even when this card hydrates late (lazy
+// blocks), after the layout already filled the shared store.
 const props = withDefaults(
     defineProps<{
         projectId: number;
@@ -21,12 +24,13 @@ const props = withDefaults(
 );
 
 const shortlist = useShortlist();
+const mounted = useMounted();
 const saved = computed(() => shortlist.has(props.projectId));
 </script>
 
 <template>
     <button
-        v-if="shortlist.available.value"
+        v-if="mounted && shortlist.available.value"
         type="button"
         :aria-label="`Add ${projectName} to shortlist`"
         :aria-pressed="saved"

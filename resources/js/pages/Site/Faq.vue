@@ -157,7 +157,7 @@ const topics = computed(() => [
                 </div>
             </header>
 
-            <div class="grid gap-x-8 lg:grid-cols-12 xl:gap-x-10">
+            <div class="grid grid-cols-1 gap-x-8 lg:grid-cols-12 xl:gap-x-10">
                 <nav
                     aria-labelledby="faq-topics-label"
                     class="border-b border-border py-1 lg:sticky lg:top-28 lg:col-span-3 lg:self-start lg:border-b-0 lg:pt-(--section-sm)"

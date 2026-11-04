@@ -67,7 +67,7 @@ async function play(): Promise<void> {
                 />
                 <button
                     type="button"
-                    class="absolute inset-0 flex items-end gap-4 p-5 text-left text-white outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white sm:p-8"
+                    class="absolute inset-0 flex items-end gap-4 p-5 text-left text-white outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-white focus-visible:outline-solid sm:p-8"
                     :aria-label="`Play video: ${video.title}`"
                     @click="play"
                 >

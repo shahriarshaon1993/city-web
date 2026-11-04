@@ -321,7 +321,7 @@ function openEnquiry(): void {
                             shape="project-card"
                         />
                     </div>
-                    <noscript>
+                    <noscript data-allow-mismatch="children">
                         <p class="mt-8 text-sm text-muted-foreground">
                             {{ copy.shortlist_empty_body }}
                         </p>

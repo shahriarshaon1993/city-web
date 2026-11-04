@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { useMediaQuery } from '@vueuse/core';
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import {
+    computed,
+    defineAsyncComponent,
+    onMounted,
+    ref,
+    useTemplateRef,
+    watch,
+} from 'vue';
 import CompareBar from '@/components/site/compare/CompareBar.vue';
 import ConsentBanner from '@/components/site/consent/ConsentBanner.vue';
-import ConsentPreferences from '@/components/site/consent/ConsentPreferences.vue';
 import MobileContactBar from '@/components/site/MobileContactBar.vue';
-import CallbackDialog from '@/components/site/forms/CallbackDialog.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
 import SkipLink from '@/components/site/SkipLink.vue';
 import SiteFooter from '@/components/site/footer/SiteFooter.vue';
 import SiteHeader from '@/components/site/header/SiteHeader.vue';
-import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useAnalytics } from '@/composables/useAnalytics';
+import { useCallbackDialog } from '@/composables/useCallbackDialog';
 import { useConsent } from '@/composables/useConsent';
 import { useNavigationFeedback } from '@/composables/useNavigationFeedback';
 import { captureAttribution } from '@/lib/forms/attribution';
@@ -29,6 +34,30 @@ const page = usePage<SitePageProps>();
 // SEO-ANA-001…003: consent defaults, virtual page views, contact clicks.
 useAnalytics();
 const consent = useConsent();
+
+// SEO-PERF-004: client-only, on-demand UI stays out of the initial route. The
+// two dialogs (forms, switches, selects) load when first opened, the toaster
+// after hydration; none of them renders anything before then.
+const CallbackDialog = defineAsyncComponent(
+    () => import('@/components/site/forms/CallbackDialog.vue'),
+);
+const ConsentPreferences = defineAsyncComponent(
+    () => import('@/components/site/consent/ConsentPreferences.vue'),
+);
+const Toaster = defineAsyncComponent(() =>
+    import('@/components/ui/sonner').then((module) => module.Toaster),
+);
+const callbackDialog = useCallbackDialog();
+const callbackLoaded = ref(false);
+const preferencesLoaded = ref(false);
+const toasterLoaded = ref(false);
+
+watch(callbackDialog.isOpen, (open) => {
+    callbackLoaded.value ||= open;
+});
+watch(consent.preferencesOpen, (open) => {
+    preferencesLoaded.value ||= open;
+});
 
 const overHero = computed(
     () =>
@@ -54,6 +83,7 @@ onMounted(() => {
     // FR-LEAD-001: remember the landing page's UTM values for the lead forms.
     captureAttribution();
     consent.markMounted();
+    toasterLoaded.value = true;
     startMotion(motionOptions());
 });
 
@@ -104,12 +134,12 @@ const toastOffset = computed(() => {
                 v-model:shown="compareShown"
                 :lifted="barShown && belowLg"
             />
-            <CallbackDialog />
-            <ConsentPreferences />
+            <CallbackDialog v-if="callbackLoaded" />
+            <ConsentPreferences v-if="preferencesLoaded" />
             <p class="sr-only" aria-live="polite" aria-atomic="true">
                 {{ announcement }}
             </p>
-            <Toaster :offset="toastOffset" />
+            <Toaster v-if="toasterLoaded" :offset="toastOffset" />
         </div>
     </TooltipProvider>
 </template>

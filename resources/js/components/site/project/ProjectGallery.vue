@@ -77,7 +77,7 @@ function label(photo: GalleryPhoto, index: number): string {
                 >
                     <button
                         type="button"
-                        class="media-card relative block size-full overflow-hidden outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white md:rounded-xl"
+                        class="media-card relative block size-full overflow-hidden outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-white focus-visible:outline-solid md:rounded-xl"
                         :aria-label="label(photo, index)"
                         @click="emit('open', index)"
                     >

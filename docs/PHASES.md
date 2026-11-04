@@ -29,7 +29,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 8.1  | News list, archives & article                                              | 7.2            | ✅     |
 | 8.2  | Careers, FAQ page, site search                                             | 8.1            | ✅     |
 | 8.3  | Shortlist & compare                                                        | 8.2            | ✅     |
-| 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ⬜     |
+| 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ✅     |
 | 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ⬜     |
 | 10.2 | Admin shell, navigation, profile                                           | 10.1           | ⬜     |
 | 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ⬜     |
@@ -446,6 +446,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 8.3, 3.2 · **Read:** design/patterns.md §10, §11; spec/performance-a11y.md SEO-PERF-001..008, SEO-A11Y-001..007; spec/seo.md SEO-ONP-003, SEO-ONP-004; spec/nfr-ops.md NFR-BRW-01, NFR-DEV-01, DEP-ENV-02; spec/decisions.md OPEN-02.
 **Build:** sweep at the 9 widths of NFR-DEV-01; heading audit per page type; alt audit; keyboard-only pass; Lighthouse on PG-01/02/04/06/14 (production build); bundle budgets measured from build output (JS ≤ 130 KB initial, CSS ≤ 45 KB gzip); `npm run build:ssr` + a local SSR render of one page per type (SEO-REN-08 check). Review build for the client on staging (basic auth, manual upload if no SSH, OPEN-02). Client feedback recorded as DEC entries; fixes as `fix 9.1`.
 **Test:** Lighthouse ≥ SEO-PERF-003 values (no snapshots yet), Accessibility ≥ 95, SEO 100; axe DevTools: 0 serious/critical on every page type; client sign-off.
+
+**Done notes (2026-11-04):**
+- Audits (static crawl of 297 URLs, 25 page types × 9 widths in headless Chrome): headings, alt text, accessible names and one `fetchpriority` per page are clean; no overflow, console error or failed request left. Lighthouse and axe stay manual (owner runs them).
+- Initial JS cut from 189 to 165 KB gzip by lazy-loading `CallbackDialog`, `ConsentPreferences` and `Toaster` in `SiteLayout` and `vue-sonner` inside `lib/toast.ts` (`notify.*` now returns `void`). CSS ≈ 33 KB. Budgets: DEC-71.
+- Hydration: `ShortlistHeart` / `CompareToggle` gate on `useMounted()` (lazy blocks hydrate after the layout filled the stores); `Shortlist.vue` noscript has `data-allow-mismatch`.
+- Focus: gallery tiles and the video poster use `focus-visible:outline-solid` (Tailwind 4: `outline-none` kills `outline-2`). `ConsentBanner` publishes its height as `--bottom-obstruction`; `html` `scroll-padding-bottom` reads it (WCAG 2.4.11).
+- `/faq`: grid wrapper `grid-cols-1` so the topics scroller no longer widens the page at 390 px.
+- `INERTIA_SSR_ENABLED` (config/inertia.php, `.env.example`) feeds `Inertia::disableSsr()` in `HandleInertiaRequests`. Shared hosting: `false`. Staging `.env`: `APP_ENV=staging`, file session/cache; upload `public/demo` too (DEC-46).
+- Open for later: footer CLS up to 0.2 on `/shortlist` and `/compare` at 768–1024 px; 20 px checkboxes (label extends the hit area); dev-only `v-magnetic` warning; text over photos needs an axe/visual check.
 
 ---
 

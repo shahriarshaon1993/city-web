@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useId } from 'vue';
+import { useElementSize } from '@vueuse/core';
+import { onBeforeUnmount, useId, useTemplateRef, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useConsent } from '@/composables/useConsent';
 
@@ -13,6 +14,22 @@ const { bannerOpen, cookies, acceptAll, rejectNonEssential, openPreferences } =
     useConsent();
 
 const titleId = useId();
+
+// WCAG 2.4.11: the card floats over content, so keyboard focus must scroll
+// clear of it. The root's scroll-padding-bottom reads this variable (app.css).
+const card = useTemplateRef<HTMLElement>('card');
+const { height } = useElementSize(card, undefined, { box: 'border-box' });
+
+watch(height, (value) => {
+    document.documentElement.style.setProperty(
+        '--bottom-obstruction',
+        value > 0 ? `${value}px` : '0px',
+    );
+});
+
+onBeforeUnmount(() => {
+    document.documentElement.style.removeProperty('--bottom-obstruction');
+});
 </script>
 
 <template>
@@ -24,6 +41,7 @@ const titleId = useId();
     >
         <section
             v-if="bannerOpen"
+            ref="card"
             role="region"
             :aria-labelledby="titleId"
             class="fixed inset-x-0 bottom-0 z-(--z-dropdown) flex flex-col gap-4 border-t border-border bg-background px-4 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:inset-x-auto sm:bottom-6 sm:left-6 sm:w-[min(35rem,calc(100%-3rem))] sm:rounded-xl sm:border sm:px-6 sm:pt-6 sm:pb-6"
