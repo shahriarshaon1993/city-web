@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AddNoindexHeader;
+use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -29,6 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // SEO-ANA-006: error beacons carry no token; the endpoint only writes to the log.
         $middleware->preventRequestForgery(except: ['internal/client-errors']);
+
+        // 10.2: signed-in users who open a guest page (login…) go to the admin home, not the public site.
+        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
+        $middleware->alias(['admin.can' => EnsureAdminPermission::class]);
 
         $middleware->web(append: [
             HandleAppearance::class,

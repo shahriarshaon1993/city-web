@@ -19,7 +19,8 @@ const emits = defineEmits<{
   "update:open": [open: boolean]
 }>()
 
-const isMobile = useMediaQuery("(max-width: 768px)")
+// CMP-ADM-SHELL: the sidebar becomes an off-canvas Sheet below 1024 px.
+const isMobile = useMediaQuery("(max-width: 1023px)")
 const openMobile = ref(false)
 
 const open = useVModel(props, "open", emits, {

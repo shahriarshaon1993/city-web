@@ -1,6 +1,6 @@
 import type { Directive } from 'vue';
 import type { MotionDirective } from '@/motion/directives';
-import type { Auth } from '@/types/auth';
+import type { AdminAuth, NavGroup } from '@/types/admin';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -19,7 +19,8 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
-            auth: Auth;
+            auth: AdminAuth;
+            navigation: NavGroup[];
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

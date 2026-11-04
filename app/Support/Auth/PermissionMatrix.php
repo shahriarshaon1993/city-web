@@ -72,7 +72,7 @@ final class PermissionMatrix
                 'media.view', 'media.upload', 'media.update', 'media.delete-unused',
                 'subscribers.manage',
                 'jobs.view', 'jobs.manage',
-                'seo.view', 'redirects.manage',
+                'redirects.manage',
                 'activity.view-own',
                 'import.content',
             ],

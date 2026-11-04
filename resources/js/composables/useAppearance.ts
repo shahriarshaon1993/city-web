@@ -1,8 +1,8 @@
+import { router } from '@inertiajs/vue3';
 import type { ComputedRef, Ref } from 'vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
+import { preferences } from '@/routes/admin/profile';
 import type { Appearance, ResolvedAppearance } from '@/types';
-
-export type { Appearance, ResolvedAppearance };
 
 export type UseAppearanceReturn = {
     appearance: Ref<Appearance>;
@@ -10,115 +10,74 @@ export type UseAppearanceReturn = {
     updateAppearance: (value: Appearance) => void;
 };
 
-export function updateTheme(value: Appearance): void {
-    if (typeof window === 'undefined') {
-        return;
-    }
+const THEMES: Appearance[] = ['light', 'dark', 'system'];
 
-    if (value === 'system') {
-        const mediaQueryList = window.matchMedia(
-            '(prefers-color-scheme: dark)',
-        );
-        const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
+// The server renders `data-appearance` from the user's saved theme (admin.blade.php),
+// so this ref starts correct and never reads localStorage.
+const appearance = ref<Appearance>('system');
 
-        document.documentElement.classList.toggle(
-            'dark',
-            systemTheme === 'dark',
-        );
-    } else {
-        document.documentElement.classList.toggle('dark', value === 'dark');
-    }
-}
+const prefersDark = (): boolean =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-const setCookie = (name: string, value: string, days = 365) => {
+function applyClass(value: Appearance): void {
     if (typeof document === 'undefined') {
         return;
     }
 
-    const maxAge = days * 24 * 60 * 60;
+    const dark = value === 'dark' || (value === 'system' && prefersDark());
 
-    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
-};
+    document.documentElement.classList.toggle('dark', dark);
+}
 
-const mediaQuery = () => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)');
-};
-
-const getStoredAppearance = () => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    return localStorage.getItem('appearance') as Appearance | null;
-};
-
-const prefersDark = (): boolean => {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
-const handleSystemThemeChange = () => {
-    const currentAppearance = getStoredAppearance();
-
-    updateTheme(currentAppearance || 'system');
-};
+function setCookie(name: string, value: string, days = 365): void {
+    document.cookie = `${name}=${value};path=/;max-age=${days * 24 * 60 * 60};SameSite=Lax`;
+}
 
 export function initializeTheme(): void {
     if (typeof window === 'undefined') {
         return;
     }
 
-    // Initialize theme from saved preference or default to system...
-    const savedAppearance = getStoredAppearance();
-    updateTheme(savedAppearance || 'system');
+    const fromServer = document.documentElement.dataset.appearance as
+        | Appearance
+        | undefined;
 
-    // Set up system theme change listener...
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    appearance.value =
+        fromServer && THEMES.includes(fromServer) ? fromServer : 'system';
+    applyClass(appearance.value);
+
+    window
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', () => {
+            if (appearance.value === 'system') {
+                applyClass('system');
+            }
+        });
 }
 
-const appearance = ref<Appearance>('system');
-
 export function useAppearance(): UseAppearanceReturn {
-    onMounted(() => {
-        const savedAppearance = localStorage.getItem(
-            'appearance',
-        ) as Appearance | null;
+    const resolvedAppearance = computed<ResolvedAppearance>(() =>
+        appearance.value === 'system'
+            ? prefersDark()
+                ? 'dark'
+                : 'light'
+            : appearance.value,
+    );
 
-        if (savedAppearance) {
-            appearance.value = savedAppearance;
-        }
-    });
-
-    const resolvedAppearance = computed<ResolvedAppearance>(() => {
-        if (appearance.value === 'system') {
-            return prefersDark() ? 'dark' : 'light';
-        }
-
-        return appearance.value;
-    });
-
-    function updateAppearance(value: Appearance) {
+    /** Applies at once (cookie + class), then saves to the user's account so other devices match. */
+    function updateAppearance(value: Appearance): void {
         appearance.value = value;
-
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', value);
-
-        // Store in cookie for SSR...
+        document.documentElement.dataset.appearance = value;
         setCookie('appearance', value);
+        applyClass(value);
 
-        updateTheme(value);
+        router.patch(
+            preferences.url(),
+            { theme: value },
+            { preserveScroll: true, preserveState: true, only: ['auth'] },
+        );
     }
 
-    return {
-        appearance,
-        resolvedAppearance,
-        updateAppearance,
-    };
+    return { appearance, resolvedAppearance, updateAppearance };
 }

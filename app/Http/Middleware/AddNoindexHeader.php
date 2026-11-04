@@ -9,7 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Outside production (or with Settings → SEO "noindex whole site") every
- * response sends `X-Robots-Tag: noindex, nofollow` (SEO-TEC-010).
+ * response sends `X-Robots-Tag: noindex, nofollow` (SEO-TEC-010). The admin
+ * (`/admin`, auth and invitation pages included) always does (spec/admin.md §10).
  */
 class AddNoindexHeader
 {
@@ -17,7 +18,7 @@ class AddNoindexHeader
     {
         $response = $next($request);
 
-        if (SeoData::siteNoindex()) {
+        if ($request->is('admin', 'admin/*') || SeoData::siteNoindex()) {
             $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         }
 

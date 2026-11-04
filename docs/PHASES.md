@@ -31,7 +31,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 8.3  | Shortlist & compare                                                        | 8.2            | ✅     |
 | 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ✅     |
 | 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ✅     |
-| 10.2 | Admin shell, navigation, profile                                           | 10.1           | ⬜     |
+| 10.2 | Admin shell, navigation, profile                                           | 10.1           | ✅     |
 | 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ⬜     |
 | 10.4 | CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin           | 10.3           | ⬜     |
 | 11.1 | Media upload, conversions & storage                                        | 10.4           | ⬜     |
@@ -482,6 +482,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 10.1 · **Read:** design/admin.md CMP-ADM-SHELL, CMP-ADM-SIDEBAR, CMP-ADM-TOPBAR, CMP-ADM-PAGEHEAD, §12.1, §12.7; spec/admin.md §10.2 (UI hiding), ADM-SCR-20; spec/architecture.md ARC-007 (with DEC-28).
 **Build:** AdminLayout on the admin root from 0.1: dark sidebar in both modes, groups, count badges (null until their phases), collapse state cookie, Sheet < 1024; top bar (breadcrumbs, search trigger placeholder, View site, bell placeholder, theme toggle light/dark/system applied before paint, avatar menu); offline banner on admin forms (UX-06); profile page (password, 2FA, sessions, theme, density); placeholder page for each sidebar item, filtered by permission; `X-Robots-Tag: noindex` on `/admin`; starter dashboard/settings pages replaced.
 **Test:** each role sees only its items (compare with the matrix); a forbidden URL → 403; dark mode has no light flash on reload; collapse is remembered; sign out other sessions works.
+
+**Done notes (2026-11-04):**
+- Admin lives under `/admin` (DEC-73): Fortify `prefix` = `admin` (`/admin/login`), `routes/admin.php`, `routes/settings.php` and the starter settings/dashboard pages are gone; `ADMIN_ROUTES` = `admin.*` + Fortify/invitation names, and any `/admin/*` path counts as admin (403/404 too).
+- `Support/Admin/AdminNavigation` + `NavItem` = single registry (sidebar, `admin.can:a|b` route middleware, placeholder pages). A phase that builds a real screen registers its routes and sets `placeholder: false`; `count` is null until then. Dashboard `/admin` = `admin.dashboard` (`admin/Dashboard.vue`, lists reachable sections until 18.1).
+- Shared admin props: `auth {user, permissions}`, `navigation`, `sidebarOpen`; pages send `breadcrumbs` (`AdminCrumb[]`). Client: `useCan()`, `AdminLayout`, `components/admin/*` (sidebar, topbar, `AdminPageHeader` = the page's only h1, `AdminSection`, `AdminRadioCards`). Sidebar constants 280/72 px, mobile Sheet below 1024 (`ui/sidebar` edited). Sidebar hover = `--dark-card` + white text.
+- Profile (`admin/Profile.vue`): `UpdateProfile`, `ChangePassword`, `SignOutOtherSessions` (deletes `sessions` rows), `UpdatePreferences` (theme, density; `forceFill`). Theme: `users.theme` wins over the `appearance` cookie (`HandleAppearance`), `data-appearance` on `<html>`; `useAppearance` no longer uses localStorage.
+- Matrix tweak: Content Editor lost `seo.view` (sees Redirects/404s only); Errors needs `maintenance.caches|manage`. A role without `dashboard.view` gets 403 at `/admin` after login (10.3 custom roles must include it).
+- Open: 403/404/419 inside the shell use Laravel's default pages until 10.4 (TOAST-04); starter tests in `tests/` still assume old routes (DEC-26). Check script `docs/checks/10.2-admin-shell.php`.
 
 ### 10.3 — Data table system, users & roles, activity log
 

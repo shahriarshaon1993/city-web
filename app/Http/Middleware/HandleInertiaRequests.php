@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Admin\AdminNavigation;
 use App\Support\Consent\ConsentCookie;
 use App\Support\Demo\DemoContent;
 use App\Support\Forms\FormOptions;
@@ -10,6 +11,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
+use Spatie\Permission\Models\Permission;
 use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
@@ -24,27 +26,20 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
-     * Route names served by the admin root (admin.blade.php + admin.ts).
-     * The starter auth/settings routes live here until 10.2 moves the admin under /admin.
+     * Route names served by the admin root (admin.blade.php + admin.ts): the
+     * screens under /admin and the Fortify auth pages, which Fortify prefixes
+     * with `admin` (config/fortify.php).
      *
      * @var list<string>
      */
     private const ADMIN_ROUTES = [
         'admin.*',
-        'dashboard',
         'login',
         'login.*',
         'logout',
-        'register',
-        'register.*',
         'password.*',
-        'user-password.*',
-        'two-factor.*',
         'verification.*',
         'invitation.*',
-        'profile.*',
-        'security.*',
-        'appearance.*',
     ];
 
     /**
@@ -103,10 +98,39 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'auth' => [
-                'user' => $request->user(),
-            ],
+            'auth' => fn (): ?array => $this->shareAuth($request),
+            'navigation' => fn (): array => $request->user() ? AdminNavigation::forUser($request->user()) : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+
+    /**
+     * Admin `auth` prop: just what the shell needs. `permissions` drives the
+     * UI hiding of ARC-005 (the server still authorises every request).
+     *
+     * @return array{user: array<string, mixed>, permissions: array<int, string>}|null
+     */
+    private function shareAuth(Request $request): ?array
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        return [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'avatar' => null, // 11.2: avatar_asset_id → MediaImage
+                'roles' => $user->getRoleNames()->all(),
+                'theme' => $user->theme,
+                'table_density' => $user->table_density,
+                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+            ],
+            'permissions' => $user->getAllPermissions()->map(fn (Permission $permission): string => $permission->name)->values()->all(),
         ];
     }
 
@@ -143,6 +167,7 @@ class HandleInertiaRequests extends Middleware
      */
     public static function isAdminRequest(Request $request): bool
     {
-        return $request->routeIs(...self::ADMIN_ROUTES);
+        // The path check covers 403/404 under /admin, where no route matched.
+        return $request->is('admin', 'admin/*') || $request->routeIs(...self::ADMIN_ROUTES);
     }
 }

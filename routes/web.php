@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\Site\CareerController;
 use App\Http\Controllers\Site\ClientErrorController;
 use App\Http\Controllers\Site\ContactController;
@@ -120,19 +119,8 @@ if (app()->isLocal()) {
     })->whereIn('status', array_map(strval(...), ErrorPage::STATUSES))->name('styleguide.error');
 }
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
-});
-
-// ADM-AUTH-006: signed 72-hour invite link, then set a password.
-Route::get('invitation/{user}', [InvitationController::class, 'show'])
-    ->middleware('signed')
-    ->name('invitation.show');
-Route::post('invitation/{user}', [InvitationController::class, 'store'])
-    ->middleware(['signed', 'throttle:6,1'])
-    ->name('invitation.store');
-
-require __DIR__.'/settings.php';
+// Admin under /admin (10.2): auth, invitation, profile and the sidebar screens.
+require __DIR__.'/admin.php';
 
 // PG-25: any custom page. Last, so every fixed route wins; reserved slugs
 // (spec/pages.md §5.2 + the app's own paths) never match.
