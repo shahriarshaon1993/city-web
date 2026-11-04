@@ -115,7 +115,7 @@ return [
     */
 
     'limiters' => [
-        'login' => 'login',
+        'login' => null, // ADM-AUTH-001: App\Support\Auth\LoginThrottle replaces the named limiter
     ],
 
     /*

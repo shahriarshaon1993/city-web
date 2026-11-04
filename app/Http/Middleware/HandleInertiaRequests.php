@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
         'user-password.*',
         'two-factor.*',
         'verification.*',
+        'invitation.*',
         'profile.*',
         'security.*',
         'appearance.*',

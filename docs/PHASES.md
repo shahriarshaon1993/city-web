@@ -30,7 +30,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 8.2  | Careers, FAQ page, site search                                             | 8.1            | ✅     |
 | 8.3  | Shortlist & compare                                                        | 8.2            | ✅     |
 | 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ✅     |
-| 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ⬜     |
+| 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ✅     |
 | 10.2 | Admin shell, navigation, profile                                           | 10.1           | ⬜     |
 | 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ⬜     |
 | 10.4 | CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin           | 10.3           | ⬜     |
@@ -467,6 +467,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 9.1 · **Read:** spec/admin.md §10.1, §10.2, DM-USER; spec/database.md (all); spec/architecture.md ARC-005, ARC-006, ARC-011; spec/nfr-ops.md NFR-SEC-06, NFR-SEC-10; spec/cms.md CMS-CACHE-001; spec/decisions.md DEC-19.
 **Build:** owner approves `spatie/laravel-permission` 7 + `spatie/laravel-activitylog` 4. MySQL utf8mb4 (`.env.example`); users per DM-USER (soft deletes, `is_active`, `theme`, `table_density`, `last_login_at`); permission seeder + 6 roles per the matrix; `Gate::before` Super Admin; `Relation::enforceMorphMap`. Fortify: registration off, login throttle 5/min email+IP then 15-min lockout, 2FA required for Super Admin/Admin, password policy, idle 120 min, deactivated users blocked; invite flow (72 h link); auth events logged once per session.
 **Test:** `migrate:fresh --seed` on MySQL; log in as each role; an Admin without 2FA is sent to setup; 6 wrong passwords → lockout; `/register` → 404; invite mail (log mailer) → set password → login.
+
+**Done notes (2026-11-04):**
+- Packages: `spatie/laravel-permission` 7.4.2, `spatie/laravel-activitylog` 4.12.3; `symfony/mime`, `phpunit`, `pest` patch-updated first (Composer 2.9 `block-insecure`). See DEC-72.
+- Deviations (DEC-72): no 2FA (ADM-AUTH-002 dropped, no `two_factor_*` columns), no "Remember me", password min 8 (not 12; mixed case + number + `uncompromised()` kept).
+- Roles/permissions: `Support/Auth/PermissionMatrix` + `SystemRole`, seeded by `Actions/Users/SyncSystemRoles`; `Gate::before` Super Admin and `Relation::enforceMorphMap(['user'])` in `AppServiceProvider` — each phase adds its models to the morph map. Row-level limits (assigned leads, unused media, Admin cannot assign Super Admin) belong to the Policies of the screens that need them (10.3 on).
+- Login: `Support/Auth/LoginThrottle` (5/min → 15 min lock), `Actions/Auth/AuthenticateUser` (Fortify callback), `EnsureUserIsActive` (web group), `Listeners/RecordAuthEvents` → `RecordAuthEvent`/`RecordLogin` (activity log `auth`, login once per session). `login_failed` rows have no causer (email in properties).
+- Invite: `Actions/Users/InviteUser` + `AcceptInvitation`, signed `/invitation/{user}` (72 h, single use via unverified email), `php artisan user:invite`; 10.3 adds the UI and the "resend" (`InviteUser::sendInvitation`).
+- Seeder: outside production one user per role, `{role-slug}@gemcon.test` / `password`. Starter routes stay un-prefixed until 10.2 (`ADMIN_ROUTES` + `invitation.*`).
+- Check script: `docs/checks/10.1-auth.php` (`php artisan tinker docs/checks/10.1-auth.php`). Starter tests in `tests/` still assume registration/2FA and were not run (DEC-26).
 
 ### 10.2 — Admin shell, navigation, profile
 
