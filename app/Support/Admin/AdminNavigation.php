@@ -49,8 +49,8 @@ final class AdminNavigation
             ],
             'System' => [
                 new NavItem('settings', 'Settings', 'admin/settings', 'settings', ['settings.manage', 'settings.integrations'], 'Company details, contact, header, footer, forms and integrations.', '12.1'),
-                new NavItem('users', 'Users & roles', 'admin/users', 'user-cog', ['users.manage', 'roles.manage'], 'Invite people, set their role and see what each role may do.', '10.3'),
-                new NavItem('activity-log', 'Activity log', 'admin/activity-log', 'history', ['activity.view-all', 'activity.view-own'], 'Who changed what, and when.', '10.3'),
+                new NavItem('users', 'Users & roles', 'admin/users', 'user-cog', ['users.manage', 'roles.manage'], 'Invite people, set their role and see what each role may do.', '10.3', placeholder: false),
+                new NavItem('activity-log', 'Activity log', 'admin/activity-log', 'history', ['activity.view-all', 'activity.view-own'], 'Who changed what, and when.', '10.3', placeholder: false),
                 new NavItem('errors', 'Errors', 'admin/errors', 'triangle-alert', ['maintenance.caches', 'maintenance.manage'], 'Server and browser errors from the site.', '18.2'),
                 new NavItem('maintenance', 'Maintenance', 'admin/maintenance', 'wrench', ['maintenance.manage', 'maintenance.caches'], 'Caches, application health and maintenance mode.', '18.2'),
             ],

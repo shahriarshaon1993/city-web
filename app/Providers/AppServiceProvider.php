@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Listeners\RecordAuthEvents;
 use App\Models\User;
+use App\Policies\RolePolicy;
 use App\Support\Auth\LoginThrottle;
 use App\Support\Auth\SystemRole;
 use Carbon\CarbonImmutable;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\LoginRateLimiter;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,8 @@ class AppServiceProvider extends ServiceProvider
     protected function configureAuthorization(): void
     {
         Gate::before(fn (User $user): ?bool => $user->hasRole(SystemRole::SuperAdmin->value) ? true : null);
+
+        Gate::policy(Role::class, RolePolicy::class);
 
         Relation::enforceMorphMap([
             'user' => User::class,

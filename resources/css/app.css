@@ -168,6 +168,8 @@
     /* DEC-46: neutral greige band (Rancon); stone-50/100 read as pink */
     --surface-subtle: #f3f1ed;
     --surface-brand: var(--teal-50);
+    /* CMP-ADM-TABLE selected row: teal-50, #14363C in dark. */
+    --table-selected: var(--teal-50);
     --chart-1: var(--teal-600);
     --chart-2: var(--coral-500);
     --chart-3: var(--teal-800);
@@ -330,6 +332,7 @@
     --ring: var(--coral-400);
     --surface-subtle: var(--teal-950);
     --surface-brand: var(--dark-card);
+    --table-selected: #14363c;
     --chart-1: var(--teal-400);
     --chart-2: var(--coral-400);
     --chart-3: var(--teal-200);

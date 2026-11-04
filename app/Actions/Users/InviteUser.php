@@ -2,6 +2,7 @@
 
 namespace App\Actions\Users;
 
+use App\Actions\Activity\LogActivity;
 use App\Models\User;
 use App\Notifications\UserInvitation;
 use App\Support\Auth\SystemRole;
@@ -18,6 +19,8 @@ final class InviteUser
 {
     public const int VALID_HOURS = 72;
 
+    public function __construct(private readonly LogActivity $logActivity) {}
+
     public function handle(string $name, string $email, string|SystemRole $role, ?User $invitedBy = null): User
     {
         $roleName = $role instanceof SystemRole ? $role->value : $role;
@@ -33,12 +36,7 @@ final class InviteUser
 
             $user->assignRole($roleName);
 
-            activity('users')
-                ->causedBy($invitedBy)
-                ->performedOn($user)
-                ->event('invited')
-                ->withProperties(['role' => $roleName])
-                ->log('User invited');
+            $this->logActivity->handle('users', 'invited', 'User invited', $invitedBy, $user, ['role' => $roleName]);
 
             return $user;
         });

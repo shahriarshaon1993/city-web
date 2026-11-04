@@ -32,7 +32,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 9.1  | Frontend hardening & client review                                         | 8.3, 3.2       | ✅     |
 | 10.1 | MySQL, users, roles & permissions, Fortify hardening                       | 9.1            | ✅     |
 | 10.2 | Admin shell, navigation, profile                                           | 10.1           | ✅     |
-| 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ⬜     |
+| 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ✅     |
 | 10.4 | CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin           | 10.3           | ⬜     |
 | 11.1 | Media upload, conversions & storage                                        | 10.4           | ⬜     |
 | 11.2 | Media library UI, picker & focal point                                     | 11.1           | ⬜     |
@@ -496,6 +496,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 10.2 · **Read:** spec/admin.md §10.5 (ADM-TBL-001..016), DM-VIEW, ADM-SCR-16, ADM-SCR-17, §10.7; design/admin.md CMP-ADM-TABLE, CMP-ADM-CONFIRM, CMP-ADM-STATUS, §12.3; design/motion.md MOT-SLIDE-UP; spec/crud.md CRUD-02, entity rows Users/Roles/Saved views/Activity log; spec/decisions.md DEC-11; DECISIONS DEC-34.
 **Build:** owner approves `@tanstack/vue-table` (8.21.3 per DEC-11, or v9 after the DEC-34 re-check), `spatie/laravel-query-builder` 6, `spatie/simple-excel` 3. One `components/admin/DataTable` on TanStack in server-side mode, rendered with shadcn-vue `Table` primitives, reused by every admin list. Server list query (allowlisted filters/sorts, `per_page`, ≤ 3 sorts); `DataTable` component (toolbar, typed filters, chips, visibility/order/resize, selection + "select all matching", bulk bar, saved views, URL state, density, CSV/XLSX export, the empty/loading/error states). First consumers: Users & roles (invite, deactivate with lead-reassign count, reset 2FA, roles with permission checkboxes) and Activity log.
 **Test:** sort/filter/search, copy the URL into a new tab → same view; Back restores state; save and reload a view; resize a column with the keyboard; bulk deactivate asks with the count; export opens in Excel.
+
+
+**Done notes (2026-11-04):**
+- Packages: `@tanstack/vue-table` 8.21.3, `spatie/laravel-query-builder` 7.3.7 (variadic `allowedFilters()`), `spatie/simple-excel` 3.11.0. Rules and deviations in DEC-74.
+- Table = URL: `lib/table-state.ts` (parse/serialize), `composables/useDataTable.ts` (TanStack manual mode), `components/admin/data-table/*` (the one `DataTable`; cells are slots `#cell-{id}`, `#expanded`). Server: `app/Queries/Admin/AdminTable` subclasses (`UsersTable`, `RolesTable`, `ActivityLogTable`) + `AdminTables` registry; a new list adds its class there, its Resource and a page with a `DataTable`. Export column ids must equal client column ids.
+- Generic endpoints: `admin.tables.export` (CSV/XLSX, logged) and `admin.table-views.*` (DM-VIEW `saved_table_views`; default view and `?view=` expand by redirect; sharing = permission `views.share`).
+- Users & roles at `/admin/users` and `/admin/users/roles`; limits in `Support/Users/UserGuard`; Actions in `Actions/{Users,Roles,Tables,Activity}`. `LogActivity` is the audit helper for later admin Actions (IP + user agent).
+- `ConfirmDialog` (CMP-ADM-CONFIRM) exists; 10.4 adds `useConfirm`, toasts helper and the Recycle bin (user delete). Deferred: queued export > 5,000 rows (needs notifications), lead-reassign count in the deactivate dialog (15.1), "reset 2FA" dropped (DEC-72).
+- Check script: `docs/checks/10.3-tables.php`. Later tables: give `AdminTable::exportColumns` typed closures; keep `dashboard.view` in every custom role.
 
 ### 10.4 — CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin
 

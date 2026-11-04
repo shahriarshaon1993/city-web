@@ -38,10 +38,56 @@ final class PermissionMatrix
         'SEO' => ['seo.view', 'seo.manage', 'redirects.manage'],
         'Settings' => ['settings.manage', 'settings.integrations'],
         'Users & roles' => ['users.manage', 'roles.manage'],
+        'Saved table views' => ['views.share'],
         'Activity log' => ['activity.view-all', 'activity.view-own'],
         'Maintenance' => ['maintenance.manage', 'maintenance.caches'],
         'Import' => ['import.content', 'import.leads'],
     ];
+
+    /** Ability (the part after the dot) → wording on the roles screen. */
+    private const array ABILITY_LABELS = [
+        'view' => 'View',
+        'write' => 'Create and edit',
+        'publish' => 'Publish and schedule',
+        'delete' => 'Delete and restore',
+        'manage' => 'Create, edit and delete',
+        'upload' => 'Upload',
+        'update' => 'Edit',
+        'delete-unused' => 'Delete unused files only',
+        'view-all' => 'View all',
+        'view-assigned' => 'View assigned to them',
+        'view-contact' => 'See phone numbers and emails',
+        'assign' => 'Assign',
+        'export' => 'Export',
+        'integrations' => 'Analytics, scripts, webhook, notifications',
+        'caches' => 'Clear caches',
+        'view-own' => 'View their own actions',
+        'content' => 'Import content',
+        'leads' => 'Import leads',
+        'share' => 'Share table views with everyone',
+    ];
+
+    /**
+     * Groups with readable labels for the role editor.
+     *
+     * @return list<array{label: string, permissions: list<array{name: string, label: string}>}>
+     */
+    public static function labelled(): array
+    {
+        $groups = [];
+
+        foreach (self::GROUPS as $label => $names) {
+            $groups[] = [
+                'label' => $label,
+                'permissions' => array_map(fn (string $name): array => [
+                    'name' => $name,
+                    'label' => self::ABILITY_LABELS[substr($name, (int) strrpos($name, '.') + 1)] ?? $name,
+                ], $names),
+            ];
+        }
+
+        return $groups;
+    }
 
     /**
      * @return list<string>
