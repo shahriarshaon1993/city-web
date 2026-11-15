@@ -4,12 +4,15 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\RecycleBinController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SlugController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\TableViewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Support\Admin\AdminNavigation;
+use App\Support\RecycleBin\BinTypes;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +51,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::post('/', [UserController::class, 'store'])->name('store');
         Route::post('bulk', [UserController::class, 'bulk'])->name('bulk');
+        Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
         Route::patch('{user}', [UserController::class, 'update'])->name('update');
         Route::post('{user}/activate', [UserController::class, 'activate'])->name('activate');
         Route::post('{user}/deactivate', [UserController::class, 'deactivate'])->name('deactivate');
@@ -68,6 +72,18 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('causers', [ActivityLogController::class, 'causers'])->name('causers');
     });
+
+    // DEL-04 Recycle bin. The Policy checks type and role per entry; the screen opens for any bin permission.
+    Route::middleware('admin.can:'.implode('|', BinTypes::permissions()))->prefix('recycle-bin')->name('recycle-bin.')->group(function () {
+        Route::get('/', [RecycleBinController::class, 'index'])->name('index');
+        Route::post('restore', [RecycleBinController::class, 'restoreMany'])->name('restore-many');
+        Route::delete('/', [RecycleBinController::class, 'destroyMany'])->name('destroy-many');
+        Route::post('{entry}/restore', [RecycleBinController::class, 'restore'])->name('restore');
+        Route::delete('{entry}', [RecycleBinController::class, 'destroy'])->name('destroy');
+    });
+
+    // VAL-04: live slug availability for every slug field.
+    Route::get('slugs/check', SlugController::class)->middleware('throttle:60,1')->name('slugs.check');
 
     // ADM-TBL-010 / 012: saved views and export for every registered table (AdminTables).
     Route::get('export/{table}', [TableController::class, 'export'])->name('tables.export');

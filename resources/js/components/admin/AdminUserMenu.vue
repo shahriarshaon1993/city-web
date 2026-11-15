@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { LogOut, UserRound } from '@lucide/vue';
+import { Keyboard, LogOut, UserRound } from '@lucide/vue';
 import { computed } from 'vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -12,12 +12,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useInitials } from '@/composables/useInitials';
+import { useShortcutsDialog } from '@/composables/useShortcutsDialog';
 import { logout } from '@/routes';
 import { edit as editProfile } from '@/routes/admin/profile';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const { getInitials } = useInitials();
+const { show: showShortcuts } = useShortcutsDialog();
 
 // Clear cached pages so the next person on this browser sees nothing of this session.
 function flush(): void {
@@ -62,6 +64,10 @@ function flush(): void {
                     <UserRound class="mr-2 size-4" />
                     Profile
                 </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem class="cursor-pointer" @select="showShortcuts">
+                <Keyboard class="mr-2 size-4" />
+                Keyboard shortcuts
             </DropdownMenuItem>
             <DropdownMenuItem as-child>
                 <Link

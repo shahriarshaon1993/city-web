@@ -2,6 +2,8 @@
 defineProps<{
     title: string;
     description?: string;
+    /** CRUD-04: the editor has unsaved changes. */
+    dirty?: boolean;
 }>();
 </script>
 
@@ -12,6 +14,13 @@ defineProps<{
             <div class="min-w-0">
                 <h1 class="font-display text-[1.75rem]/9 font-medium">
                     {{ title }}
+                    <span
+                        v-if="dirty"
+                        class="ml-1 inline-block size-2.5 rounded-full bg-warning align-middle"
+                        title="Unsaved changes"
+                    >
+                        <span class="sr-only">(unsaved changes)</span>
+                    </span>
                 </h1>
                 <p
                     v-if="description"

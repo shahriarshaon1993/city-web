@@ -26,7 +26,7 @@ class BulkUsersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'action' => ['required', Rule::in(['activate', 'deactivate'])],
+            'action' => ['required', Rule::in(['activate', 'deactivate', 'delete'])],
             'all' => ['sometimes', 'boolean'],
             'ids' => ['required_without:all', 'array', 'max:'.self::MAX_IDS],
             'ids.*' => ['integer'],

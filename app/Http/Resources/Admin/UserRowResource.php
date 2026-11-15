@@ -34,6 +34,8 @@ class UserRowResource extends JsonResource
         $status = self::statusOf($this->resource);
         $editBlock = UserGuard::editBlock($actor, $this->resource);
         $deactivateBlock = $this->is_active ? UserGuard::deactivateBlock($actor, $this->resource) : null;
+        $mayDelete = $actor->can('delete', $this->resource);
+        $deleteBlock = $mayDelete ? $this->resource->binUsageBlock($actor) : null;
 
         return [
             'id' => $this->id,
@@ -50,10 +52,13 @@ class UserRowResource extends JsonResource
                 'edit' => $editBlock === null,
                 'resend' => $status === 'invited' && $editBlock === null,
                 'toggle' => $this->is_active ? $deactivateBlock === null : $editBlock === null,
+                'delete_visible' => $mayDelete,
+                'delete' => $mayDelete && $deleteBlock === null,
             ],
             'blocked' => [
                 'edit' => $editBlock,
                 'toggle' => $this->is_active ? $deactivateBlock : $editBlock,
+                'delete' => $deleteBlock,
             ],
         ];
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\RecycleBin\MoveManyToRecycleBin;
+use App\Actions\RecycleBin\MoveToRecycleBin;
 use App\Actions\Users\InviteUser;
 use App\Actions\Users\ResendInvitation;
 use App\Actions\Users\SetUserActive;
@@ -12,10 +14,13 @@ use App\Http\Requests\Admin\BulkUsersRequest;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
+use App\Queries\Admin\RecycleBinTable;
 use App\Queries\Admin\UsersTable;
+use App\Support\Toasts\Toast;
 use App\Support\Users\UserGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -41,6 +46,7 @@ class UserController extends Controller
             'assignableRoles' => UserGuard::assignableRoles($actor),
             'canManageRoles' => $actor->can('roles.manage'),
             'canShareViews' => $actor->can('views.share'),
+            'binCount' => RecycleBinTable::countFor($actor, User::binType()),
             'breadcrumbs' => [
                 ['title' => 'System', 'href' => null],
                 ['title' => 'Users & roles', 'href' => null],
@@ -57,7 +63,7 @@ class UserController extends Controller
             $request->user(),
         );
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation sent to :email.', ['email' => $user->email])]);
+        Toast::success('Invitation sent')->description($user->email)->flash();
 
         return back();
     }
@@ -72,7 +78,7 @@ class UserController extends Controller
             $request->string('role')->toString(),
         );
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __(':name saved.', ['name' => $user->name])]);
+        Toast::success('User saved')->description($user->name)->flash();
 
         return back();
     }
@@ -97,31 +103,92 @@ class UserController extends Controller
             return $this->refused($exception);
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation resent to :email.', ['email' => $user->email])]);
+        Toast::success('Invitation resent')->description($user->email)->flash();
 
         return back();
     }
 
-    public function bulk(BulkUsersRequest $request, UsersTable $table, SetUsersActive $setUsersActive): RedirectResponse
+    /** DEL-02: Delete = Recycle bin, with Undo (TOAST-02). */
+    public function destroy(Request $request, User $user, MoveToRecycleBin $moveToRecycleBin): RedirectResponse
     {
-        $active = $request->input('action') === 'activate';
+        Gate::authorize('delete', $user);
 
-        $result = $setUsersActive->handle(
-            $request->user(),
-            $table->selection($request, $request->user())->limit(BulkUsersRequest::MAX_IDS * 20)->get(),
-            $active,
-        );
-
-        $verb = $active ? __('Activated') : __('Deactivated');
-        $message = trans_choice('{0} No users were changed.|{1} :verb 1 user.|[2,*] :verb :count users.', $result['changed'], ['verb' => $verb]);
-
-        if ($result['refused'] !== []) {
-            $message .= ' '.__(':count skipped — :reasons', ['count' => count($result['refused']), 'reasons' => implode(' ', array_slice($result['refused'], 0, 3))]);
+        try {
+            $entry = $moveToRecycleBin->handle($request->user(), $user);
+        } catch (ValidationException $exception) {
+            return $this->refused($exception);
         }
 
-        Inertia::flash('toast', ['type' => $result['refused'] === [] ? 'success' : 'warning', 'message' => $message]);
+        Toast::success('User moved to Recycle bin')
+            ->description($user->name)
+            ->undo(route('admin.recycle-bin.restore', $entry), ['undo' => true])
+            ->flash();
 
         return back();
+    }
+
+    public function bulk(BulkUsersRequest $request, UsersTable $table, SetUsersActive $setUsersActive, MoveManyToRecycleBin $moveMany): RedirectResponse
+    {
+        $users = $table->selection($request, $request->user())->limit(BulkUsersRequest::MAX_IDS * 20)->get();
+
+        if ($request->input('action') === 'delete') {
+            abort_unless($request->user()->can('users.delete'), 403);
+
+            return $this->bulkDelete($request, $users, $moveMany);
+        }
+
+        $active = $request->input('action') === 'activate';
+        $result = $setUsersActive->handle($request->user(), $users, $active);
+
+        $count = $result['changed'];
+        $noun = $count === 1 ? 'user' : 'users';
+        $title = match (true) {
+            $count === 0 => 'No users were changed',
+            $active => "{$count} {$noun} activated",
+            default => "{$count} {$noun} deactivated",
+        };
+
+        $this->bulkToast($title, $result['refused'])->flash();
+
+        return back();
+    }
+
+    /**
+     * @param  Collection<int, User>  $users
+     */
+    private function bulkDelete(BulkUsersRequest $request, Collection $users, MoveManyToRecycleBin $moveMany): RedirectResponse
+    {
+        $result = $moveMany->handle($request->user(), $users);
+        $count = count($result['entries']);
+        $title = $count === 0 ? 'No users were deleted' : $count.' '.($count === 1 ? 'user' : 'users').' moved to Recycle bin';
+
+        $toast = $this->bulkToast($title, $result['refused']);
+
+        if ($count > 0) {
+            $toast->undo(route('admin.recycle-bin.restore-many'), [
+                'ids' => array_map(fn ($entry): int => $entry->id, $result['entries']),
+                'undo' => true,
+            ]);
+        }
+
+        $toast->flash();
+
+        return back();
+    }
+
+    /**
+     * TOAST-06: partial success is reported honestly, with the reasons.
+     *
+     * @param  list<string>  $refused
+     */
+    private function bulkToast(string $title, array $refused): Toast
+    {
+        if ($refused === []) {
+            return Toast::success($title);
+        }
+
+        return Toast::warning($title.' · '.count($refused).' skipped')
+            ->description(implode(' ', array_slice($refused, 0, 3)));
     }
 
     private function setActive(Request $request, User $user, bool $active, SetUserActive $setUserActive): RedirectResponse
@@ -134,18 +201,23 @@ class UserController extends Controller
             return $this->refused($exception);
         }
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => $active ? __(':name is active again.', ['name' => $user->name]) : __(':name was deactivated and signed out.', ['name' => $user->name]),
-        ]);
+        $toast = $active
+            ? Toast::success('User activated')->description($user->name.' can sign in again.')
+            : Toast::success('User deactivated')->description($user->name.' was signed out.');
+
+        if (! $active) {
+            $toast->action('Undo', route('admin.users.activate', $user), 'post');
+        }
+
+        $toast->flash();
 
         return back();
     }
 
-    /** A guard refusal the button should already have explained; shown as an error toast (TOAST-01). */
+    /** A guard refusal the button should already have explained; shown as an error toast (TOAST-03). */
     private function refused(ValidationException $exception): RedirectResponse
     {
-        Inertia::flash('toast', ['type' => 'error', 'message' => $exception->validator->errors()->first()]);
+        Toast::error($exception->validator->errors()->first())->flash();
 
         return back();
     }

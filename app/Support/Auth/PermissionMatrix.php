@@ -37,7 +37,7 @@ final class PermissionMatrix
         'Careers' => ['jobs.view', 'jobs.manage', 'applications.manage'],
         'SEO' => ['seo.view', 'seo.manage', 'redirects.manage'],
         'Settings' => ['settings.manage', 'settings.integrations'],
-        'Users & roles' => ['users.manage', 'roles.manage'],
+        'Users & roles' => ['users.manage', 'roles.manage', 'users.delete'],
         'Saved table views' => ['views.share'],
         'Activity log' => ['activity.view-all', 'activity.view-own'],
         'Maintenance' => ['maintenance.manage', 'maintenance.caches'],
@@ -105,7 +105,7 @@ final class PermissionMatrix
         return match ($role) {
             SystemRole::SuperAdmin => self::all(),
             SystemRole::Admin => array_values(array_diff(self::all(), [
-                'settings.integrations', 'roles.manage', 'maintenance.manage', 'activity.view-own',
+                'settings.integrations', 'roles.manage', 'users.delete', 'maintenance.manage', 'activity.view-own',
             ])),
             SystemRole::ContentEditor => [
                 'dashboard.view',

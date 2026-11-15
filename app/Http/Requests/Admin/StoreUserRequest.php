@@ -35,8 +35,13 @@ class StoreUserRequest extends FormRequest
      */
     public function messages(): array
     {
+        $binned = User::onlyTrashed()->where('email', $this->input('email'))->first();
+
         return [
-            'email.unique' => 'Someone with this email address already has an account.',
+            // DEL-08: a taken value that sits in the Recycle bin says so.
+            'email.unique' => $binned !== null
+                ? __('This email address belongs to “:name” in the Recycle bin — restore them or delete them forever.', ['name' => $binned->name])
+                : 'Someone with this email address already has an account.',
             'role.in' => 'Choose one of the roles you may assign.',
         ];
     }

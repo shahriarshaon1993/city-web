@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\RecycleBin\BinBehaviour;
+use App\Support\RecycleBin\Trashable;
+use App\Support\Users\UserGuard;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -11,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -31,10 +35,10 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password', 'phone'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, Trashable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable, SoftDeletes;
+    use BinBehaviour, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.
@@ -49,5 +53,46 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
         ];
+    }
+
+    public static function binType(): string
+    {
+        return 'user';
+    }
+
+    public static function binTypeLabel(): string
+    {
+        return 'User';
+    }
+
+    public static function binPermission(): string
+    {
+        return 'users.delete';
+    }
+
+    /** DEL-06: users are never auto-deleted, the audit trail points at them. */
+    public static function binRetentionDays(): ?int
+    {
+        return null;
+    }
+
+    public function binLabel(): string
+    {
+        return $this->name;
+    }
+
+    public function binUrl(): ?string
+    {
+        return route('admin.users.index', ['search' => $this->email]);
+    }
+
+    public function binUsageBlock(self $actor): ?string
+    {
+        return UserGuard::deleteBlock($actor, $this);
+    }
+
+    public function binTrashed(): void
+    {
+        DB::table('sessions')->where('user_id', $this->getKey())->delete();
     }
 }

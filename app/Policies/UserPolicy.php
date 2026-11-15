@@ -31,4 +31,10 @@ class UserPolicy
     {
         return $user->can('users.manage');
     }
+
+    /** Delete → Recycle bin is Super Admin only (crud.md Users row); `users.delete` is held by no other system role. */
+    public function delete(User $user, User $target): bool
+    {
+        return $user->can('users.delete');
+    }
 }

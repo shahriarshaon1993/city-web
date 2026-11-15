@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import AdminOfflineBanner from '@/components/admin/AdminOfflineBanner.vue';
+import ConfirmHost from '@/components/admin/ConfirmHost.vue';
+import ShortcutsDialog from '@/components/admin/ShortcutsDialog.vue';
 import AdminSidebar from '@/components/admin/AdminSidebar.vue';
 import AdminTopbar from '@/components/admin/AdminTopbar.vue';
 import { Toaster } from '@/components/ui/sonner';
@@ -32,5 +34,7 @@ const sidebarOpen = usePage().props.sidebarOpen;
             </main>
         </div>
         <Toaster />
+        <ConfirmHost />
+        <ShortcutsDialog />
     </SidebarProvider>
 </template>

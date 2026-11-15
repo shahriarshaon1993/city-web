@@ -26,6 +26,10 @@ final class ActivityAction
         'users.invitation_resent' => ['Invite resent', 'info'],
         'users.deactivated' => ['Deactivated', 'warning'],
         'users.activated' => ['Activated', 'success'],
+        'users.deleted' => ['Moved to bin', 'warning'],
+        'users.restored' => ['Restored', 'success'],
+        'users.deleted_forever' => ['Deleted forever', 'error'],
+        'users.purged' => ['Auto-deleted', 'error'],
         'export.exported' => ['Exported', 'neutral'],
     ];
 

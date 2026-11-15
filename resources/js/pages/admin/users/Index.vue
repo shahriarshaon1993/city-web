@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
-import { Mail, Pencil, UserCheck, UserPlus, UserX } from '@lucide/vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { Mail, Pencil, Trash2, UserCheck, UserPlus, UserX } from '@lucide/vue';
 import { computed, ref } from 'vue';
-import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
-import ConfirmDialog from '@/components/admin/ConfirmDialog.vue';
+import ListPageHeader from '@/components/admin/ListPageHeader.vue';
+import type { ListTab } from '@/components/admin/ListPageHeader.vue';
 import DataTable from '@/components/admin/data-table/DataTable.vue';
 import HighlightText from '@/components/admin/data-table/HighlightText.vue';
 import PersonCell from '@/components/admin/PersonCell.vue';
@@ -11,8 +11,18 @@ import StatusBadge from '@/components/admin/StatusBadge.vue';
 import UserDialog from '@/components/admin/users/UserDialog.vue';
 import UsersRolesTabs from '@/components/admin/users/UsersRolesTabs.vue';
 import { Button } from '@/components/ui/button';
+import { useCan } from '@/composables/useCan';
+import { useConfirm } from '@/composables/useConfirm';
 import { formatDateTime, timeAgo } from '@/lib/admin-format';
-import { activate, bulk, deactivate, resend } from '@/routes/admin/users';
+import { index as binIndex } from '@/routes/admin/recycle-bin';
+import {
+    activate,
+    bulk,
+    deactivate,
+    destroy,
+    index as usersIndex,
+    resend,
+} from '@/routes/admin/users';
 import type {
     DataTableBulkAction,
     DataTableColumn,
@@ -33,6 +43,7 @@ const props = defineProps<{
     assignableRoles: string[];
     canManageRoles: boolean;
     canShareViews: boolean;
+    binCount: number;
 }>();
 
 // ADM-SCR-16 / design/admin.md §12.3 defaults for people tables.
@@ -95,71 +106,73 @@ function openFromRow(user: UserRow): void {
     }
 }
 
-// --- confirm (CMP-ADM-CONFIRM) -------------------------------------------------------------------
-type Pending =
-    | { kind: 'deactivate-one'; user: UserRow }
-    | { kind: 'deactivate-many'; selection: TableSelection };
+// --- confirm (CMP-ADM-CONFIRM, UX-09) -------------------------------------------------------------
+const confirm = useConfirm();
+const noun = (count: number): string => (count === 1 ? 'user' : 'users');
 
-const pending = ref<Pending | null>(null);
-const confirmOpen = ref(false);
-const processing = ref(false);
+async function deactivateOne(user: UserRow): Promise<void> {
+    const answer = await confirm({
+        title: 'Deactivate this user?',
+        subject: user.name,
+        description:
+            'They can no longer sign in, and any session they have open ends now. Their open leads are reassigned. You can activate them again at any time.',
+        confirmLabel: 'Deactivate user',
+        destructive: true,
+    });
 
-function ask(next: Pending): void {
-    pending.value = next;
-    confirmOpen.value = true;
+    if (answer) {
+        router.post(deactivate.url(user.id), {}, { preserveScroll: true });
+    }
 }
 
-const confirmTitle = computed(() => {
-    if (pending.value?.kind === 'deactivate-one') {
-        return `Deactivate ${pending.value.user.name}?`;
+async function deactivateMany(selection: TableSelection): Promise<void> {
+    const answer = await confirm({
+        title: `Deactivate ${selection.count} ${noun(selection.count)}?`,
+        description:
+            'They can no longer sign in, and any session they have open ends now. People you may not deactivate (yourself, or the last Super Admin) are skipped and listed. Open leads are reassigned. You can activate them again at any time.',
+        confirmLabel: `Deactivate ${noun(selection.count)}`,
+        destructive: true,
+    });
+
+    if (answer) {
+        postBulk('deactivate', selection);
     }
+}
 
-    const count =
-        pending.value?.kind === 'deactivate-many'
-            ? pending.value.selection.count
-            : 0;
+// DEL-02: Delete = Recycle bin. The consequence is named; the toast offers Undo for 8 s.
+async function deleteOne(user: UserRow): Promise<void> {
+    const answer = await confirm({
+        title: 'Delete this user?',
+        subject: user.name,
+        description:
+            'They move to the Recycle bin and can no longer sign in. Their past activity stays in the log. You can restore them from the bin at any time; users are never removed automatically.',
+        confirmLabel: 'Delete user',
+        destructive: true,
+    });
 
-    return `Deactivate ${count} ${count === 1 ? 'user' : 'users'}?`;
-});
-
-const confirmLabel = computed(() =>
-    pending.value?.kind === 'deactivate-one'
-        ? 'Deactivate user'
-        : `Deactivate ${pending.value?.kind === 'deactivate-many' && pending.value.selection.count === 1 ? 'user' : 'users'}`,
-);
-
-const confirmDescription = computed(() =>
-    pending.value?.kind === 'deactivate-one'
-        ? 'They can no longer sign in, and any session they have open ends now. Their open leads are reassigned. You can activate them again at any time.'
-        : 'They can no longer sign in, and any session they have open ends now. People you may not deactivate (yourself, or the last Super Admin) are skipped and listed. Open leads are reassigned. You can activate them again at any time.',
-);
-
-function confirmed(): void {
-    const current = pending.value;
-
-    if (!current) {
-        return;
+    if (answer) {
+        router.delete(destroy.url(user.id), { preserveScroll: true });
     }
+}
 
-    processing.value = true;
+async function deleteMany(selection: TableSelection): Promise<void> {
+    const answer = await confirm({
+        title: `Delete ${selection.count} ${noun(selection.count)}?`,
+        description:
+            'They move to the Recycle bin and can no longer sign in. People you may not delete (yourself, or the last Super Admin) are skipped and listed.',
+        confirmLabel: `Delete ${noun(selection.count)}`,
+        destructive: true,
+        typeToConfirm:
+            selection.count > 20 ? `DELETE ${selection.count}` : undefined,
+    });
 
-    const done = {
-        preserveScroll: true,
-        onFinish: () => {
-            processing.value = false;
-            confirmOpen.value = false;
-        },
-    };
-
-    if (current.kind === 'deactivate-one') {
-        router.post(deactivate.url(current.user.id), {}, done);
-    } else {
-        postBulk('deactivate', current.selection, done);
+    if (answer) {
+        postBulk('delete', selection);
     }
 }
 
 function postBulk(
-    action: 'activate' | 'deactivate',
+    action: 'activate' | 'deactivate' | 'delete',
     selection: TableSelection,
     options: Record<string, unknown> = { preserveScroll: true },
 ): void {
@@ -192,7 +205,7 @@ function rowActions(user: UserRow): DataTableRowAction[] {
                   icon: UserX,
                   destructive: true,
                   disabledReason: user.can.toggle ? null : user.blocked.toggle,
-                  onSelect: () => ask({ kind: 'deactivate-one', user }),
+                  onSelect: () => void deactivateOne(user),
               }
             : {
                   id: 'activate',
@@ -207,6 +220,15 @@ function rowActions(user: UserRow): DataTableRowAction[] {
                       ),
               },
         {
+            id: 'delete',
+            label: 'Delete',
+            icon: Trash2,
+            destructive: true,
+            hidden: !user.can.delete_visible,
+            disabledReason: user.can.delete ? null : user.blocked.delete,
+            onSelect: () => void deleteOne(user),
+        },
+        {
             id: 'resend',
             label: 'Resend invitation',
             icon: Mail,
@@ -217,7 +239,8 @@ function rowActions(user: UserRow): DataTableRowAction[] {
     ];
 }
 
-const bulkActions: DataTableBulkAction[] = [
+const { can } = useCan();
+const bulkActions = computed<DataTableBulkAction[]>(() => [
     {
         id: 'activate',
         label: 'Activate',
@@ -229,17 +252,65 @@ const bulkActions: DataTableBulkAction[] = [
         label: 'Deactivate',
         icon: UserX,
         destructive: true,
-        run: (selection) => ask({ kind: 'deactivate-many', selection }),
+        run: (selection) => void deactivateMany(selection),
     },
-];
+    // Delete → Recycle bin is Super Admin only; others never see the button (HELP-08).
+    ...(can('users.delete')
+        ? [
+              {
+                  id: 'delete',
+                  label: 'Delete',
+                  icon: Trash2,
+                  destructive: true,
+                  run: (selection: TableSelection) =>
+                      void deleteMany(selection),
+              },
+          ]
+        : []),
+]);
+
+// CRUD-02: status tabs with counts. They are links that set `filter[status]`, the same state the
+// table's own filter chips edit.
+const page = usePage();
+const currentStatus = computed(
+    () =>
+        new URLSearchParams(page.url.split('?')[1] ?? '').get(
+            'filter[status]',
+        ) ?? '',
+);
+
+const statusTabs = computed<ListTab[]>(() => {
+    const options = props.filterOptions.status ?? [];
+    const total = options.reduce((sum, option) => sum + (option.count ?? 0), 0);
+    const tab = (key: string, label: string, count: number): ListTab => ({
+        key,
+        label,
+        count,
+        href:
+            key === ''
+                ? usersIndex.url()
+                : `${usersIndex.url()}?filter[status]=${key}`,
+        active: currentStatus.value === key,
+    });
+
+    return [
+        tab('', 'All', total),
+        ...options.map((option) =>
+            tab(option.value, option.label, option.count ?? 0),
+        ),
+    ];
+});
 </script>
 
 <template>
     <Head title="Users" />
 
-    <AdminPageHeader
+    <ListPageHeader
         title="Users & roles"
         description="Invite people, set their role and deactivate accounts. A role decides which sections someone can open."
+        :tabs="statusTabs"
+        :bin-count="can('users.delete') ? binCount : 0"
+        :bin-href="binIndex.url({ query: { 'filter[type]': 'user' } })"
     >
         <template #actions>
             <Button @click="openDialog(null)">
@@ -254,7 +325,7 @@ const bulkActions: DataTableBulkAction[] = [
                 :can-roles="canManageRoles"
             />
         </template>
-    </AdminPageHeader>
+    </ListPageHeader>
 
     <DataTable
         table-key="users"
@@ -320,15 +391,5 @@ const bulkActions: DataTableBulkAction[] = [
         v-model:open="dialogOpen"
         :user="dialogUser"
         :roles="assignableRoles"
-    />
-
-    <ConfirmDialog
-        v-model:open="confirmOpen"
-        :title="confirmTitle"
-        :description="confirmDescription"
-        :confirm-label="confirmLabel"
-        destructive
-        :processing="processing"
-        @confirm="confirmed"
     />
 </template>

@@ -10,10 +10,10 @@ use App\Http\Requests\Admin\SaveTableViewRequest;
 use App\Http\Requests\Admin\UpdateTableViewRequest;
 use App\Models\SavedTableView;
 use App\Queries\Admin\AdminTables;
+use App\Support\Toasts\Toast;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Inertia\Inertia;
 
 /**
  * ADM-TBL-010 saved views. After a save the browser lands on the table with `?view={id}`.
@@ -31,7 +31,7 @@ class TableViewController extends Controller
             $request->boolean('is_default'),
         );
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('View “:name” saved.', ['name' => $view->name])]);
+        Toast::success('View saved')->description($view->name)->flash();
 
         return $this->open($view);
     }
@@ -43,12 +43,11 @@ class TableViewController extends Controller
 
         $view = $updateTableView->handle($view, $state, $default);
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => $state !== null
-                ? __('View “:name” updated.', ['name' => $view->name])
-                : ($view->is_default ? __('“:name” is now your default view.', ['name' => $view->name]) : __('“:name” is no longer your default view.', ['name' => $view->name])),
-        ]);
+        Toast::success(match (true) {
+            $state !== null => 'View updated',
+            $view->is_default => 'Default view set',
+            default => 'Default view cleared',
+        })->description($view->name)->flash();
 
         return $state !== null ? $this->open($view) : back();
     }
@@ -59,7 +58,7 @@ class TableViewController extends Controller
 
         $deleteTableView->handle($view);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('View “:name” deleted.', ['name' => $view->name])]);
+        Toast::success('View deleted')->description($view->name)->flash();
 
         return redirect(AdminTables::find($view->table_key)?->url() ?? route('admin.dashboard'));
     }

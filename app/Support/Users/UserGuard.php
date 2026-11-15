@@ -42,6 +42,20 @@ final class UserGuard
     }
 
     /**
+     * DEL-03 guards for moving a user into the Recycle bin: not yourself, a Super Admin only by a
+     * Super Admin, never the last active Super Admin. Users with open leads join this guard with
+     * the Leads module (15.1: reassign them first, ADM-AUTH-007).
+     */
+    public static function deleteBlock(User $actor, User $target): ?string
+    {
+        if ($actor->is($target)) {
+            return (string) __('You cannot delete your own account.');
+        }
+
+        return self::editBlock($actor, $target) ?? self::lastSuperAdminBlock($target);
+    }
+
+    /**
      * @param  string  $roleName  the role the target would hold afterwards
      */
     public static function roleChangeBlock(User $actor, User $target, string $roleName): ?string

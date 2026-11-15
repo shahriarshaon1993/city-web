@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\SaveRoleRequest;
 use App\Queries\Admin\RolesTable;
 use App\Support\Auth\PermissionMatrix;
 use App\Support\Auth\SystemRole;
+use App\Support\Toasts\Toast;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -62,7 +63,7 @@ class RoleController extends Controller
     {
         $role = $saveRole->handle($request->user(), null, $request->string('name')->toString(), $request->input('permissions', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Role “:name” created.', ['name' => $role->name])]);
+        Toast::success('Role created')->description($role->name)->flash();
 
         return to_route('admin.roles.index');
     }
@@ -71,7 +72,7 @@ class RoleController extends Controller
     {
         $role = $saveRole->handle($request->user(), $role, $request->string('name')->toString(), $request->input('permissions', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Role “:name” saved.', ['name' => $role->name])]);
+        Toast::success('Role saved')->description($role->name)->flash();
 
         return to_route('admin.roles.index');
     }
@@ -83,12 +84,12 @@ class RoleController extends Controller
         try {
             $deleteRole->handle($request->user(), $role);
         } catch (ValidationException $exception) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => $exception->validator->errors()->first()]);
+            Toast::error($exception->validator->errors()->first())->flash();
 
             return back();
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Role “:name” deleted.', ['name' => $role->name])]);
+        Toast::success('Role deleted')->description($role->name)->flash();
 
         return to_route('admin.roles.index');
     }

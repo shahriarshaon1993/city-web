@@ -3,6 +3,8 @@
 namespace App\Support\Admin;
 
 use App\Models\User;
+use App\Queries\Admin\RecycleBinTable;
+use App\Support\RecycleBin\BinTypes;
 
 /**
  * Sidebar groups and items (design/admin.md §12.1) with the permissions of
@@ -51,6 +53,7 @@ final class AdminNavigation
                 new NavItem('settings', 'Settings', 'admin/settings', 'settings', ['settings.manage', 'settings.integrations'], 'Company details, contact, header, footer, forms and integrations.', '12.1'),
                 new NavItem('users', 'Users & roles', 'admin/users', 'user-cog', ['users.manage', 'roles.manage'], 'Invite people, set their role and see what each role may do.', '10.3', placeholder: false),
                 new NavItem('activity-log', 'Activity log', 'admin/activity-log', 'history', ['activity.view-all', 'activity.view-own'], 'Who changed what, and when.', '10.3', placeholder: false),
+                new NavItem('recycle-bin', 'Recycle bin', 'admin/recycle-bin', 'trash-2', BinTypes::permissions(), 'Deleted items wait here until you restore them or they are removed for good.', '10.4', placeholder: false),
                 new NavItem('errors', 'Errors', 'admin/errors', 'triangle-alert', ['maintenance.caches', 'maintenance.manage'], 'Server and browser errors from the site.', '18.2'),
                 new NavItem('maintenance', 'Maintenance', 'admin/maintenance', 'wrench', ['maintenance.manage', 'maintenance.caches'], 'Caches, application health and maintenance mode.', '18.2'),
             ],
@@ -110,7 +113,7 @@ final class AdminNavigation
                         'label' => $item->label,
                         'href' => url($item->path),
                         'icon' => $item->icon,
-                        'count' => null,
+                        'count' => $item->key === 'recycle-bin' ? (RecycleBinTable::countFor($user) ?: null) : null,
                     ];
                 }
             }

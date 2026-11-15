@@ -12,6 +12,7 @@ use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Http\Requests\Admin\UpdatePreferencesRequest;
 use App\Http\Requests\Admin\UpdateProfileRequest;
 use App\Support\Auth\UserSessions;
+use App\Support\Toasts\Toast;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -32,6 +33,7 @@ class ProfileController extends Controller
         return Inertia::render('admin/Profile', [
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
             'sessions' => UserSessions::for($user, $request->session()->getId()),
+            'lastSaved' => $user->updated_at?->toIso8601String(),
             'breadcrumbs' => [
                 ['title' => 'Account', 'href' => null],
                 ['title' => 'Profile', 'href' => null],
@@ -48,12 +50,13 @@ class ProfileController extends Controller
             $request->filled('phone') ? $request->string('phone')->toString() : null,
         );
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => $emailChanged
-                ? __('Profile saved. Confirm your new email address with the link we sent.')
-                : __('Profile saved.'),
-        ]);
+        $toast = Toast::success('Profile saved');
+
+        if ($emailChanged) {
+            $toast->description('Confirm your new email address with the link we sent.');
+        }
+
+        $toast->flash();
 
         return $emailChanged ? to_route('verification.notice') : back();
     }
@@ -62,7 +65,7 @@ class ProfileController extends Controller
     {
         $changePassword->handle($request->user(), $request->string('password')->toString());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Password changed.')]);
+        Toast::success('Password changed')->flash();
 
         return back();
     }
@@ -87,14 +90,13 @@ class ProfileController extends Controller
     {
         $ended = $signOut->handle($request->user(), $request->session()->getId());
 
-        Inertia::flash('toast', [
-            'type' => $ended > 0 ? 'success' : 'info',
-            'message' => match (true) {
-                $ended === 0 => __('No other sessions were signed in.'),
-                $ended === 1 => __('Signed out 1 other session.'),
-                default => __('Signed out :count other sessions.', ['count' => $ended]),
-            },
-        ]);
+        $toast = match (true) {
+            $ended === 0 => Toast::info('No other sessions were signed in'),
+            $ended === 1 => Toast::success('Signed out 1 other session'),
+            default => Toast::success("Signed out {$ended} other sessions"),
+        };
+
+        $toast->flash();
 
         return back();
     }

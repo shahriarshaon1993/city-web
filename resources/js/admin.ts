@@ -3,7 +3,7 @@ import type { DefineComponent } from 'vue';
 import { initializeTheme } from '@/composables/useAppearance';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { initializeFlashToast } from '@/lib/flashToast';
+import { initializeAdminToasts } from '@/lib/notify';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -43,5 +43,5 @@ void createInertiaApp({
 // This will set light / dark mode on page load...
 initializeTheme();
 
-// This will listen for flash toast data from the server...
-initializeFlashToast();
+// This will listen for flash toasts and failed requests...
+initializeAdminToasts();
