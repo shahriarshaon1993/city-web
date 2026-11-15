@@ -34,7 +34,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 10.2 | Admin shell, navigation, profile                                           | 10.1           | ✅     |
 | 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ✅     |
 | 10.4 | CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin           | 10.3           | ✅     |
-| 11.1 | Media upload, conversions & storage                                        | 10.4           | ⬜     |
+| 11.1 | Media upload, conversions & storage                                        | 10.4           | ✅     |
 | 11.2 | Media library UI, picker & focal point                                     | 11.1           | ⬜     |
 | 12.1 | Settings                                                                   | 11.2           | ⬜     |
 | 12.2 | Menus                                                                      | 12.1           | ⬜     |
@@ -526,6 +526,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 10.4 · **Read:** spec/media.md (all); spec/hero.md HERO-010, HERO-011, HERO-020..023; spec/nfr-ops.md NFR-SEC-12, DEP-PHP-01; spec/architecture.md ARC-011, ARC-014; DECISIONS DEC-31.
 **Build:** owner approves `spatie/laravel-medialibrary` 11, `enshrined/svg-sanitize`, `james-heinrich/getid3`. `media_assets`, `media_folders`, `media_usages` + spatie `media`; MIME by content, size limits, > 40 MP rejected, SVG sanitised, video limits read from the header; queued conversions (`media` queue): widths/formats per CMS-MED-005 and HERO-011, AVIF when supported, `og` focal crop, dominant colour; content-hashed names + immutable cache headers; media resource that outputs exactly the `MediaImage` shape of 0.3.
 **Test:** upload a 6000×4000 JPEG → conversions after `queue:work`; AVIF only if supported; a 45 MP image is rejected; an SVG with `<script>` is cleaned; a 7 MB hero MP4 is rejected with the limit named; the resource JSON keys equal the demo shape.
+
+**Done notes (2026-11-15):**
+- Packages (owner-approved): `spatie/laravel-medialibrary` 11.23, `enshrined/svg-sanitize`, `james-heinrich/getid3`; a full `composer update` was needed to clear a security-advisory block (laravel/framework 13.42). `composer run dev` now listens on `media,default`.
+- Tables: `media` (spatie), `media_folders` (≤ 3 levels enforced in 11.2), `media_assets` (+ `kind`, `conversions_status`), `media_usages`. Models `MediaAsset` (`Trashable`, bin type `media_asset`, 30 days, usage guard), `MediaFolder`, `MediaUsage`.
+- Upload: `Actions/Media/UploadMedia` (`UploadPurpose` Library / HeroImage / HeroVideo) → `Support/Media/UploadInspector` (MIME by bytes, `MediaLimits`, > 40 MP, hero limits, getID3 header), `SvgSanitizer`; `POST admin/media` (`admin.media.store`, `media.upload`). Every refusal is a validation error on `file` naming the limit.
+- Storage: spatie only stores/deletes files; `MediaPathGenerator` (`media/{id}/`) + `MediaFileRemover` (deletes the folder). Names `{sha1-12}.{ext}`, conversions `{hash}-w{n}.{avif|webp|jpg}`, `{hash}-og.jpg`; `.htaccess` sends `immutable` for `/storage/media/` (Apache only).
+- Conversions: own GD Action `GenerateConversions` (decode once), job `Jobs/Media/GenerateMediaConversions` on queue `media` (3 tries, backoff 60/300/900, failure → `conversions_status=failed`); result kept in the media custom property `renditions` (`Support/Media/Renditions`).
+- Output: `Http/Resources/Media/{MediaImage,MediaVideo,MediaDocument}Resource` = the 0.3 demo shapes (SVG / pending use the DEC-47 shape); admin shape in `Resources/Admin/MediaAssetResource`.
+- Check scripts `docs/checks/11.1-media.php` (62 assertions, rolled back) and `11.1-media-queue.php` (real queue). Left for 11.2: folder Actions, Replace everywhere, all UI, H.264/no-audio check on hero video (HERO-020).
 
 ### 11.2 — Media library UI, picker & focal point
 

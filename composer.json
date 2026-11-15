@@ -10,13 +10,16 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "enshrined/svg-sanitize": "^1.1",
         "inertiajs/inertia-laravel": "^3.0",
+        "james-heinrich/getid3": "^1.9",
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "spatie/laravel-activitylog": "4.12.3",
+        "spatie/laravel-medialibrary": "^11.23",
         "spatie/laravel-permission": "7.4.2",
         "spatie/laravel-query-builder": "7.3.7",
         "spatie/simple-excel": "3.11.0"
@@ -57,7 +60,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --queue=media,default --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
         "lint": [
             "pint --parallel"

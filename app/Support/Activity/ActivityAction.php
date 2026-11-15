@@ -30,6 +30,11 @@ final class ActivityAction
         'users.restored' => ['Restored', 'success'],
         'users.deleted_forever' => ['Deleted forever', 'error'],
         'users.purged' => ['Auto-deleted', 'error'],
+        'media.uploaded' => ['Uploaded', 'success'],
+        'media_assets.deleted' => ['Moved to bin', 'warning'],
+        'media_assets.restored' => ['Restored', 'success'],
+        'media_assets.deleted_forever' => ['Deleted forever', 'error'],
+        'media_assets.purged' => ['Auto-deleted', 'error'],
         'export.exported' => ['Exported', 'neutral'],
     ];
 

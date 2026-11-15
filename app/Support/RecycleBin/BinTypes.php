@@ -2,6 +2,7 @@
 
 namespace App\Support\RecycleBin;
 
+use App\Models\MediaAsset;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +17,7 @@ final class BinTypes
      */
     private const array TYPES = [
         User::class,
+        MediaAsset::class,
     ];
 
     /**

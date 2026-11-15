@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\RecordAuthEvents;
+use App\Models\MediaAsset;
+use App\Models\MediaFolder;
 use App\Models\User;
 use App\Policies\RolePolicy;
 use App\Support\Auth\LoginThrottle;
@@ -60,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::enforceMorphMap([
             'user' => User::class,
+            'media_asset' => MediaAsset::class,
+            'media_folder' => MediaFolder::class,
         ]);
     }
 
