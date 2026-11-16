@@ -37,10 +37,17 @@ final readonly class TableState
     /**
      * @param  list<string>  $allowedSorts
      * @param  list<string>  $allowedFilters
+     * @param  list<int>  $perPageOptions  a table may offer its own (media: 24 / 48 / 96, CMS-MED-009)
      */
-    public static function fromRequest(Request $request, array $allowedSorts, array $allowedFilters, string $defaultSort): self
-    {
-        $perPage = (int) $request->input('per_page', self::DEFAULT_PER_PAGE);
+    public static function fromRequest(
+        Request $request,
+        array $allowedSorts,
+        array $allowedFilters,
+        string $defaultSort,
+        array $perPageOptions = self::PER_PAGE_OPTIONS,
+        int $defaultPerPage = self::DEFAULT_PER_PAGE,
+    ): self {
+        $perPage = (int) $request->input('per_page', $defaultPerPage);
 
         $sorts = [];
         $seen = [];
@@ -73,7 +80,7 @@ final readonly class TableState
 
         return new self(
             page: max(1, (int) $request->input('page', 1)),
-            perPage: in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : self::DEFAULT_PER_PAGE,
+            perPage: in_array($perPage, $perPageOptions, true) ? $perPage : $defaultPerPage,
             sorts: array_slice($sorts, 0, self::MAX_SORTS) ?: [$defaultSort],
             filters: $filters,
             search: mb_substr(trim((string) $request->input('search', '')), 0, self::MAX_SEARCH_LENGTH),

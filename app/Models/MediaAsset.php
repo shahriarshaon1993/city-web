@@ -182,7 +182,8 @@ class MediaAsset extends Model implements HasMedia, Trashable
 
     public function binUrl(): ?string
     {
-        return route('admin.media.index', ['search' => $this->title]);
+        // Opens the library with this item's detail drawer.
+        return route('admin.media.index', ['asset' => $this->id]);
     }
 
     /** CMS-MED-008 / DEL-03: a used file cannot be deleted. */

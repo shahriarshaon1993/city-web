@@ -19,7 +19,10 @@ import { PER_PAGE_OPTIONS } from '@/lib/table-state';
 import type { TableMeta } from '@/types';
 
 // ADM-TBL-001 footer: "Showing 1–25 of 312", rows per page, first / previous / page input / next / last.
-const props = defineProps<{ scope: string; meta: TableMeta }>();
+const props = withDefaults(
+    defineProps<{ scope: string; meta: TableMeta; perPageLabel?: string }>(),
+    { perPageLabel: 'Rows per page' },
+);
 
 const emit = defineEmits<{
     page: [page: number];
@@ -59,8 +62,10 @@ function goToInput(): void {
 
         <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
             <div class="flex items-center gap-2">
-                <label :for="`${scope}-per-page`" class="text-muted-foreground"
-                    >Rows per page</label
+                <label
+                    :for="`${scope}-per-page`"
+                    class="text-muted-foreground"
+                    >{{ perPageLabel }}</label
                 >
                 <Select
                     :model-value="String(meta.per_page)"
@@ -70,13 +75,14 @@ function goToInput(): void {
                 >
                     <SelectTrigger
                         :id="`${scope}-per-page`"
-                        class="h-9 w-20 text-sm"
+                        class="h-9 w-24 text-sm"
                     >
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem
-                            v-for="size in PER_PAGE_OPTIONS"
+                            v-for="size in meta.per_page_options ??
+                            PER_PAGE_OPTIONS"
                             :key="size"
                             :value="String(size)"
                         >

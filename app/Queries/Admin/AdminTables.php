@@ -16,6 +16,7 @@ final class AdminTables
         RolesTable::class,
         ActivityLogTable::class,
         RecycleBinTable::class,
+        MediaTable::class,
     ];
 
     /**

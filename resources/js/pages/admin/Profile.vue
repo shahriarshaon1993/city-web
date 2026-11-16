@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Form, Head, useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import ProfileController from '@/actions/App/Http/Controllers/Admin/ProfileController';
 import AdminEditor from '@/components/admin/AdminEditor.vue';
 import AdminSection from '@/components/admin/AdminSection.vue';
+import MediaField from '@/components/admin/media/MediaField.vue';
 import DisplaySection from '@/components/admin/profile/DisplaySection.vue';
 import SessionsSection from '@/components/admin/profile/SessionsSection.vue';
 import InputError from '@/components/InputError.vue';
@@ -13,12 +14,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { update } from '@/routes/admin/profile';
-import type { UserSession } from '@/types';
+import type { MediaAsset, UserSession } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     passwordRules: string;
     sessions: UserSession[];
     lastSaved: string | null;
+    avatar: MediaAsset | null;
 }>();
 
 const user = computed(() => usePage().props.auth.user);
@@ -30,7 +32,11 @@ const form = useForm({
     name: user.value.name,
     email: user.value.email,
     phone: user.value.phone ?? '',
+    avatar_asset_id: props.avatar?.id ?? null,
 });
+
+// ADM-SCR-20 / CMS-MED-010: the profile picture is a library image, chosen with the media picker.
+const avatarAsset = ref<MediaAsset | null>(props.avatar);
 
 function save(): void {
     form.patch(update.url(), { preserveScroll: true });
@@ -132,10 +138,27 @@ function save(): void {
                         </p>
                     </div>
 
-                    <p class="text-xs text-muted-foreground">
-                        Profile pictures arrive with the media library (phase
-                        11.2); until then your initials are shown.
-                    </p>
+                    <div class="grid gap-2">
+                        <Label for="avatar">Profile picture</Label>
+                        <MediaField
+                            id="avatar"
+                            v-model="form.avatar_asset_id"
+                            v-model:asset="avatarAsset"
+                            :kinds="['image', 'svg']"
+                            choose-label="Choose picture"
+                            picker-title="Choose your profile picture"
+                            describedby="avatar-help"
+                            :invalid="!!form.errors.avatar_asset_id"
+                        />
+                        <p
+                            id="avatar-help"
+                            class="text-xs text-muted-foreground"
+                        >
+                            A square photo works best. Without one, your
+                            initials are shown.
+                        </p>
+                        <InputError :message="form.errors.avatar_asset_id" />
+                    </div>
                 </form>
             </AdminSection>
 

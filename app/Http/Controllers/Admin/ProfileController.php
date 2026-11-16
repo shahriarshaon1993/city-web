@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\SignOutOtherSessionsRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Http\Requests\Admin\UpdatePreferencesRequest;
 use App\Http\Requests\Admin\UpdateProfileRequest;
+use App\Http\Resources\Admin\MediaAssetResource;
 use App\Support\Auth\UserSessions;
 use App\Support\Toasts\Toast;
 use Illuminate\Http\RedirectResponse;
@@ -34,6 +35,8 @@ class ProfileController extends Controller
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
             'sessions' => UserSessions::for($user, $request->session()->getId()),
             'lastSaved' => $user->updated_at?->toIso8601String(),
+            // CMS-MED-010: the picture field shows the chosen library item.
+            'avatar' => $user->avatar === null ? null : (new MediaAssetResource($user->avatar->load('media')))->resolve($request),
             'breadcrumbs' => [
                 ['title' => 'Account', 'href' => null],
                 ['title' => 'Profile', 'href' => null],
@@ -48,6 +51,7 @@ class ProfileController extends Controller
             $request->string('name')->toString(),
             $request->string('email')->toString(),
             $request->filled('phone') ? $request->string('phone')->toString() : null,
+            $request->integer('avatar_asset_id') ?: null,
         );
 
         $toast = Toast::success('Profile saved');

@@ -24,6 +24,11 @@ class UpdateProfileRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->getKey()),
             ],
             'phone' => ['nullable', 'string', 'max:20', 'regex:/^\+?[0-9][0-9 \-]{5,19}$/'],
+            // A raster image or SVG from the library; trashed items are not offered.
+            'avatar_asset_id' => [
+                'nullable', 'integer',
+                Rule::exists('media_assets', 'id')->whereNull('deleted_at')->whereIn('kind', ['image', 'svg']),
+            ],
         ];
     }
 
@@ -34,6 +39,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'phone.regex' => 'Enter a phone number with digits, spaces or dashes, e.g. +880 1712-345678.',
+            'avatar_asset_id.exists' => 'Choose an image from the library; that file is gone or is not an image.',
         ];
     }
 }

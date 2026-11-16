@@ -5,16 +5,24 @@ import {
     ArrowUpDown,
     ChevronRight,
     GripVertical,
+    LayoutGrid,
+    List,
     Rows2,
     Rows3,
     Search,
-    TriangleAlert,
     X,
 } from '@lucide/vue';
 import { computed, ref, useId } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import {
@@ -32,6 +40,7 @@ import type {
     DataTableColumn,
     DataTableRowAction,
     FilterDef,
+    SortOption,
     TableMeta,
     TableSelection,
     TableViewItem,
@@ -44,12 +53,15 @@ import DataTableFilter from './DataTableFilter.vue';
 import DataTablePagination from './DataTablePagination.vue';
 import DataTableResizeHandle from './DataTableResizeHandle.vue';
 import DataTableRowActions from './DataTableRowActions.vue';
+import DataTableStatus from './DataTableStatus.vue';
 import DataTableViews from './DataTableViews.vue';
 
 // CMP-ADM-TABLE / ADM-TBL-001..016 — the one admin list (DEC-34). TanStack Table in manual mode
 // (useDataTable) renders with the shadcn-vue Table primitives; the server (AdminTable) does the
 // paging, sorting and filtering, and the URL holds the whole state. Cells are slots:
 // `#cell-{columnId}="{ row, value, search }"`; `#expanded="{ row }"` fills an expandable row.
+// With `grid-view`, `#grid="{ rows, isSelected, toggleSelected, search }"` renders the grid layout
+// (media library); `layout=list` in the URL switches to the table.
 const props = withDefaults(
     defineProps<{
         tableKey: string;
@@ -72,6 +84,14 @@ const props = withDefaults(
         exportable?: boolean;
         emptyTitle?: string;
         emptyDescription?: string;
+        /** Offers a grid layout (the `#grid` slot), the default until the user picks the list. */
+        gridView?: boolean;
+        /** A sort select in the toolbar; needed when the grid has no headers to click. */
+        sortOptions?: SortOption[];
+        /** Filters set outside the table (media folder tree): kept by Reset, never a chip. */
+        lockedFilters?: string[];
+        /** Search and view controls on the first row, the filters on a second row (media). */
+        splitToolbar?: boolean;
     }>(),
     {
         filters: () => [],
@@ -85,6 +105,10 @@ const props = withDefaults(
         exportable: true,
         emptyTitle: undefined,
         emptyDescription: undefined,
+        gridView: false,
+        sortOptions: () => [],
+        lockedFilters: () => [],
+        splitToolbar: false,
     },
 );
 
@@ -98,6 +122,7 @@ const scope = useId();
 const {
     table,
     urlState,
+    ownFilters,
     visibleCols,
     density,
     loading,
@@ -112,6 +137,8 @@ const {
     removeFilterKeys,
     reset,
     toggleSort,
+    setSort,
+    setLayout,
     sortOf,
     setPage,
     setPerPage,
@@ -133,6 +160,25 @@ const {
 const tableEl = ref<HTMLElement | null>(null);
 const expanded = ref<Set<string | number>>(new Set());
 const dragged = ref<string | null>(null);
+
+const layout = computed<'grid' | 'list'>(() =>
+    props.gridView ? (urlState.value.layout ?? 'grid') : 'list',
+);
+
+/** The sort select shows the server's sort (a header click may set one it does not list). */
+const sortValue = computed(() => props.meta.sort.join(','));
+
+function isSelected(row: Row): boolean {
+    return rowSelectionOf(row)?.getIsSelected() ?? false;
+}
+
+function toggleSelected(row: Row, value?: boolean): void {
+    rowSelectionOf(row)?.toggleSelected(value);
+}
+
+function rowSelectionOf(row: Row) {
+    return table.getRowModel().rowsById[String(row.id)];
+}
 
 const rowHeight = computed(() =>
     density.value === 'compact' ? 'h-10' : 'h-14',
@@ -223,12 +269,31 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
 
 <template>
     <section
-        class="rounded-lg border bg-card text-card-foreground"
+        :class="
+            cn(
+                'border bg-card text-card-foreground',
+                gridView ? 'rounded-xl shadow-xs' : 'rounded-lg',
+            )
+        "
         :aria-label="`${noun} table`"
     >
         <!-- toolbar -->
-        <div class="flex flex-wrap items-center gap-2 border-b p-4">
-            <div class="relative w-full sm:w-80">
+        <div
+            :class="
+                cn(
+                    'flex flex-wrap items-center gap-2 border-b p-4',
+                    splitToolbar && 'gap-y-3',
+                )
+            "
+        >
+            <div
+                :class="
+                    cn(
+                        'relative w-full sm:w-80',
+                        splitToolbar && 'order-1 sm:max-w-md sm:flex-1',
+                    )
+                "
+            >
                 <Search
                     class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                     aria-hidden="true"
@@ -256,32 +321,85 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
                 </button>
             </div>
 
-            <DataTableFilter
-                v-for="def in filters"
-                :key="def.id"
-                :def="def"
-                :filters="urlState.filters"
-                :scope="scope"
-                @change="setFilters"
-            />
-
-            <Button
-                v-if="hasActiveState"
-                type="button"
-                variant="ghost"
-                size="sm"
-                @click="reset"
+            <div
+                :class="
+                    splitToolbar
+                        ? 'order-3 flex w-full flex-wrap items-center gap-2'
+                        : 'contents'
+                "
             >
-                Reset
-            </Button>
+                <DataTableFilter
+                    v-for="def in filters.filter((item) => !item.hidden)"
+                    :key="def.id"
+                    :def="def"
+                    :filters="urlState.filters"
+                    :scope="scope"
+                    @change="setFilters"
+                />
 
-            <Spinner
-                v-if="loading"
-                class="size-4 text-muted-foreground"
-                aria-hidden="true"
-            />
+                <slot
+                    name="toolbar-filters"
+                    :filters="urlState.filters"
+                    :set-filters="setFilters"
+                />
 
-            <div class="ml-auto flex flex-wrap items-center gap-2">
+                <Button
+                    v-if="hasActiveState"
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    @click="reset"
+                >
+                    Reset
+                </Button>
+
+                <Spinner
+                    v-if="loading"
+                    class="size-4 text-muted-foreground"
+                    aria-hidden="true"
+                />
+            </div>
+
+            <div
+                :class="
+                    cn(
+                        'ml-auto flex flex-wrap items-center gap-2',
+                        splitToolbar && 'order-2',
+                    )
+                "
+            >
+                <div v-if="sortOptions.length" class="flex items-center gap-2">
+                    <label
+                        :for="`${scope}-sort`"
+                        class="text-sm text-muted-foreground"
+                        >Sort</label
+                    >
+                    <Select
+                        :model-value="sortValue"
+                        @update:model-value="
+                            (value) =>
+                                setSort(
+                                    String(value).split(',').filter(Boolean),
+                                )
+                        "
+                    >
+                        <SelectTrigger
+                            :id="`${scope}-sort`"
+                            class="h-9 w-40 text-sm"
+                        >
+                            <SelectValue placeholder="Custom" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem
+                                v-for="option in sortOptions"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
                 <DataTableViews
                     :scope="scope"
                     :table-key="tableKey"
@@ -292,6 +410,7 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
                     @apply="applyView"
                 />
                 <DataTableColumnMenu
+                    v-if="layout === 'list'"
                     :scope="scope"
                     :columns="columns"
                     :visible="visibleCols"
@@ -302,6 +421,7 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
                     @reset="resetColumns"
                 />
                 <div
+                    v-if="layout === 'list'"
                     class="inline-flex rounded-md border"
                     role="group"
                     aria-label="Row density"
@@ -336,6 +456,46 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
                     :table-key="tableKey"
                     :parameters="exportParameters"
                 />
+                <!-- CMP-ADM-MEDIA: grid / list segmented control -->
+                <div
+                    v-if="gridView"
+                    class="inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5"
+                    role="group"
+                    aria-label="Layout"
+                >
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        class="rounded-md hover:bg-transparent"
+                        :class="
+                            layout === 'grid'
+                                ? 'bg-background text-foreground shadow-xs hover:bg-background'
+                                : 'text-muted-foreground'
+                        "
+                        :aria-pressed="layout === 'grid'"
+                        aria-label="Grid view"
+                        @click="setLayout('grid')"
+                    >
+                        <LayoutGrid aria-hidden="true" />
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        class="rounded-md hover:bg-transparent"
+                        :class="
+                            layout === 'list'
+                                ? 'bg-background text-foreground shadow-xs hover:bg-background'
+                                : 'text-muted-foreground'
+                        "
+                        :aria-pressed="layout === 'list'"
+                        aria-label="List view"
+                        @click="setLayout('list')"
+                    >
+                        <List aria-hidden="true" />
+                    </Button>
+                </div>
                 <slot name="toolbar-actions" />
             </div>
         </div>
@@ -344,21 +504,66 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
         <div
             v-if="
                 hasActiveState &&
-                (urlState.search || Object.keys(urlState.filters).length)
+                (urlState.search || Object.keys(ownFilters).length)
             "
             class="border-b px-4 py-3"
         >
             <DataTableChips
                 :defs="filters"
-                :filters="urlState.filters"
+                :filters="ownFilters"
                 :search="urlState.search"
                 @remove="removeFilterKeys"
                 @clear-search="searchInput = ''"
             />
         </div>
 
+        <!-- grid (CMP-ADM-MEDIA) -->
+        <div
+            v-if="layout === 'grid'"
+            class="max-h-[calc(100dvh-14rem)] min-h-40 overflow-auto p-4"
+            :class="
+                loading ? 'opacity-60 transition-opacity' : 'transition-opacity'
+            "
+            :aria-busy="loading"
+        >
+            <div
+                v-if="failed || rows.length === 0"
+                class="grid min-h-40 place-items-center"
+            >
+                <Skeleton
+                    v-if="!failed && loading"
+                    class="h-40 w-full"
+                    aria-hidden="true"
+                />
+                <DataTableStatus
+                    v-else
+                    :state="failed ? 'failed' : 'empty'"
+                    :noun="noun"
+                    :filtered="hasActiveState"
+                    :empty-title="emptyTitle"
+                    :empty-description="emptyDescription"
+                    @retry="retry"
+                    @reset="reset"
+                >
+                    <template v-if="$slots['empty-icon']" #icon
+                        ><slot name="empty-icon"
+                    /></template>
+                    <slot name="empty-action" />
+                </DataTableStatus>
+            </div>
+            <slot
+                v-else
+                name="grid"
+                :rows="rows"
+                :is-selected="isSelected"
+                :toggle-selected="toggleSelected"
+                :search="urlState.search"
+            />
+        </div>
+
         <!-- table -->
         <div
+            v-else
             ref="tableEl"
             class="max-h-[calc(100dvh-14rem)] min-h-40 overflow-auto"
             :aria-busy="loading"
@@ -533,27 +738,13 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
                 >
                     <!-- error with retry (ADM-TBL-014) -->
                     <TableRow v-if="failed">
-                        <TableCell :colspan="colCount" class="h-40 text-center">
-                            <div
-                                role="alert"
-                                class="mx-auto grid max-w-sm justify-items-center gap-3"
-                            >
-                                <TriangleAlert
-                                    class="size-6 text-destructive"
-                                    aria-hidden="true"
-                                />
-                                <p class="text-sm">
-                                    This table could not be loaded. Check your
-                                    connection and try again.
-                                </p>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    @click="retry"
-                                    >Try again</Button
-                                >
-                            </div>
+                        <TableCell :colspan="colCount" class="h-40">
+                            <DataTableStatus
+                                state="failed"
+                                :noun="noun"
+                                :filtered="false"
+                                @retry="retry"
+                            />
                         </TableCell>
                     </TableRow>
 
@@ -572,41 +763,17 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
 
                     <!-- empty -->
                     <TableRow v-else-if="rows.length === 0">
-                        <TableCell :colspan="colCount" class="h-48 text-center">
-                            <div
-                                class="mx-auto grid max-w-sm justify-items-center gap-2"
+                        <TableCell :colspan="colCount" class="h-48">
+                            <DataTableStatus
+                                state="empty"
+                                :noun="noun"
+                                :filtered="hasActiveState"
+                                :empty-title="emptyTitle"
+                                :empty-description="emptyDescription"
+                                @reset="reset"
                             >
-                                <template v-if="hasActiveState">
-                                    <p class="font-medium">
-                                        No {{ noun }}s match
-                                    </p>
-                                    <p class="text-sm text-muted-foreground">
-                                        Nothing fits the search and filters you
-                                        chose.
-                                    </p>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        class="mt-1"
-                                        @click="reset"
-                                    >
-                                        Clear search and filters
-                                    </Button>
-                                </template>
-                                <template v-else>
-                                    <p class="font-medium">
-                                        {{ emptyTitle ?? `No ${noun}s yet` }}
-                                    </p>
-                                    <p
-                                        v-if="emptyDescription"
-                                        class="text-sm text-muted-foreground"
-                                    >
-                                        {{ emptyDescription }}
-                                    </p>
-                                    <slot name="empty-action" />
-                                </template>
-                            </div>
+                                <slot name="empty-action" />
+                            </DataTableStatus>
                         </TableCell>
                     </TableRow>
 
@@ -728,6 +895,9 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
             <DataTablePagination
                 :scope="scope"
                 :meta="meta"
+                :per-page-label="
+                    layout === 'grid' ? 'Per page' : 'Rows per page'
+                "
                 @page="setPage"
                 @per-page="setPerPage"
             />

@@ -10,12 +10,13 @@ import { computed, ref, toRef, watch } from 'vue';
 import {
     clampWidth,
     cycleSort,
+    DEFAULT_PER_PAGE_CONFIG,
     parseTableState,
     serializeTableState,
     viewPayload,
     viewQuery,
 } from '@/lib/table-state';
-import type { TableUrlState } from '@/lib/table-state';
+import type { PerPageConfig, TableUrlState } from '@/lib/table-state';
 import { preferences } from '@/routes/admin/profile';
 import type {
     DataTableColumn,
@@ -44,11 +45,26 @@ export function useDataTable<Row extends RowWithId>(props: {
     rows: Row[];
     meta: TableMeta;
     views?: TableViewItem[];
+    /** Filters set outside the table (the media folder tree): kept by Reset, never a chip. */
+    lockedFilters?: string[];
 }) {
     const page = usePage();
 
     const path = computed(() => new URL(page.url, 'http://localhost').pathname);
-    const urlState = computed(() => parseTableState(page.url));
+    const perPageConfig = computed<PerPageConfig>(() =>
+        props.meta.per_page_options?.length
+            ? {
+                  options: props.meta.per_page_options,
+                  fallback:
+                      props.meta.default_per_page ??
+                      props.meta.per_page_options[0],
+              }
+            : DEFAULT_PER_PAGE_CONFIG,
+    );
+    const urlState = computed(() =>
+        parseTableState(page.url, perPageConfig.value),
+    );
+    const locked = computed(() => new Set(props.lockedFilters ?? []));
 
     const defaultCols = computed(() =>
         props.columns
@@ -84,7 +100,11 @@ export function useDataTable<Row extends RowWithId>(props: {
         next: TableUrlState,
         options: { replace?: boolean; clientOnly?: boolean } = {},
     ): void {
-        const query = serializeTableState(next, defaultCols.value).toString();
+        const query = serializeTableState(
+            next,
+            defaultCols.value,
+            perPageConfig.value.fallback,
+        ).toString();
         const url = path.value + (query ? `?${query}` : '');
 
         if (options.clientOnly) {
@@ -172,15 +192,31 @@ export function useDataTable<Row extends RowWithId>(props: {
         setFilters(Object.fromEntries(keys.map((key) => [key, null])));
     }
 
+    /** The URL filters minus the locked ones (what chips and Reset deal with). */
+    const ownFilters = computed(() =>
+        Object.fromEntries(
+            Object.entries(urlState.value.filters).filter(
+                ([key]) => !locked.value.has(key),
+            ),
+        ),
+    );
+
     function reset(): void {
         searchInput.value = '';
-        change({ search: '', filters: {}, sort: [] });
+
+        const kept = Object.fromEntries(
+            Object.entries(urlState.value.filters).filter(([key]) =>
+                locked.value.has(key),
+            ),
+        );
+
+        change({ search: '', filters: kept, sort: [] });
     }
 
     const hasActiveState = computed(
         () =>
             urlState.value.search !== '' ||
-            Object.keys(urlState.value.filters).length > 0 ||
+            Object.keys(ownFilters.value).length > 0 ||
             urlState.value.sort.length > 0,
     );
 
@@ -205,6 +241,11 @@ export function useDataTable<Row extends RowWithId>(props: {
             direction: props.meta.sort[index].startsWith('-') ? 'desc' : 'asc',
             position: props.meta.sort.length > 1 ? index + 1 : null,
         };
+    }
+
+    /** The grid's sort select (no column headers to click there). */
+    function setSort(sort: string[]): void {
+        change({ sort });
     }
 
     function setPage(value: number): void {
@@ -269,6 +310,10 @@ export function useDataTable<Row extends RowWithId>(props: {
 
         cols.splice(to, 0, ...cols.splice(from, 1));
         setCols(cols);
+    }
+
+    function setLayout(layout: 'grid' | 'list'): void {
+        visit({ ...urlState.value, layout, view: null }, { clientOnly: true });
     }
 
     function resetColumns(): void {
@@ -462,6 +507,7 @@ export function useDataTable<Row extends RowWithId>(props: {
         return viewPayload(
             { ...urlState.value, density: density.value },
             defaultCols.value,
+            perPageConfig.value.fallback,
         );
     }
 
@@ -490,6 +536,8 @@ export function useDataTable<Row extends RowWithId>(props: {
     return {
         table,
         urlState,
+        ownFilters,
+        perPageConfig,
         visibleCols,
         density,
         loading,
@@ -504,6 +552,8 @@ export function useDataTable<Row extends RowWithId>(props: {
         removeFilterKeys,
         reset,
         toggleSort,
+        setSort,
+        setLayout,
         sortOf,
         setPage,
         setPerPage,

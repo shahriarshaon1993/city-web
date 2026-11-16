@@ -35,7 +35,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 10.3 | Data table system (TanStack), users & roles, activity log                  | 10.2           | ✅     |
 | 10.4 | CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin           | 10.3           | ✅     |
 | 11.1 | Media upload, conversions & storage                                        | 10.4           | ✅     |
-| 11.2 | Media library UI, picker & focal point                                     | 11.1           | ⬜     |
+| 11.2 | Media library UI, picker & focal point                                     | 11.1           | ✅     |
 | 12.1 | Settings                                                                   | 11.2           | ⬜     |
 | 12.2 | Menus                                                                      | 12.1           | ⬜     |
 | 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ⬜     |
@@ -541,6 +541,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 11.1 · **Read:** spec/media.md CMS-MED-002, CMS-MED-004, CMS-MED-007..010; design/admin.md CMP-ADM-MEDIA, CMP-ADM-PICKER, CMP-ADM-FOCAL, §12.6; spec/crud.md rows Media assets / Media folders, DEL-03, VAL-03.
 **Build:** library screen (folder tree ≤ 3 levels, dropzone with per-file progress that rejects wrong type/size/pixels before uploading, grid/list (list = the TanStack DataTable), filters incl. missing alt, detail drawer with metadata, usages, replace everywhere, delete → Recycle bin 30 days); picker dialog (single/multiple, upload tab) reused by every media field; focal-point picker with ratio previews.
 **Test:** create/rename/move/delete folders (delete only empty); deleting a used asset is blocked and "Replace everywhere" works; moving the focal point changes the previews; missing-alt tiles show the warning corner.
+
+**Done notes (2026-11-16):**
+- Screen `admin/media` (`pages/admin/media/`, `components/admin/media/`): folder tree (≤ 3 levels, `FolderRules`/`FolderTree`, Actions `Create/Rename/Move/DeleteMediaFolder`, delete only when empty), dropzone + `useMediaUploads` queue (checks type/size/pixels client-side before sending, one file per request), grid/list (list = the shared DataTable via `Queries/Admin/MediaTable`, 24/48/96 per page), filters incl. missing alt, `MediaDetailSheet` (metadata, usages, Replace everywhere, delete → Recycle bin).
+- Picker: `MediaPicker` (single/multiple, upload tab, `GET admin/media/browse`, `POST admin/media/uploaded`) and `MediaField` = the one field every later media input uses; `FocalPointPicker` shows the ratio previews. Profile picture now uses `MediaField` (`users.avatar_id` FK migration, `UpdateProfile`).
+- Actions: `UpdateMediaAsset` (alt, title, tags, folder, focal point), `MoveMediaAssets`, `ReplaceMediaEverywhere` (rewrites `media_usages` + the avatar column), `SyncMediaUsages` (`UsesMedia` trait on models that reference media — call it from every later save that stores a media id).
+- Shared changes: `TableState::fromRequest` takes per-table `perPageOptions`; DataTable gained a status bar (`DataTableStatus.vue`); media nav item is live and shows the asset total.
+- Check script `docs/checks/11.2-media-library.php` (rolled back).
+- Still open: HERO-020 hero-video no-audio check (only the H.264/VP9 readability check exists) → do it in the Hero phase; AVIF/"conversions pending" tile states depend on a running `media` queue worker.
 
 ## Phase 12 — Settings, menus, SEO base
 

@@ -124,7 +124,8 @@ class HandleInertiaRequests extends Middleware
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'avatar' => null, // 11.2: avatar_asset_id → MediaImage
+                // ADM-SCR-20: the 400 px thumb of the chosen library item.
+                'avatar' => $user->avatar_asset_id === null ? null : $user->avatar?->thumbUrl(),
                 'roles' => $user->getRoleNames()->all(),
                 'theme' => $user->theme,
                 'table_density' => $user->table_density,

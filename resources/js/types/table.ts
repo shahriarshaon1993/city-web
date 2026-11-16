@@ -10,6 +10,16 @@ export type TableMeta = {
     to: number | null;
     /** The sort the server applied, `-` prefix = descending. */
     sort: string[];
+    /** The table's page sizes when it has its own (AdminTable::perPageOptions). */
+    per_page_options?: number[];
+    default_per_page?: number;
+};
+
+/** A choice of the toolbar sort select (grid views have no headers to click). */
+export type SortOption = {
+    /** Comma-separated sort, `-` prefix = descending, e.g. `-created_at`. */
+    value: string;
+    label: string;
 };
 
 /** What a saved view stores: the table's query string as an object (filter = name → value). */
@@ -45,6 +55,8 @@ export type FilterDef = {
     /** relation: GET endpoint answering `?q=` with FilterOption[]. */
     optionsUrl?: string;
     placeholder?: string;
+    /** Set by a control of the page (e.g. the media "Missing alt" toggle): chip only, no popover. */
+    hidden?: boolean;
 };
 
 export type DataTableColumn = {

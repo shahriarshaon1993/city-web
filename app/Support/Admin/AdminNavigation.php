@@ -2,6 +2,7 @@
 
 namespace App\Support\Admin;
 
+use App\Models\MediaAsset;
 use App\Models\User;
 use App\Queries\Admin\RecycleBinTable;
 use App\Support\RecycleBin\BinTypes;
@@ -42,7 +43,7 @@ final class AdminNavigation
                 new NavItem('applications', 'Applications', 'admin/applications', 'file-user', ['applications.manage'], 'Job applications and CVs.', '17.1'),
             ],
             'Library' => [
-                new NavItem('media', 'Media', 'admin/media', 'images', ['media.view', 'media.upload', 'media.update'], 'Photos, videos and documents, with folders and focal points.', '11.2'),
+                new NavItem('media', 'Media', 'admin/media', 'images', ['media.view', 'media.upload', 'media.update'], 'Photos, videos and documents, with folders and focal points.', '11.2', placeholder: false),
             ],
             'SEO' => [
                 new NavItem('redirects', 'Redirects', 'admin/redirects', 'corner-up-right', ['redirects.manage', 'seo.view'], 'Send old addresses to their new pages.', '12.3'),
@@ -113,7 +114,12 @@ final class AdminNavigation
                         'label' => $item->label,
                         'href' => url($item->path),
                         'icon' => $item->icon,
-                        'count' => $item->key === 'recycle-bin' ? (RecycleBinTable::countFor($user) ?: null) : null,
+                        'count' => match ($item->key) {
+                            'recycle-bin' => RecycleBinTable::countFor($user) ?: null,
+                            // design/admin.md §12.1: media total.
+                            'media' => MediaAsset::query()->count() ?: null,
+                            default => null,
+                        },
                     ];
                 }
             }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RecycleBinController;
@@ -83,10 +84,27 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::delete('{entry}', [RecycleBinController::class, 'destroy'])->name('destroy');
     });
 
-    // CMS-MED-003: one file per request; the library screen itself (GET admin/media) is a placeholder until 11.2.
-    Route::post('media', [MediaController::class, 'store'])
-        ->middleware(['admin.can:media.upload', 'throttle:120,1'])
-        ->name('media.store');
+    // ADM-SCR-13 media library (CMP-ADM-MEDIA, CMP-ADM-PICKER). The Policy / Form Requests check each action.
+    Route::prefix('media')->name('media.')->group(function () {
+        Route::get('/', [MediaController::class, 'index'])->middleware('admin.can:media.view|media.upload|media.update')->name('index');
+        Route::get('browse', [MediaController::class, 'browse'])->name('browse');
+        // CMS-MED-003: one file per request.
+        Route::post('/', [MediaController::class, 'store'])
+            ->middleware(['admin.can:media.upload', 'throttle:120,1'])
+            ->name('store');
+        Route::post('uploaded', [MediaController::class, 'uploaded'])->middleware('admin.can:media.upload')->name('uploaded');
+        Route::post('bulk', [MediaController::class, 'bulk'])->name('bulk');
+
+        Route::post('folders', [MediaFolderController::class, 'store'])->name('folders.store');
+        Route::patch('folders/{folder}', [MediaFolderController::class, 'rename'])->name('folders.rename');
+        Route::patch('folders/{folder}/move', [MediaFolderController::class, 'move'])->name('folders.move');
+        Route::delete('folders/{folder}', [MediaFolderController::class, 'destroy'])->name('folders.destroy');
+
+        Route::get('{asset}', [MediaController::class, 'show'])->name('show');
+        Route::patch('{asset}', [MediaController::class, 'update'])->name('update');
+        Route::delete('{asset}', [MediaController::class, 'destroy'])->name('destroy');
+        Route::post('{asset}/replace', [MediaController::class, 'replace'])->name('replace');
+    });
 
     // VAL-04: live slug availability for every slug field.
     Route::get('slugs/check', SlugController::class)->middleware('throttle:60,1')->name('slugs.check');

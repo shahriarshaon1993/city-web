@@ -24,9 +24,22 @@ export type TableUrlState = {
     widths: Record<string, number>;
     density: TableDensity | null;
     view: number | null;
+    /** Grid or list for tables with a grid view (media); null = the table's default. */
+    layout: 'grid' | 'list' | null;
 };
 
-export function parseTableState(url: string): TableUrlState {
+/** A table's page sizes (meta.per_page_options; media uses 24 / 48 / 96, CMS-MED-009). */
+export type PerPageConfig = { options: readonly number[]; fallback: number };
+
+export const DEFAULT_PER_PAGE_CONFIG: PerPageConfig = {
+    options: PER_PAGE_OPTIONS,
+    fallback: DEFAULT_PER_PAGE,
+};
+
+export function parseTableState(
+    url: string,
+    perPageConfig: PerPageConfig = DEFAULT_PER_PAGE_CONFIG,
+): TableUrlState {
     const params = new URL(url, 'http://localhost').searchParams;
     const filters: Record<string, string> = {};
 
@@ -42,20 +55,22 @@ export function parseTableState(url: string): TableUrlState {
     const view = Number(params.get('view'));
     const density = params.get('density');
     const cols = params.get('cols');
+    const layout = params.get('layout');
 
     return {
         search: params.get('search') ?? '',
         filters,
         sort: (params.get('sort') ?? '').split(',').filter(Boolean),
-        perPage: (PER_PAGE_OPTIONS as readonly number[]).includes(perPage)
+        perPage: perPageConfig.options.includes(perPage)
             ? perPage
-            : DEFAULT_PER_PAGE,
+            : perPageConfig.fallback,
         page: Math.max(1, Number(params.get('page')) || 1),
         cols: cols ? cols.split(',').filter(Boolean) : null,
         widths: parseWidths(params.get('widths')),
         density:
             density === 'comfortable' || density === 'compact' ? density : null,
         view: Number.isInteger(view) && view > 0 ? view : null,
+        layout: layout === 'grid' || layout === 'list' ? layout : null,
     };
 }
 
@@ -82,6 +97,7 @@ export function clampWidth(width: number): number {
 export function serializeTableState(
     state: TableUrlState,
     defaultCols: string[],
+    defaultPerPage: number = DEFAULT_PER_PAGE,
 ): URLSearchParams {
     const params = new URLSearchParams();
 
@@ -99,7 +115,7 @@ export function serializeTableState(
         params.set('sort', state.sort.join(','));
     }
 
-    if (state.perPage !== DEFAULT_PER_PAGE) {
+    if (state.perPage !== defaultPerPage) {
         params.set('per_page', String(state.perPage));
     }
 
@@ -121,6 +137,10 @@ export function serializeTableState(
 
     if (state.density !== null) {
         params.set('density', state.density);
+    }
+
+    if (state.layout !== null) {
+        params.set('layout', state.layout);
     }
 
     if (state.view !== null) {
@@ -168,10 +188,12 @@ export function cycleSort(
 export function viewPayload(
     state: TableUrlState,
     defaultCols: string[],
+    defaultPerPage: number = DEFAULT_PER_PAGE,
 ): ViewState {
     const params = serializeTableState(
         { ...state, page: 1, view: null },
         defaultCols,
+        defaultPerPage,
     );
     const payload: ViewState = {};
     const filter: Record<string, string> = {};

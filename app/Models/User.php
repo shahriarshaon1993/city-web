@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Media\UsesMedia;
 use App\Support\RecycleBin\BinBehaviour;
 use App\Support\RecycleBin\Trashable;
 use App\Support\Users\UserGuard;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,6 +25,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string|null $phone
+ * @property int|null $avatar_asset_id
  * @property string $password
  * @property bool $is_active
  * @property string $theme
@@ -35,7 +38,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password', 'phone'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail, Trashable
+class User extends Authenticatable implements MustVerifyEmail, Trashable, UsesMedia
 {
     /** @use HasFactory<UserFactory> */
     use BinBehaviour, HasFactory, HasRoles, Notifiable, SoftDeletes;
@@ -94,5 +97,32 @@ class User extends Authenticatable implements MustVerifyEmail, Trashable
     public function binTrashed(): void
     {
         DB::table('sessions')->where('user_id', $this->getKey())->delete();
+    }
+
+    /**
+     * ADM-SCR-20 profile picture (DM-USER `avatar_asset_id`, plus its DM-MUSE row `avatar`).
+     *
+     * @return BelongsTo<MediaAsset, $this>
+     */
+    public function avatar(): BelongsTo
+    {
+        return $this->belongsTo(MediaAsset::class, 'avatar_asset_id');
+    }
+
+    public function mediaUsageLabel(string $field): string
+    {
+        return "Profile picture · {$this->name}";
+    }
+
+    public function mediaUsageUrl(string $field): ?string
+    {
+        return route('admin.users.index', ['search' => $this->email]);
+    }
+
+    public function replaceMediaAsset(string $field, int $fromAssetId, int $toAssetId): void
+    {
+        if ($field === 'avatar' && $this->avatar_asset_id === $fromAssetId) {
+            $this->forceFill(['avatar_asset_id' => $toAssetId])->saveQuietly();
+        }
     }
 }

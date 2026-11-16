@@ -90,6 +90,21 @@ abstract class AdminTable
         return [];
     }
 
+    /**
+     * ADM-TBL-001 page sizes; a table may offer its own.
+     *
+     * @return list<int>
+     */
+    protected function perPageOptions(): array
+    {
+        return TableState::PER_PAGE_OPTIONS;
+    }
+
+    protected function defaultPerPage(): int
+    {
+        return TableState::DEFAULT_PER_PAGE;
+    }
+
     final public function state(Request $request): TableState
     {
         return TableState::fromRequest(
@@ -97,6 +112,8 @@ abstract class AdminTable
             $this->sorts(),
             array_map(fn (AllowedFilter $filter): string => $filter->getName(), $this->filters()),
             $this->defaultSort(),
+            $this->perPageOptions(),
+            $this->defaultPerPage(),
         );
     }
 
@@ -149,6 +166,8 @@ abstract class AdminTable
                 'from' => $paginator->firstItem(),
                 'to' => $paginator->lastItem(),
                 'sort' => $state->sorts,
+                'per_page_options' => $this->perPageOptions(),
+                'default_per_page' => $this->defaultPerPage(),
             ],
             'views' => fn (): array => $this->views($actor),
             'filterOptions' => fn (): array => $this->filterOptions($actor),
