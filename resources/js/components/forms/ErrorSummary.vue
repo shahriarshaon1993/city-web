@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TriangleAlert } from '@lucide/vue';
-import { computed, useTemplateRef } from 'vue';
+import { computed, nextTick, useTemplateRef } from 'vue';
 import type { SummaryItem } from '@/composables/useLeadForm';
 
 // CMP-FORM-01 / SEO-A11Y-006: a `role="alert"` summary above the form that
@@ -8,6 +8,9 @@ import type { SummaryItem } from '@/composables/useLeadForm';
 const props = defineProps<{
     items: SummaryItem[];
 }>();
+
+// `navigate` lets a tabbed editor show the tab that holds the field before it is focused.
+const emit = defineEmits<{ navigate: [id: string] }>();
 
 const root = useTemplateRef<HTMLElement>('root');
 
@@ -17,7 +20,10 @@ const heading = computed(() =>
         : `There are ${props.items.length} things to fix`,
 );
 
-function goTo(id: string): void {
+async function goTo(id: string): Promise<void> {
+    emit('navigate', id);
+    await nextTick();
+
     const element = document.getElementById(id);
     const control = element?.matches('input, select, textarea, button')
         ? element

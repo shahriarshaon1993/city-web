@@ -40,7 +40,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 12.2 | Menus                                                                      | 12.1           | ✅     |
 | 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ✅     |
 | 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ✅     |
-| 13.2 | Locations & projects admin                                                 | 13.1           | ⬜     |
+| 13.2 | Locations & projects admin                                                 | 13.1           | ✅     |
 | 13.3 | Public projects & locations from the database                              | 13.2           | ⬜     |
 | 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ⬜     |
 | 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ⬜     |
@@ -616,6 +616,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 13.1 · **Read:** spec/admin.md ADM-SCR-01..05; spec/projects.md FR-PROJ-008..010, validation rules, AC-PROJ-03; spec/locations.md FR-LOC-002, FR-LOC-003; design/admin.md CMP-ADM-FORM, CMP-ADM-CHECKLIST, CMP-ADM-SEO, CMP-ADM-SORTLIST, CMP-ADM-TREE, §12.4; spec/crud.md rows Cities / areas, Facet pages, Amenities, Projects, CRUD-05, DEL-02, DEL-03, DEL-05, VAL-04, VAL-07.
 **Build:** projects table + editor tabs (Basics … SEO; Revisions tab in 14.1), repeaters as collapsible cards with summaries and error counts, publish checklist with Fix links (draft/publish now, schedule in 14.1), duplicate project, delete with the redirect option, featured order list, amenities (dialog, icon picker, used-by guard), locations tree + area editor with indexability badge and reason (delete guarded by projects/child areas), facet pages editor; Form Requests with the exact rules + VAL-01 defaults.
 **Test:** create a project fully in the UI → Publish blocked until the checklist passes; a wrong size in unit type 3 → that card opens with "1 error" and the Unit types tab shows a count; duplicate a project → "Copy of …" draft with a free slug; delete a published project with a redirect to another → the old URL 301s, then restore it from the bin → it comes back as Draft; try to delete an area that has projects → refused with the project list; drag the featured order → home follows after 13.3; an area with a short intro shows its noindex reason.
+
+**Done notes (2026-11-17):**
+- Projects: `ProjectController` + `Queries/Admin/{ProjectsTable,ProjectEditor}`; one `SaveProject` Action writes the whole 12-tab payload in a transaction (lock_version, SEO via `SaveSeoMeta`, media usages). Publish gate = `Support/Projects/PublishChecklist` (each item has `tab` + `field` for Fix links). Editor UI: `components/admin/projects/*`, shared fields in `components/admin/catalog/*`.
+- Delete = `DeleteProject` (optional redirect writes a 301 via `SaveRedirect`); restore always returns Draft and `ClearProjectRedirect` removes the rule (Project `restoring` event). Duplicate = `DuplicateProject` ("Copy of …", `-copy`, `-copy-2`).
+- Locations: `LocationController`, `Queries/Admin/LocationTree`, `Support/Locations/Indexability` (published project + intro ≥150 words, FR-LOC-003). Area/city delete is guarded (usage dialog); facet pages are a plain list of 8 rows. Amenities: dialog + icon picker (`Support/Amenities/AmenityIcons`, 28 icons, mirrored in `lib/amenity-icons.ts`).
+- Interim rich text (DEC-83): textarea + `Support/Html/BasicHtml` until Tiptap in 16.3. `ErrorSummary` / `AdminEditor` now emit `navigate` / `reveal` so tabbed editors switch tab before focusing.
+- Deferred: draft Preview + Schedule (14.1), "Leads (30d)" column (15), .vtt caption upload, FAQ editing (16.4). Regenerate Wayfinder with `--with-form`.
+- 13.3 must read projects through `Project::publicPriceFrom()` and follow `featured_order` for the home page; admin writes never touch derived range columns.
+
 
 ### 13.3 — Public projects & locations from the database
 

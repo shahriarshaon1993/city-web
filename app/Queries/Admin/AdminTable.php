@@ -83,7 +83,7 @@ abstract class AdminTable
     /**
      * Option lists with counts for enum filters (ADM-TBL-003).
      *
-     * @return array<string, array<int, array{value: string, label: string, count: int}>>
+     * @return array<string, array<int, array{value: string, label: string, count: int, hint?: string}>>
      */
     public function filterOptions(User $actor): array
     {

@@ -1,13 +1,18 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FacetPageController;
+use App\Http\Controllers\Admin\FeaturedProjectController;
+use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NotFoundController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\RecycleBinController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RobotsController;
@@ -87,6 +92,49 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::delete('/', [RecycleBinController::class, 'destroyMany'])->name('destroy-many');
         Route::post('{entry}/restore', [RecycleBinController::class, 'restore'])->name('restore');
         Route::delete('{entry}', [RecycleBinController::class, 'destroy'])->name('destroy');
+    });
+
+    // ADM-SCR-01 / 02 Projects. The Policy checks each verb (view / write / publish / delete).
+    Route::middleware('admin.can:projects.view')->prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('index');
+        Route::get('create', [ProjectController::class, 'create'])->name('create');
+        Route::post('/', [ProjectController::class, 'store'])->name('store');
+        Route::post('bulk', [ProjectController::class, 'bulk'])->name('bulk');
+        Route::get('featured', [FeaturedProjectController::class, 'index'])->name('featured.index');
+        Route::patch('featured/order', [FeaturedProjectController::class, 'update'])->name('featured.order');
+        Route::get('{project}/edit', [ProjectController::class, 'edit'])->name('edit');
+        Route::patch('{project}', [ProjectController::class, 'update'])->name('update');
+        Route::delete('{project}', [ProjectController::class, 'destroy'])->name('destroy');
+        Route::post('{project}/publish', [ProjectController::class, 'publish'])->name('publish');
+        Route::post('{project}/unpublish', [ProjectController::class, 'unpublish'])->name('unpublish');
+        Route::patch('{project}/featured', [ProjectController::class, 'featured'])->name('featured');
+        Route::post('{project}/duplicate', [ProjectController::class, 'duplicate'])->name('duplicate');
+    });
+
+    // ADM-SCR-03 / 04 / 05 Locations, amenities and facet pages share the `catalog.*` permissions.
+    Route::middleware('admin.can:catalog.view')->group(function () {
+        Route::prefix('locations')->name('locations.')->group(function () {
+            Route::get('/', [LocationController::class, 'index'])->name('index');
+            Route::patch('order', [LocationController::class, 'order'])->name('order');
+            Route::post('cities', [LocationController::class, 'storeCity'])->name('cities.store');
+            Route::patch('cities/{location}', [LocationController::class, 'updateCity'])->name('cities.update');
+            Route::get('areas/create', [LocationController::class, 'createArea'])->name('areas.create');
+            Route::post('areas', [LocationController::class, 'storeArea'])->name('areas.store');
+            Route::get('areas/{location}/edit', [LocationController::class, 'editArea'])->name('areas.edit');
+            Route::patch('areas/{location}', [LocationController::class, 'updateArea'])->name('areas.update');
+            Route::delete('{location}', [LocationController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::get('facet-pages', [FacetPageController::class, 'index'])->name('facets.index');
+        Route::get('facet-pages/{facet}/edit', [FacetPageController::class, 'edit'])->name('facets.edit');
+        Route::patch('facet-pages/{facet}', [FacetPageController::class, 'update'])->name('facets.update');
+
+        Route::get('amenities', [AmenityController::class, 'index'])->name('amenities.index');
+        Route::post('amenities', [AmenityController::class, 'store'])->name('amenities.store');
+        Route::post('amenities/bulk', [AmenityController::class, 'bulk'])->name('amenities.bulk');
+        Route::patch('amenities/order', [AmenityController::class, 'order'])->name('amenities.order');
+        Route::patch('amenities/{amenity}', [AmenityController::class, 'update'])->name('amenities.update');
+        Route::delete('amenities/{amenity}', [AmenityController::class, 'destroy'])->name('amenities.destroy');
     });
 
     // ADM-SCR-13 media library (CMP-ADM-MEDIA, CMP-ADM-PICKER). The Policy / Form Requests check each action.

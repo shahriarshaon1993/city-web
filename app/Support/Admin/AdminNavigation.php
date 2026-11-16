@@ -3,6 +3,7 @@
 namespace App\Support\Admin;
 
 use App\Models\MediaAsset;
+use App\Models\Project;
 use App\Models\User;
 use App\Queries\Admin\RecycleBinTable;
 use App\Support\RecycleBin\BinTypes;
@@ -25,8 +26,8 @@ final class AdminNavigation
                 new NavItem('dashboard', 'Dashboard', 'admin', 'layout-dashboard', ['dashboard.view'], 'Your numbers, follow-ups and shortcuts in one place.', '18.1', placeholder: false),
             ],
             'Content' => [
-                new NavItem('projects', 'Projects', 'admin/projects', 'building-2', ['projects.view'], 'Every development on the site, with units, media and publishing.', '13.2'),
-                new NavItem('locations', 'Locations', 'admin/locations', 'map-pin', ['catalog.view'], 'Cities and areas, plus the amenities and facet pages.', '13.2'),
+                new NavItem('projects', 'Projects', 'admin/projects', 'building-2', ['projects.view'], 'Every development on the site, with units, media and publishing.', '13.2', placeholder: false),
+                new NavItem('locations', 'Locations', 'admin/locations', 'map-pin', ['catalog.view'], 'Cities and areas, plus the amenities and facet pages.', '13.2', placeholder: false),
                 new NavItem('pages', 'Pages', 'admin/pages', 'layout-template', ['pages.view', 'legal.view'], 'The page builder: home, about, services and legal pages.', '16.2'),
                 new NavItem('menus', 'Menus', 'admin/menus', 'list-tree', ['menus.view'], 'Header, footer and mobile navigation.', '12.2', placeholder: false),
                 new NavItem('news', 'News', 'admin/news', 'newspaper', ['news.view'], 'Articles, categories and tags.', '16.3'),
@@ -119,6 +120,8 @@ final class AdminNavigation
                             'recycle-bin' => RecycleBinTable::countFor($user) ?: null,
                             // design/admin.md §12.1: media total.
                             'media' => MediaAsset::query()->count() ?: null,
+                            // design/admin.md §12.1: projects published.
+                            'projects' => Project::query()->published()->count() ?: null,
                             default => null,
                         },
                     ];

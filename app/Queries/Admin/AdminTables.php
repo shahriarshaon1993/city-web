@@ -19,6 +19,8 @@ final class AdminTables
         MediaTable::class,
         RedirectsTable::class,
         NotFoundTable::class,
+        ProjectsTable::class,
+        AmenitiesTable::class,
     ];
 
     /**

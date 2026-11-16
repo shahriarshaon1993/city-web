@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Projects\ClearProjectRedirect;
 use App\Actions\Projects\RefreshProjectDerivedFields;
 use App\Enums\BookingState;
 use App\Enums\Lifecycle;
@@ -13,6 +14,7 @@ use App\Models\Concerns\HasSlugHistory;
 use App\Models\Concerns\Publishable;
 use App\Support\Media\UsesMedia;
 use App\Support\RecycleBin\BinBehaviour;
+use App\Support\RecycleBin\RestoreConflict;
 use App\Support\RecycleBin\Trashable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -132,6 +134,12 @@ class Project extends Model implements Trashable, UsesMedia
             $project->progressUpdates()->pluck('id')->each(fn (int $id) => MediaUsage::query()
                 ->where('usable_type', (new ProjectProgressUpdate)->getMorphClass())->where('usable_id', $id)->delete());
             MediaUsage::forget($project);
+        });
+
+        // DEL-05: a restored project comes back as a Draft and stops redirecting; it is never public by itself.
+        static::restoring(function (self $project): void {
+            $project->publish_status = PublishStatus::Draft;
+            app(ClearProjectRedirect::class)->handle($project);
         });
 
         // Turning "set manually" off hands the figure back to the unit types.
@@ -383,5 +391,41 @@ class Project extends Model implements Trashable, UsesMedia
     public function binLabel(): string
     {
         return $this->name;
+    }
+
+    public function binThumbnail(): ?string
+    {
+        return $this->cover?->thumbUrl();
+    }
+
+    public function binUrl(): ?string
+    {
+        return route('admin.projects.edit', $this->getKey());
+    }
+
+    /**
+     * DEL-05: a project cannot come back while its area is in the Recycle bin.
+     *
+     * @return list<RestoreConflict>
+     */
+    public function binRestoreConflicts(): array
+    {
+        $area = $this->location;
+
+        if ($area === null || ! $area->trashed()) {
+            return [];
+        }
+
+        return [new RestoreConflict('parent', 'parent', "The area “{$area->name}” is in the Recycle bin.")];
+    }
+
+    /**
+     * @param  array<string, mixed>  $resolution
+     */
+    public function binResolveConflicts(array $resolution): void
+    {
+        if (($resolution['parent'] ?? false) === true) {
+            $this->location?->restore();
+        }
     }
 }

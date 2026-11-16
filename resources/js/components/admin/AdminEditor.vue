@@ -36,7 +36,7 @@ const props = withDefaults(
     { saveLabel: 'Save changes', lastSaved: null },
 );
 
-const emit = defineEmits<{ save: [] }>();
+const emit = defineEmits<{ save: []; reveal: [id: string] }>();
 
 useUnsavedGuard(() => props.form.isDirty);
 
@@ -126,7 +126,12 @@ watch(
         class="gap-8 xl:grid xl:grid-cols-[minmax(0,1fr)_17rem] xl:items-start"
     >
         <div class="flex min-w-0 flex-col gap-6">
-            <ErrorSummary v-if="items.length" ref="summary" :items="items" />
+            <ErrorSummary
+                v-if="items.length"
+                ref="summary"
+                :items="items"
+                @navigate="(id: string) => emit('reveal', id)"
+            />
             <slot />
 
             <!-- < 1280 px: sticky bottom bar -->
