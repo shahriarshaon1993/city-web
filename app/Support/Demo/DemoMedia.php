@@ -105,6 +105,24 @@ final class DemoMedia
     }
 
     /**
+     * The key of a `MediaImage` this class produced ("projects/projects-01"), found by its fallback URL —
+     * how the 13.1 seeders turn the demo props back into library imports.
+     *
+     * @param  array{fallback: string}  $image
+     */
+    public static function keyOf(array $image): ?string
+    {
+        static $byUrl = null;
+
+        $byUrl ??= array_flip(array_map(
+            fn (array $entry): string => self::url($entry['fallback']),
+            self::entries(),
+        ));
+
+        return $byUrl[$image['fallback']] ?? null;
+    }
+
+    /**
      * Absolute URL of the 1200×630 focal crop, for `seo.og.image`.
      */
     public static function ogImage(string $key): ?string

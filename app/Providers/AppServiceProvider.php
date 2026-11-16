@@ -3,9 +3,15 @@
 namespace App\Providers;
 
 use App\Listeners\RecordAuthEvents;
+use App\Models\Amenity;
+use App\Models\FacetPage;
+use App\Models\Location;
 use App\Models\MediaAsset;
 use App\Models\MediaFolder;
 use App\Models\Menu;
+use App\Models\Project;
+use App\Models\ProjectProgressUpdate;
+use App\Models\ProjectUnitType;
 use App\Models\Redirect;
 use App\Models\Setting;
 use App\Models\User;
@@ -70,6 +76,12 @@ class AppServiceProvider extends ServiceProvider
             'setting' => Setting::class,
             'menu' => Menu::class,
             'redirect' => Redirect::class,
+            'project' => Project::class,
+            'unit_type' => ProjectUnitType::class,
+            'progress_update' => ProjectProgressUpdate::class,
+            'location' => Location::class,
+            'amenity' => Amenity::class,
+            'facet_page' => FacetPage::class,
         ]);
     }
 

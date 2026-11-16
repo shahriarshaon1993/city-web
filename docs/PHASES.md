@@ -39,7 +39,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 12.1 | Settings                                                                   | 11.2           | ✅     |
 | 12.2 | Menus                                                                      | 12.1           | ✅     |
 | 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ✅     |
-| 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ⬜     |
+| 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ✅     |
 | 13.2 | Locations & projects admin                                                 | 13.1           | ⬜     |
 | 13.3 | Public projects & locations from the database                              | 13.2           | ⬜     |
 | 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ⬜     |
@@ -601,6 +601,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 12.3 · **Read:** spec/projects.md (fields summary, validation rules, data model); spec/locations.md (data model); spec/cms.md DM-SEO, DM-SLUGH, DM-REV; spec/media.md DM-MUSE; spec/database.md (all); spec/architecture.md ARC-002, ARC-006.
 **Build:** migrations/models/enums (Segment, Lifecycle, BookingState, PublishStatus, Availability, ProgressStage, NearbyCategory…); soft deletes + `Trashable` on locations, projects and amenities (DEC-33); traits HasSeo, HasSlugHistory, UsesMedia, Publishable; denormalised size/bed/bath ranges and `price_from_bdt` computed on save; seeders that recreate the demo projects and locations as real rows with their photos imported into the media library.
 **Test:** `migrate:fresh --seed` → demo projects in the DB; change a unit size in tinker → project ranges update; a slug change writes slug history; a hidden unit price is excluded from `price_from_bdt`.
+
+**Done notes (2026-11-16):**
+- Enums `app/Enums/*`; traits `app/Models/Concerns/{HasSeo,HasSlugHistory,Publishable}`; models `Location`, `Project`, `ProjectUnitType`, `Amenity`, `FacetPage`, `ProjectProgressUpdate/NearbyPlace/Document`, `SeoMeta`, `SlugHistory`, `Revision` (table + model only; 14.1 uses it). Morph map + `BinTypes` + `SlugAvailability` ('project', 'location') updated.
+- `Project::publicPriceFrom()` / `ProjectUnitType::publicPrice($project)` are the only price reads for public props (AC-PROJ-01); 13.3 Resources must use them.
+- Size/bed/bath ranges and `price_from_bdt` come from `RefreshProjectDerivedFields` (fired by unit type save/delete); `price_from_manual` keeps an editor figure (land). Never write those columns from forms.
+- Media: DEC-78 — admin save Actions (13.2) must call `SyncProjectMediaUsages` / `SyncLocationMediaUsages`; progress photos via `SyncMediaUsages` field `photos`. Models implement `UsesMedia` and clean usages on force delete.
+- Activity log is written by the 13.2 Actions (not model hooks). Bin permissions: locations/amenities `catalog.manage`, projects `projects.delete`.
+- Seeders: `CatalogSeeder` (amenities, facet pages, always) + `DemoLocationSeeder`/`DemoProjectSeeder` (non-production; read `Demo*`, tagged assets `demo:{key}`, ~4 min on first run). 16.4 removes/inlines them. Demo has 27 projects.
+- Still demo until later: project/area FAQs (16.4 `faqs`), YouTube duration (no column), uploaded demo film. Check script `docs/checks/13.1-catalog-schema.php` (run with `< /dev/null`).
 
 ### 13.2 — Locations & projects admin
 

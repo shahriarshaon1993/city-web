@@ -22,11 +22,14 @@ class DatabaseSeeder extends Seeder
     {
         $syncRoles->handle();
 
-        $this->call(MenuSeeder::class);
+        $this->call([MenuSeeder::class, CatalogSeeder::class]);
 
         if (app()->isProduction()) {
             return;
         }
+
+        // 13.1: the demo cities, areas and projects as real rows (removed with the demo content in 16.4).
+        $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class]);
 
         foreach (SystemRole::cases() as $role) {
             $user = User::query()->firstOrNew(['email' => Str::slug($role->value).'@gemcon.test']);

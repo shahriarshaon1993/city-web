@@ -2,7 +2,10 @@
 
 namespace App\Support\RecycleBin;
 
+use App\Models\Amenity;
+use App\Models\Location;
 use App\Models\MediaAsset;
+use App\Models\Project;
 use App\Models\Redirect;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +23,9 @@ final class BinTypes
         User::class,
         MediaAsset::class,
         Redirect::class,
+        Location::class,
+        Amenity::class,
+        Project::class,
     ];
 
     /**

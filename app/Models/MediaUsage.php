@@ -21,6 +21,15 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 #[Fillable(['media_asset_id', 'usable_type', 'usable_id', 'field', 'position'])]
 class MediaUsage extends Model
 {
+    /** An entity that is gone for good no longer uses any file. */
+    public static function forget(Model $usable): void
+    {
+        static::query()
+            ->where('usable_type', $usable->getMorphClass())
+            ->where('usable_id', $usable->getKey())
+            ->delete();
+    }
+
     /**
      * @return BelongsTo<MediaAsset, $this>
      */

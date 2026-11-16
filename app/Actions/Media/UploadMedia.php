@@ -31,9 +31,11 @@ final class UploadMedia
     ) {}
 
     /**
+     * @param  User|null  $actor  null for seeded and imported files, which have no uploader
+     *
      * @throws ValidationException naming the limit the file exceeds
      */
-    public function handle(User $actor, UploadedFile $file, UploadPurpose $purpose = UploadPurpose::Library, ?int $folderId = null): MediaAsset
+    public function handle(?User $actor, UploadedFile $file, UploadPurpose $purpose = UploadPurpose::Library, ?int $folderId = null): MediaAsset
     {
         $originalName = $file->getClientOriginalName();
         $inspected = $this->inspector->inspect($file->getRealPath(), $originalName, $purpose);
@@ -69,7 +71,7 @@ final class UploadMedia
                     'height' => $height,
                     'duration_s' => $inspected->durationSeconds === null ? null : (int) ceil($inspected->durationSeconds),
                     'conversions_status' => $inspected->kind === MediaKind::Image ? MediaAsset::STATUS_PENDING : MediaAsset::STATUS_READY,
-                    'uploaded_by' => $actor->getKey(),
+                    'uploaded_by' => $actor?->getKey(),
                 ]);
 
                 $media = $asset->addMedia($path)

@@ -25,7 +25,8 @@ const form = useForm<{
     values: Record<string, any>;
     clear: string[];
 }>({
-    values: structuredClone(props.values) as Record<string, any>,
+    // Props are reactive proxies, which structuredClone rejects; the values are plain JSON.
+    values: JSON.parse(JSON.stringify(props.values)) as Record<string, any>,
     clear: [],
 });
 

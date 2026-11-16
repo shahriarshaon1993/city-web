@@ -2,6 +2,8 @@
 
 namespace App\Support\Slugs;
 
+use App\Models\Location;
+use App\Models\Project;
 use App\Support\Pages\ReservedSlugs;
 use App\Support\RecycleBin\Trashable;
 use Illuminate\Database\Eloquent\Model;
@@ -20,14 +22,16 @@ final class SlugAvailability
     public const string SITE = 'site';
 
     /**
-     * Source key → [model class, slug column]; the slug-bearing entities add themselves here
-     * from 13.2 on.
+     * Source key → [model class, slug column]; each slug-bearing entity adds itself here.
      *
      * @return array<string, array{0: class-string<Model>, 1: string}>
      */
     public static function sources(): array
     {
-        return [];
+        return [
+            'project' => [Project::class, 'slug'],
+            'location' => [Location::class, 'slug'],
+        ];
     }
 
     /**
