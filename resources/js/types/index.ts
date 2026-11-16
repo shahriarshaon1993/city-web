@@ -5,3 +5,4 @@ export * from './table';
 export * from './users';
 export * from './media';
 export * from './settings';
+export * from './menus';

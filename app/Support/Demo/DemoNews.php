@@ -61,6 +61,17 @@ final class DemoNews
     ];
 
     /**
+     * Every post in id order (the id is the position, as in `card()`), scheduled ones included: the
+     * menu editor lists them to flag links that are not public yet (CMS-NAV-004).
+     *
+     * @return list<Post>
+     */
+    public static function all(): array
+    {
+        return self::posts();
+    }
+
+    /**
      * Newest first. Bodies start at H2 (FR-NEWS-005); the title is the page's H1.
      *
      * @return list<Post>

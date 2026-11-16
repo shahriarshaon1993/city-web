@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
     {
         $syncRoles->handle();
 
+        $this->call(MenuSeeder::class);
+
         if (app()->isProduction()) {
             return;
         }

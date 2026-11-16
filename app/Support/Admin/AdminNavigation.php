@@ -28,7 +28,7 @@ final class AdminNavigation
                 new NavItem('projects', 'Projects', 'admin/projects', 'building-2', ['projects.view'], 'Every development on the site, with units, media and publishing.', '13.2'),
                 new NavItem('locations', 'Locations', 'admin/locations', 'map-pin', ['catalog.view'], 'Cities and areas, plus the amenities and facet pages.', '13.2'),
                 new NavItem('pages', 'Pages', 'admin/pages', 'layout-template', ['pages.view', 'legal.view'], 'The page builder: home, about, services and legal pages.', '16.2'),
-                new NavItem('menus', 'Menus', 'admin/menus', 'list-tree', ['menus.view'], 'Header, footer and mobile navigation.', '12.2'),
+                new NavItem('menus', 'Menus', 'admin/menus', 'list-tree', ['menus.view'], 'Header, footer and mobile navigation.', '12.2', placeholder: false),
                 new NavItem('news', 'News', 'admin/news', 'newspaper', ['news.view'], 'Articles, categories and tags.', '16.3'),
                 new NavItem('testimonials', 'Testimonials', 'admin/testimonials', 'quote', ['social.view'], 'Customer quotes shown on the site.', '16.4'),
                 new NavItem('partners', 'Partners', 'admin/partners', 'handshake', ['social.view'], 'Partner and client logos.', '16.4'),

@@ -37,7 +37,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 11.1 | Media upload, conversions & storage                                        | 10.4           | ✅     |
 | 11.2 | Media library UI, picker & focal point                                     | 11.1           | ✅     |
 | 12.1 | Settings                                                                   | 11.2           | ✅     |
-| 12.2 | Menus                                                                      | 12.1           | ⬜     |
+| 12.2 | Menus                                                                      | 12.1           | ✅     |
 | 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ⬜     |
 | 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ⬜     |
 | 13.2 | Locations & projects admin                                                 | 13.1           | ⬜     |
@@ -571,6 +571,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 12.1 · **Read:** spec/cms.md §8.3, DM-MENU; design/admin.md CMP-ADM-TREE; design/components.md CMP-NAV-02; spec/crud.md row Menus / items, CRUD-06.
 **Build:** owner approves `vue-draggable-plus` 0.6.1. Menus + items; entity links stored by ID and resolved at render time; mega columns; tree editor with keyboard indent/outdent/move; `menus` shared prop from the DB (cached) replaces the demo menus.
 **Test:** reorder and nest items → the site header follows; a link to an unpublished entity is hidden publicly and flagged in the admin; footer columns follow their menus.
+
+**Done notes (2026-11-16):**
+- Tables `menus` (7 fixed keys created by the migration) + `menu_items`; `MenuSeeder` fills `MenuDefaults` (only menus with no items; run `db:seed --class=MenuSeeder` on production). Models `Menu` (route key = `key`, morph alias `menu`), `MenuItem`.
+- Read: `Support/Menus` — `MenuStore` (raw tree, cache `menu:{key}:v{n}`, counter `cachever:menus`), `MenuLinks` (resolves ok/unpublished/missing at render time), `MegaColumns`, `PublicMenus` (the `menus` and `footer.columns` shared props). `DemoContent::menus()` is gone.
+- Entity links go through `LinkTargets` (demo-backed IDs until 13.3 projects/areas, 16.1 pages, 16.3 posts/categories: change only that class). Mega auto columns still read `DemoContent::projectCards`, `DemoProjects` (swap in 13.3).
+- Write: `Actions/Menus/SaveMenu` saves the whole tree (create/update/delete, sort_order, parent) + one activity entry + cache bump; `SaveMenuRequest` per-level rules + structure checks with messages naming the item.
+- UI: `/admin/menus/{key}` (`MenuController`, `MenuPolicy`: `menus.view` read-only, `menus.manage` saves), `components/admin/menus/`, `lib/menu-tree.ts`; `vue-draggable-plus` 0.6.1. Row actions in the ⋯ menu (reuses `DataTableRowActions`).
+- Deviations (DEC-80): whole-tree Save with local Undo; Tab/arrows restructure only while an item is lifted; item caps; `lib/icons.ts` allowlist now 12 icons (mirror `MenuIcons`).
+- Check script `docs/checks/12.2-menus.php` (rolled back). Pages, News and Projects admin must call `MenuStore::bump()` only if they cache menu data (links resolve per request, so slug changes need nothing).
 
 ### 12.3 — SEO base: redirects, 404 monitor, robots.txt
 

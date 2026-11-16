@@ -2,13 +2,14 @@
 
 namespace App\Support\Demo;
 
+use App\Support\Menus\PublicMenus;
 use App\Support\Search\ProjectFilters;
 use App\Support\Settings\Settings;
 
 /**
- * Part A content source (DEC-29): site settings, menus and page copy shaped
+ * Part A content source (DEC-29): page copy, offices and the footer's area list shaped
  * like the Part B API Resources (ARC-002, resources/js/types/site.ts).
- * Settings move to the database in 12.1, menus in 12.2; deleted in 16.4.
+ * Settings moved to the database in 12.1, menus in 12.2; deleted in 16.4.
  * Contact details are the spec placeholders (DEC-17), not client data.
  *
  * @phpstan-type MenuItem array{
@@ -25,18 +26,6 @@ use App\Support\Settings\Settings;
  */
 final class DemoContent
 {
-    /**
-     * DM-MENU names, used as footer column headings.
-     *
-     * @var array<string, string>
-     */
-    private const array MENU_NAMES = [
-        'footer_1' => 'Projects',
-        'footer_2' => 'Company',
-        'footer_3' => 'Buyers & landowners',
-        'footer_4' => 'Tools',
-    ];
-
     /**
      * DM-OFF rows (spec/social.md); placeholder addresses until the client's arrive.
      *
@@ -70,7 +59,7 @@ final class DemoContent
     ];
 
     /** Mega menu `auto:segments` descriptions, reused by the segment tiles. */
-    private const array SEGMENT_DESCRIPTIONS = [
+    public const array SEGMENT_DESCRIPTIONS = [
         'residential' => 'Apartments for families',
         'commercial' => 'Offices and retail spaces',
         'mixed_use' => 'Homes above shops and offices',
@@ -141,10 +130,7 @@ final class DemoContent
         $item = self::menuItem(...);
 
         return [
-            'columns' => array_map(
-                fn (string $key): array => ['menu' => $key, 'heading' => self::MENU_NAMES[$key]],
-                array_keys(self::MENU_NAMES),
-            ),
+            'columns' => PublicMenus::footerColumns(),
             'offices_heading' => $footer['offices_heading'],
             'offices' => self::offices(),
             'locations_heading' => $footer['locations_heading'],
@@ -565,97 +551,6 @@ final class DemoContent
         }
 
         return $cards;
-    }
-
-    /**
-     * The `menus` shared prop, keyed by CMS-NAV-001 menu key. URLs are
-     * root-relative paths of the sitemap (spec/pages.md §5.1); the pages
-     * behind them arrive in later phases.
-     *
-     * @return array<string, list<MenuItem>>
-     */
-    public static function menus(): array
-    {
-        self::$menuItemId = 0;
-        $item = self::menuItem(...);
-
-        $segments = [
-            $item('Residential', '/projects/type/residential', description: self::SEGMENT_DESCRIPTIONS['residential'], icon: 'house'),
-            $item('Commercial', '/projects/type/commercial', description: self::SEGMENT_DESCRIPTIONS['commercial'], icon: 'building'),
-            $item('Mixed-use', '/projects/type/mixed-use', description: self::SEGMENT_DESCRIPTIONS['mixed_use'], icon: 'layers'),
-            $item('Land', '/projects/type/land', description: self::SEGMENT_DESCRIPTIONS['land'], icon: 'land-plot'),
-        ];
-
-        $statuses = [
-            $item('Ongoing', '/projects/status/ongoing'),
-            $item('Upcoming', '/projects/status/upcoming'),
-            $item('Ready', '/projects/status/ready'),
-            $item('Handed over', '/projects/status/handed-over'),
-            $item('All projects', '/projects'),
-        ];
-
-        // `auto:locations`: top 8 areas by project count (CMS-NAV-003).
-        $locations = array_map(
-            fn (array $area): array => $item($area['name'], '/locations/'.$area['slug'], count: $area['count']),
-            DemoProjects::topAreas(),
-        );
-
-        // Contact is not a header item: the Enquire button links there (DEC-40).
-        // Facet URL slugs use hyphens (`mixed-use`, `handed-over`; owner in 4.1).
-        $header = [
-            $item('Projects', '/projects', mega: [
-                ['kind' => 'segments', 'heading' => 'By type', 'items' => $segments],
-                ['kind' => 'links', 'heading' => 'By status', 'items' => $statuses],
-                ['kind' => 'locations', 'heading' => 'By location', 'items' => $locations],
-                ['kind' => 'featured_projects', 'heading' => 'Featured', 'projects' => array_slice(self::projectCards(featuredOnly: true), 0, 3)],
-            ]),
-            $item('Locations', '/locations'),
-            $item('Landowners', '/landowner'),
-            $item('NRB', '/nrb'),
-            $item('About', '/about', children: [
-                $item('About us', '/about'),
-                $item('Leadership', '/about/leadership'),
-                $item('Services', '/services'),
-                $item('Careers', '/careers'),
-            ]),
-            $item('News', '/news'),
-        ];
-
-        return [
-            'header' => $header,
-            'footer_1' => [
-                $item('All projects', '/projects'),
-                $item('Residential', '/projects/type/residential'),
-                $item('Commercial', '/projects/type/commercial'),
-                $item('Land', '/projects/type/land'),
-            ],
-            'footer_2' => [
-                $item('About us', '/about'),
-                $item('Leadership', '/about/leadership'),
-                $item('Services', '/services'),
-                $item('Careers', '/careers'),
-                $item('News', '/news'),
-            ],
-            'footer_3' => [
-                $item('Landowners', '/landowner'),
-                $item('NRB buyers', '/nrb'),
-                $item('FAQ', '/faq'),
-                $item('Contact', '/contact'),
-            ],
-            'footer_4' => [
-                $item('Shortlist', '/shortlist'),
-                $item('Compare', '/compare'),
-                $item('Search', '/search'),
-            ],
-            'legal' => [
-                $item('Privacy policy', '/privacy-policy'),
-                $item('Terms', '/terms'),
-            ],
-            'mobile_extra' => [
-                $item('Contact', '/contact'),
-                $item('Book a site visit', '/contact'),
-            ],
-        ];
     }
 
     /**

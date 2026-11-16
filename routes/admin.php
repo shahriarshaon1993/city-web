@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RecycleBinController;
@@ -111,6 +112,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::middleware('admin.can:settings.manage|settings.integrations')->prefix('settings')->name('settings.')->group(function () {
         Route::get('{group?}', [SettingsController::class, 'index'])->name('index');
         Route::patch('{group}', [SettingsController::class, 'update'])->name('update');
+    });
+
+    // ADM-SCR-12 Menus: a tab per menu (CMS-NAV-001). The page opens read-only with `menus.view`; saving needs `menus.manage` (MenuPolicy).
+    Route::middleware('admin.can:menus.view|menus.manage')->group(function () {
+        Route::get('menu-link-targets', [MenuController::class, 'targets'])->middleware('throttle:120,1')->name('menus.targets');
+        Route::get('menus/{menu?}', [MenuController::class, 'index'])->name('menus.index');
+        Route::put('menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
     });
 
     // VAL-04: live slug availability for every slug field.

@@ -6,6 +6,7 @@ use App\Support\Admin\AdminNavigation;
 use App\Support\Consent\ConsentCookie;
 use App\Support\Demo\DemoContent;
 use App\Support\Forms\FormOptions;
+use App\Support\Menus\PublicMenus;
 use App\Support\Seo\SeoData;
 use App\Support\Settings\Settings;
 use App\Support\Settings\SharedSettings;
@@ -148,7 +149,7 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             'site' => Inertia::once(fn (): array => SharedSettings::site()),
-            'menus' => Inertia::once(fn (): array => DemoContent::menus()),
+            'menus' => Inertia::once(fn (): array => PublicMenus::all()),
             'footer' => Inertia::once(fn (): array => DemoContent::footer()),
             'forms' => Inertia::once(fn (): array => FormOptions::shared()),
             'seo' => fn (): array => SeoData::raw((string) Settings::get('general', 'site_name'))
