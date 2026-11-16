@@ -6,7 +6,7 @@
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Support\Consent\ConsentCookie;
-use App\Support\Demo\DemoContent;
+use App\Support\Settings\SharedSettings;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
@@ -74,9 +74,9 @@ echo 'newsletter bad email: '.($errors['email'][0] ?? 'ACCEPTED (unexpected)').P
 echo "newsletter valid: {$status} errors=".json_encode($errors).' (expect 302 back, [])'.PHP_EOL;
 
 // --- consent cookie ---------------------------------------------------------------
-$consentVersion = DemoContent::cookies()['version'];
+$consentVersion = SharedSettings::cookies()['version'];
 $cookie = fn (string $value) => Request::create('/', 'GET', [], ['gc_consent' => $value]);
 echo 'consent current version: '.json_encode(ConsentCookie::read($cookie(json_encode(['version' => $consentVersion, 'analytics' => true, 'marketing' => false])), $consentVersion)).' (expect analytics true, marketing false)'.PHP_EOL;
 echo 'consent old version: '.json_encode(ConsentCookie::read($cookie(json_encode(['version' => $consentVersion - 1, 'analytics' => true, 'marketing' => true])), $consentVersion)).' (expect null: re-prompt)'.PHP_EOL;
 echo 'consent garbage: '.json_encode(ConsentCookie::read($cookie('nonsense'), $consentVersion)).' (expect null)'.PHP_EOL;
-echo 'analytics ids: '.json_encode(DemoContent::analytics()).' (expect both null until ANALYTICS_* is set in .env)'.PHP_EOL;
+echo 'analytics ids: '.json_encode(SharedSettings::analytics()).' (expect both null until ANALYTICS_* is set in .env)'.PHP_EOL;

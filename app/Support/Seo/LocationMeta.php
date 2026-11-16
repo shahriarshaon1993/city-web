@@ -2,7 +2,7 @@
 
 namespace App\Support\Seo;
 
-use App\Support\Demo\DemoContent;
+use App\Support\Settings\Settings;
 
 /**
  * PG-06 meta title and description (SEO-ONP-001/002) and the indexability
@@ -20,7 +20,7 @@ final class LocationMeta
     public static function title(string $area, string $city, ?string $segment = null): string
     {
         $key = $segment === null ? 'location_title_template' : 'location_segment_title_template';
-        $template = (string) DemoContent::settings('seo')[$key];
+        $template = (string) Settings::group('seo')[$key];
 
         return str_replace(['{area}', '{city}', '{segment_label}'], [$area, $city, (string) $segment], $template);
     }

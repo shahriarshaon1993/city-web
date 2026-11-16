@@ -51,7 +51,7 @@ final class AdminNavigation
                 new NavItem('sitemaps', 'Sitemaps & snapshots', 'admin/sitemaps', 'network', ['seo.view', 'seo.manage'], 'Sitemap status, pre-rendered pages and robots.txt.', '19.2'),
             ],
             'System' => [
-                new NavItem('settings', 'Settings', 'admin/settings', 'settings', ['settings.manage', 'settings.integrations'], 'Company details, contact, header, footer, forms and integrations.', '12.1'),
+                new NavItem('settings', 'Settings', 'admin/settings', 'settings', ['settings.manage', 'settings.integrations'], 'Company details, contact, header, footer, forms and integrations.', '12.1', placeholder: false),
                 new NavItem('users', 'Users & roles', 'admin/users', 'user-cog', ['users.manage', 'roles.manage'], 'Invite people, set their role and see what each role may do.', '10.3', placeholder: false),
                 new NavItem('activity-log', 'Activity log', 'admin/activity-log', 'history', ['activity.view-all', 'activity.view-own'], 'Who changed what, and when.', '10.3', placeholder: false),
                 new NavItem('recycle-bin', 'Recycle bin', 'admin/recycle-bin', 'trash-2', BinTypes::permissions(), 'Deleted items wait here until you restore them or they are removed for good.', '10.4', placeholder: false),

@@ -3,6 +3,7 @@
 namespace App\Support\Demo;
 
 use App\Support\Search\ProjectFilters;
+use App\Support\Settings\Settings;
 
 /**
  * FR-SRCH-001…007 over the demo rows: filters, sorts, facet counts and
@@ -38,7 +39,7 @@ final class DemoProjectSearch
     {
         $visible = count(array_filter(DemoProjects::rows(), fn (array $row): bool => $row['price_visible'] && $row['price'] !== null));
 
-        return $visible >= (int) DemoContent::settings('search')['price_filter_min_projects'];
+        return $visible >= (int) Settings::group('search')['price_filter_min_projects'];
     }
 
     /**
@@ -58,7 +59,7 @@ final class DemoProjectSearch
         $matching = array_values(array_filter($rows, fn (array $row): bool => $this->matches($row, $filters)));
         $matching = $this->sorted($matching, $filters->sort);
 
-        $perPage = (int) DemoContent::settings('search')['results_per_page'];
+        $perPage = (int) Settings::group('search')['results_per_page'];
         $total = count($matching);
         $lastPage = max(1, (int) ceil($total / $perPage));
         $page = $filters->page;
@@ -299,7 +300,7 @@ final class DemoProjectSearch
                 'min' => $band['min'],
                 'max' => $band['max'],
                 'count' => $count('size', fn (array $row): bool => $this->overlaps($row['size'][0], $row['size'][1], $band['min'], $band['max'])),
-            ], DemoContent::settings('search')['size_bands']),
+            ], Settings::group('search')['size_bands']),
             'size_bounds' => ['min' => 0, 'max' => (int) (ceil(max($sizes ?: [0]) / self::SIZE_STEP) * self::SIZE_STEP), 'step' => 50],
             'beds' => array_map(fn (int $beds): array => [
                 'value' => $beds,

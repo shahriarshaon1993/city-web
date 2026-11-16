@@ -9,6 +9,7 @@ use App\Support\Demo\DemoProjects;
 use App\Support\Forms\FormOptions;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
+use App\Support\Settings\Settings;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,7 +24,7 @@ class ContactController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        $copy = DemoContent::settings('contact_page');
+        $copy = Settings::group('contact_page');
         $slug = $request->query('project');
         $row = collect(DemoProjects::rows())->firstWhere('slug', is_string($slug) ? $slug : null);
 

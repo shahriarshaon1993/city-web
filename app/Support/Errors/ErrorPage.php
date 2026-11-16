@@ -5,6 +5,7 @@ namespace App\Support\Errors;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Support\Demo\DemoContent;
 use App\Support\Seo\SeoData;
+use App\Support\Settings\SharedSettings;
 use Illuminate\Http\Request;
 use Inertia\ExceptionResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,7 +92,7 @@ final class ErrorPage
      */
     private static function props(int $status, Request $request, Response $original, bool $minimal): array
     {
-        $copy = DemoContent::errorPage($status);
+        $copy = SharedSettings::errorPage($status);
 
         $props = [
             'status' => $status,
@@ -110,7 +111,7 @@ final class ErrorPage
 
         // The logo-only header still needs the site name and logos.
         if ($minimal) {
-            $props['site'] = DemoContent::site();
+            $props['site'] = SharedSettings::site();
         }
 
         return $props;

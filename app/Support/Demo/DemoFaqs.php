@@ -3,6 +3,7 @@
 namespace App\Support\Demo;
 
 use App\Support\Seo\Breadcrumbs;
+use App\Support\Settings\Settings;
 
 /**
  * Part A FAQs (FR-SOC-003, DM-FAQ): the questions shown on PG-18, in the
@@ -99,7 +100,7 @@ final class DemoFaqs
             'heading' => 'Still have questions?',
             'text' => 'Our team answers by phone, WhatsApp or email, usually within one working day.',
             'primary_cta' => ['label' => 'Contact us', 'url' => '/contact', 'new_tab' => false],
-            'secondary_cta' => ['label' => 'Call the hotline', 'url' => 'tel:'.DemoContent::settings('contact')['hotline'], 'new_tab' => false],
+            'secondary_cta' => ['label' => 'Call the hotline', 'url' => 'tel:'.Settings::group('contact')['hotline'], 'new_tab' => false],
             'style' => 'gradient',
             'image' => null,
         ], background: 'dark', spacing: 'lg');

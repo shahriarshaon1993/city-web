@@ -2,14 +2,14 @@
 
 namespace App\Support\Seo;
 
-use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoMedia;
+use App\Support\Settings\Settings;
+use App\Support\Settings\SharedSettings;
 use Illuminate\Http\Request;
 
 /**
  * The `seo` page prop (resources/js/types/site.ts `Seo`): rendered into the
  * public head by app.blade.php (SEO-REN-01) and mirrored by SeoHead.vue.
- * Settings come from DemoContent until 12.1.
+ * Settings come from Settings → SEO and General (12.1).
  *
  * @phpstan-type LcpImage array{image: array<string, mixed>, mobile: array<string, mixed>|null, sizes: string}
  * @phpstan-type ImagePreload array{srcset: string, sizes: string, type: string, media: string|null}
@@ -50,7 +50,7 @@ final class SeoData
      */
     public static function page(string $title, ?string $description = null): self
     {
-        $template = (string) DemoContent::settings('seo')['title_template'];
+        $template = (string) Settings::group('seo')['title_template'];
 
         return new self(str_replace('{title}', $title, $template), self::clean($description));
     }
@@ -60,7 +60,7 @@ final class SeoData
      */
     public static function home(): self
     {
-        $seo = DemoContent::settings('seo');
+        $seo = Settings::group('seo');
 
         return new self((string) $seo['home_title'], self::clean($seo['home_description']));
     }
@@ -180,14 +180,14 @@ final class SeoData
      */
     public function toArray(Request $request): array
     {
-        $siteName = (string) DemoContent::settings('general')['site_name'];
+        $siteName = (string) Settings::group('general')['site_name'];
         $indexable = $this->robots === self::ROBOTS_INDEX;
 
         // A noindex page has no canonical (SEO-TEC-004) unless it names its
         // closest indexable page (filter URLs, SEO-TEC-021). The environment-wide
         // noindex below changes only the robots value, so local output matches production.
         $canonical = $this->canonicalSet ? $this->canonical : ($indexable ? self::cleanUrl($request) : null);
-        $image = $this->image ?? DemoMedia::ogImage((string) DemoContent::settings('general')['default_og_image']);
+        $image = $this->image ?? SharedSettings::defaultOgImage();
 
         return [
             'title' => $this->title,
@@ -215,7 +215,7 @@ final class SeoData
      */
     public static function siteNoindex(): bool
     {
-        return ! app()->isProduction() || (bool) DemoContent::settings('seo')['noindex'];
+        return ! app()->isProduction() || (bool) Settings::group('seo')['noindex'];
     }
 
     /**

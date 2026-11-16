@@ -2,8 +2,8 @@
 
 namespace App\Support\Seo;
 
-use App\Support\Demo\DemoContent;
 use App\Support\Format;
+use App\Support\Settings\Settings;
 
 /**
  * PG-04 meta title and description from the Settings → SEO templates
@@ -23,7 +23,7 @@ final class ProjectMeta
      */
     public static function title(array $project): string
     {
-        $template = (string) DemoContent::settings('seo')['project_title_template'];
+        $template = (string) Settings::group('seo')['project_title_template'];
         $beds = self::range($project['beds_min'], $project['beds_max']);
 
         if ($beds === null) {
@@ -38,7 +38,7 @@ final class ProjectMeta
      */
     public static function description(array $project): string
     {
-        $template = (string) DemoContent::settings('seo')['project_description_template'];
+        $template = (string) Settings::group('seo')['project_description_template'];
         $size = self::range($project['size_min_sft'], $project['size_max_sft']);
 
         if ($size === null) {

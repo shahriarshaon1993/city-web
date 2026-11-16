@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoProjects;
 use App\Support\Demo\DemoProjectSections;
 use App\Support\Forms\FormType;
 use App\Support\Seo\SeoData;
+use App\Support\Settings\Settings;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,7 +30,7 @@ class ThankYouController extends Controller
     public function __invoke(Request $request, string $form): Response
     {
         $type = FormType::fromSlug($form) ?? abort(404);
-        $settings = DemoContent::settings('forms');
+        $settings = Settings::group('forms');
         $copy = $settings['thank_you'][$type->value];
 
         $lead = $request->session()->get('lead');

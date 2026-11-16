@@ -2,8 +2,8 @@
 
 namespace App\Support\Forms;
 
-use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoProjects;
+use App\Support\Settings\Settings;
 use Carbon\CarbonImmutable;
 
 /**
@@ -123,7 +123,7 @@ final class FormOptions
      */
     public static function shared(): array
     {
-        $settings = DemoContent::settings('forms');
+        $settings = Settings::group('forms');
         $window = self::visitWindow();
 
         $choices = [];

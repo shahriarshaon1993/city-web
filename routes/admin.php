@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RecycleBinController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SlugController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\TableViewController;
@@ -104,6 +105,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::patch('{asset}', [MediaController::class, 'update'])->name('update');
         Route::delete('{asset}', [MediaController::class, 'destroy'])->name('destroy');
         Route::post('{asset}/replace', [MediaController::class, 'replace'])->name('replace');
+    });
+
+    // ADM-SCR-15 Settings: a tab per group. The page opens for either settings permission; the Policy decides per tab.
+    Route::middleware('admin.can:settings.manage|settings.integrations')->prefix('settings')->name('settings.')->group(function () {
+        Route::get('{group?}', [SettingsController::class, 'index'])->name('index');
+        Route::patch('{group}', [SettingsController::class, 'update'])->name('update');
     });
 
     // VAL-04: live slug availability for every slug field.

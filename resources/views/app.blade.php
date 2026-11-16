@@ -2,6 +2,9 @@
 {{-- Public root (ARC-008). Light only, no dark-mode script (DEC-28); the admin uses admin.blade.php. --}}
 @php($seo = $page['props']['seo'] ?? null)
 @php($motionOff = ! ($page['props']['ui']['motion']['animations'] ?? true))
+{{-- Settings → Scripts (12.1): custom tags load only for visitors who accepted marketing cookies, or when the banner is off (SEO-PERF-013). --}}
+@php($customScripts = ! ($page['props']['ui']['cookies']['enabled'] ?? true) || ($page['props']['ui']['consent']['marketing'] ?? false))
+@php($favicon = \App\Support\Settings\SharedSettings::favicon())
 {{-- MOT-R03: `data-reduce-motion` = Settings → Motion off, or the visitor's footer choice (script below, before first paint). --}}
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @if ($motionOff) data-reduce-motion @endif>
     <head>
@@ -17,9 +20,15 @@
             <link rel="preload" as="image" imagesrcset="{{ $preload['srcset'] }}" imagesizes="{{ $preload['sizes'] }}" type="{{ $preload['type'] }}" fetchpriority="high" @if ($preload['media']) media="{{ $preload['media'] }}" @endif>
         @endforeach
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        {{-- Settings → General → Favicon replaces the built-in icons once chosen. --}}
+        @if ($favicon)
+            <link rel="icon" href="{{ $favicon['href'] }}" type="{{ $favicon['type'] }}">
+            <link rel="apple-touch-icon" href="{{ $favicon['href'] }}">
+        @else
+            <link rel="icon" href="/favicon.ico" sizes="any">
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @endif
 
         @fonts
 
@@ -60,8 +69,16 @@
                 <title data-inertia>{{ config('app.name') }}</title>
             @endif
         </x-inertia::head>
+
+        @if ($customScripts)
+            {!! \App\Support\Settings\ScriptSnippet::render(\App\Support\Settings\Settings::get('scripts', 'head_html')) !!}
+        @endif
     </head>
     <body class="bg-background font-sans text-foreground antialiased">
         <x-inertia::app />
+
+        @if ($customScripts)
+            {!! \App\Support\Settings\ScriptSnippet::render(\App\Support\Settings\Settings::get('scripts', 'body_end_html')) !!}
+        @endif
     </body>
 </html>

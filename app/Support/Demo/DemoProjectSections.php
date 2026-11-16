@@ -3,6 +3,7 @@
 namespace App\Support\Demo;
 
 use App\Support\Format;
+use App\Support\Settings\Settings;
 use Illuminate\Support\Carbon;
 
 /**
@@ -332,7 +333,7 @@ final class DemoProjectSections
             'heading' => $row['lifecycle'] === 'handed_over'
                 ? 'Interested in a resale or a similar project?'
                 : "Interested in {$row['name']}?",
-            'whatsapp' => DemoContent::settings('contact')['whatsapp_number'] ?? null,
+            'whatsapp' => Settings::group('contact')['whatsapp_number'] ?? null,
             'whatsapp_text' => "Hi, I'm interested in {$row['name']}. ".url('/projects/'.$row['slug']),
         ];
     }

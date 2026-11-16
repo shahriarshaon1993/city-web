@@ -36,7 +36,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 10.4 | CRUD toolkit: editor layout, toasts, confirm & undo, Recycle bin           | 10.3           | ✅     |
 | 11.1 | Media upload, conversions & storage                                        | 10.4           | ✅     |
 | 11.2 | Media library UI, picker & focal point                                     | 11.1           | ✅     |
-| 12.1 | Settings                                                                   | 11.2           | ⬜     |
+| 12.1 | Settings                                                                   | 11.2           | ✅     |
 | 12.2 | Menus                                                                      | 12.1           | ⬜     |
 | 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ⬜     |
 | 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ⬜     |
@@ -557,6 +557,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 11.2 · **Read:** spec/cms.md §8.2, CMS-CACHE-002, DM-SET; spec/admin.md §10.2 (settings rows), ADM-SCR-15, ADM-LOG-003; design/admin.md CMP-ADM-FORM; spec/crud.md CRUD-04, VAL-01..03, HELP-03.
 **Build:** settings table + registry (groups, keys, defaults, secrets encrypted, versioned cache); Settings screen with a tab per group and the permission split; shared props `site`, `ui` and per-form copy now come from settings (DemoContent loses those parts).
 **Test:** change the hotline → header/footer show it after save; secret values are logged as "changed" only; an Admin cannot open the Analytics/Scripts tabs; a bad GTM ID is rejected.
+
+**Done notes (2026-11-16):**
+- Registry in `app/Support/Settings`: `Field` (type, default, limits, rules, schema), `SettingsGroup`, `SettingsRegistry`, `Definitions/{SiteGroups,FormGroups,SystemGroups,FormCopy}`. Adding a setting = one `Field`; the form, Form Request rules and defaults follow.
+- Read: `Settings::group()/get()/secret()` (cache `settings:v{n}`, counter `cachever:settings`, `bump()` on save); public props from `SharedSettings` (`site`, `ui.motion|cookies|analytics`, error copy, favicon, default OG). `DemoContent` keeps menus, footer columns and offices only.
+- Write: `Actions/Settings/UpdateSettings` (changed keys only, media usages via `SyncMediaUsages`, activity log `settings`, secrets "changed"). `Setting` implements `UsesMedia`; morph alias `setting`.
+- Screen `/admin/settings/{group?}` (`SettingsController`, `UpdateSettingsRequest`, `SettingPolicy`); UI in `components/admin/settings/` (recursive `SettingField`, `SettingsNav`, `SettingsEditor`). Later forms with nested/list fields can reuse `SettingField`.
+- Deviations (DEC-79): `robots_body` → 12.3; favicon PNG doubles as apple-touch (no ICO); Scripts print only with marketing consent; Maintenance tab Super Admin only; analytics IDs fall back to `.env`.
+- Check script `docs/checks/12.1-settings.php` (rolled back). Menus (12.2) must replace `DemoContent::menus()/footer()`.
 
 ### 12.2 — Menus
 

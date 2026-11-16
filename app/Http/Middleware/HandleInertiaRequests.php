@@ -7,6 +7,8 @@ use App\Support\Consent\ConsentCookie;
 use App\Support\Demo\DemoContent;
 use App\Support\Forms\FormOptions;
 use App\Support\Seo\SeoData;
+use App\Support\Settings\Settings;
+use App\Support\Settings\SharedSettings;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -145,20 +147,20 @@ class HandleInertiaRequests extends Middleware
     private function sharePublic(Request $request): array
     {
         return [
-            'site' => Inertia::once(fn (): array => DemoContent::site()),
+            'site' => Inertia::once(fn (): array => SharedSettings::site()),
             'menus' => Inertia::once(fn (): array => DemoContent::menus()),
             'footer' => Inertia::once(fn (): array => DemoContent::footer()),
             'forms' => Inertia::once(fn (): array => FormOptions::shared()),
-            'seo' => fn (): array => SeoData::raw((string) DemoContent::settings('general')['site_name'])
+            'seo' => fn (): array => SeoData::raw((string) Settings::get('general', 'site_name'))
                 ->noindex()
                 ->toArray($request),
             'ui' => [
-                'motion' => Inertia::once(fn (): array => DemoContent::motion()),
+                'motion' => Inertia::once(fn (): array => SharedSettings::motion()),
                 // CMP-COOKIE-01: the stored choice (null until decided or after a version bump), the
                 // banner settings and the analytics IDs (SEO-ANA-001). The browser owns the cookie.
-                'consent' => fn (): ?array => ConsentCookie::read($request, DemoContent::cookies()['version']),
-                'cookies' => Inertia::once(fn (): array => DemoContent::cookies()),
-                'analytics' => Inertia::once(fn (): array => DemoContent::analytics()),
+                'consent' => fn (): ?array => ConsentCookie::read($request, SharedSettings::cookies()['version']),
+                'cookies' => Inertia::once(fn (): array => SharedSettings::cookies()),
+                'analytics' => Inertia::once(fn (): array => SharedSettings::analytics()),
             ],
         ];
     }
