@@ -6,3 +6,4 @@ export * from './users';
 export * from './media';
 export * from './settings';
 export * from './menus';
+export * from './seo';

@@ -72,7 +72,7 @@ final class SystemGroups
             ],
         ], [
             'Page titles' => 'Titles of 50–60 characters read best in search results.',
-            'Visibility and verification' => 'robots.txt is edited under SEO → Sitemaps & snapshots.',
+            'Visibility and verification' => 'robots.txt is edited under SEO → Robots.txt.',
         ]);
     }
 

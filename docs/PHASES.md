@@ -38,7 +38,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 11.2 | Media library UI, picker & focal point                                     | 11.1           | ✅     |
 | 12.1 | Settings                                                                   | 11.2           | ✅     |
 | 12.2 | Menus                                                                      | 12.1           | ✅     |
-| 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ⬜     |
+| 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ✅     |
 | 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ⬜     |
 | 13.2 | Locations & projects admin                                                 | 13.1           | ⬜     |
 | 13.3 | Public projects & locations from the database                              | 13.2           | ⬜     |
@@ -586,6 +586,13 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 12.1 · **Read:** spec/seo.md SEO-TEC-002, SEO-TEC-003, SEO-TEC-007..010, DM-REDIR, DM-404; spec/admin.md ADM-SCR-14 (Redirects, 404 monitor, Robots tabs); spec/crud.md rows Redirects / 404 log rows.
 **Build:** `ApplyRedirects` before routing (exact/prefix, 301/302/410, hit counts), loop/chain detection, 2,000-rule cap, CSV import/export; redirects table + dialog editor, soft deletes → Recycle bin (DEC-33); `TrackNotFound` (ignore regex, "Create redirect", 90-day purge); dynamic robots.txt from settings (always `Disallow: /` off production).
 **Test:** `/old` → `/projects` 301 and the hit count rises; creating A→B when B→A exists is refused; a 404 appears in the monitor and turns into a redirect; local robots.txt shows `Disallow: /`.
+
+**Done notes (2026-11-16):**
+- Redirects: `Models/Redirect` (Trashable, bin type `redirect`, saves bump the rule cache), `Support/Redirects/{RedirectPath,RedirectRules,RuleSet,NotFoundIgnore,RobotsTxt}`, Actions `Redirects/{SaveRedirect,SetRedirectActive,ImportRedirects,RecordRedirectHit}`; `ApplyRedirects` runs before `NormalizeUrl` (global middleware, `bootstrap/app.php`).
+- 404 monitor: `NotFoundLog`, `TrackNotFound` middleware + `Monitoring/{RecordNotFound,SetNotFoundIgnored,DeleteNotFoundLogs,UpdateNotFoundIgnoreList,PurgeNotFoundLogs}`; nightly `not-found:purge`. `defer()` skips 4xx unless `always: true` — keep it for any 4xx deferred work.
+- Robots: `/robots.txt` is a route (`public/robots.txt` deleted); body stored as `seo.robots_body`, ignore list as `seo.not_found_ignore`, both read with `Settings::stored()` and written by their own Actions (not in the settings registry).
+- UI: `pages/admin/{Redirects,NotFound,Robots}.vue`, `components/admin/seo/*`; one SEO tab bar (Sitemaps/Snapshots tabs join in 19.x). New sidebar item `robots`.
+- Later phases: 13.2 delete-with-redirect writes rules through `SaveRedirect`; 18.1 "Top 404s" widget reads `not_found_logs`; 17.3 import wizard may reuse `ImportRedirects`. Check script `docs/checks/12.3-seo-base.php`.
 
 ## Phase 13 — Locations & projects backend
 

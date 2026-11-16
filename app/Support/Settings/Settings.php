@@ -60,6 +60,15 @@ final class Settings
     }
 
     /**
+     * A stored value that no settings form edits (`seo.robots_body`, `seo.not_found_ignore`, written
+     * by their own Actions); null when nobody saved it.
+     */
+    public static function stored(string $group, string $key): mixed
+    {
+        return self::rows()[$group][$key]['value'] ?? null;
+    }
+
+    /**
      * A secret, decrypted; null when none is set. Server-side use only (Turnstile check, webhook signing).
      */
     public static function secret(string $group, string $key): ?string

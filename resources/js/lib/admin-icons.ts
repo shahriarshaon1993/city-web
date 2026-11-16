@@ -1,4 +1,5 @@
 import {
+    Bot,
     Briefcase,
     Building2,
     CircleHelp,
@@ -41,6 +42,7 @@ const icons: Record<string, LucideIcon> = {
     'trash-2': Trash2,
     'triangle-alert': TriangleAlert,
     'user-cog': UserCog,
+    bot: Bot,
     briefcase: Briefcase,
     handshake: Handshake,
     history: History,

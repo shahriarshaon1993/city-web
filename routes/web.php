@@ -12,6 +12,7 @@ use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
+use App\Http\Controllers\Site\RobotsTxtController;
 use App\Http\Controllers\Site\SearchController;
 use App\Http\Controllers\Site\ShortlistController;
 use App\Http\Controllers\Site\StyleguideController;
@@ -85,6 +86,9 @@ Route::get('compare', [ShortlistController::class, 'compare'])->name('site.compa
 
 // PG-17 (7.2).
 Route::get('contact', ContactController::class)->name('site.contact');
+
+// SEO-TEC-010 (12.3): dynamic, never a static file.
+Route::get('robots.txt', RobotsTxtController::class)->name('site.robots');
 
 // FR-LEAD workflow (7.1, 7.2): the seven lead forms post here and land on PG-22.
 Route::post('forms/{form}', [FormController::class, 'store'])

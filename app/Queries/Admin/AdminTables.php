@@ -17,6 +17,8 @@ final class AdminTables
         ActivityLogTable::class,
         RecycleBinTable::class,
         MediaTable::class,
+        RedirectsTable::class,
+        NotFoundTable::class,
     ];
 
     /**

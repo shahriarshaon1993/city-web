@@ -5,9 +5,12 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\NotFoundController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RecycleBinController;
+use App\Http\Controllers\Admin\RedirectController;
+use App\Http\Controllers\Admin\RobotsController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SlugController;
@@ -119,6 +122,29 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('menu-link-targets', [MenuController::class, 'targets'])->middleware('throttle:120,1')->name('menus.targets');
         Route::get('menus/{menu?}', [MenuController::class, 'index'])->name('menus.index');
         Route::put('menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
+    });
+
+    // ADM-SCR-14 SEO: redirects, 404 monitor, robots.txt. `seo.view` (Viewer) reads, `redirects.manage` /
+    // `seo.manage` write; the Policies and Form Requests check each action.
+    Route::middleware('admin.can:redirects.manage|seo.view')->group(function () {
+        Route::get('redirects', [RedirectController::class, 'index'])->name('redirects.index');
+        Route::post('redirects', [RedirectController::class, 'store'])->name('redirects.store');
+        Route::post('redirects/import', [RedirectController::class, 'import'])->middleware('throttle:10,1')->name('redirects.import');
+        Route::post('redirects/bulk', [RedirectController::class, 'bulk'])->name('redirects.bulk');
+        Route::patch('redirects/{redirect}', [RedirectController::class, 'update'])->name('redirects.update');
+        Route::patch('redirects/{redirect}/active', [RedirectController::class, 'active'])->name('redirects.active');
+        Route::delete('redirects/{redirect}', [RedirectController::class, 'destroy'])->name('redirects.destroy');
+
+        Route::get('404s', [NotFoundController::class, 'index'])->name('not-found.index');
+        Route::put('404s/ignore-list', [NotFoundController::class, 'updateIgnoreList'])->name('not-found.ignore-list');
+        Route::post('404s/bulk', [NotFoundController::class, 'bulk'])->name('not-found.bulk');
+        Route::post('404s/{log}/ignore', [NotFoundController::class, 'ignore'])->name('not-found.ignore');
+        Route::delete('404s/{log}', [NotFoundController::class, 'destroy'])->name('not-found.destroy');
+    });
+
+    Route::middleware('admin.can:seo.view|seo.manage')->group(function () {
+        Route::get('robots', [RobotsController::class, 'edit'])->name('robots.index');
+        Route::put('robots', [RobotsController::class, 'update'])->name('robots.update');
     });
 
     // VAL-04: live slug availability for every slug field.

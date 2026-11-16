@@ -6,6 +6,7 @@ use App\Listeners\RecordAuthEvents;
 use App\Models\MediaAsset;
 use App\Models\MediaFolder;
 use App\Models\Menu;
+use App\Models\Redirect;
 use App\Models\Setting;
 use App\Models\User;
 use App\Policies\RolePolicy;
@@ -68,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
             'media_folder' => MediaFolder::class,
             'setting' => Setting::class,
             'menu' => Menu::class,
+            'redirect' => Redirect::class,
         ]);
     }
 

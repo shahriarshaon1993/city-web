@@ -46,9 +46,10 @@ final class AdminNavigation
                 new NavItem('media', 'Media', 'admin/media', 'images', ['media.view', 'media.upload', 'media.update'], 'Photos, videos and documents, with folders and focal points.', '11.2', placeholder: false),
             ],
             'SEO' => [
-                new NavItem('redirects', 'Redirects', 'admin/redirects', 'corner-up-right', ['redirects.manage', 'seo.view'], 'Send old addresses to their new pages.', '12.3'),
-                new NavItem('not-found', '404s', 'admin/404s', 'unlink', ['redirects.manage', 'seo.view'], 'Addresses visitors asked for that do not exist.', '12.3'),
-                new NavItem('sitemaps', 'Sitemaps & snapshots', 'admin/sitemaps', 'network', ['seo.view', 'seo.manage'], 'Sitemap status, pre-rendered pages and robots.txt.', '19.2'),
+                new NavItem('redirects', 'Redirects', 'admin/redirects', 'corner-up-right', ['redirects.manage', 'seo.view'], 'Send old addresses to their new pages.', '12.3', placeholder: false),
+                new NavItem('not-found', '404s', 'admin/404s', 'unlink', ['redirects.manage', 'seo.view'], 'Addresses visitors asked for that do not exist.', '12.3', placeholder: false),
+                new NavItem('robots', 'Robots.txt', 'admin/robots', 'bot', ['seo.view', 'seo.manage'], 'What search engines may crawl.', '12.3', placeholder: false),
+                new NavItem('sitemaps', 'Sitemaps & snapshots', 'admin/sitemaps', 'network', ['seo.view', 'seo.manage'], 'Sitemap status and pre-rendered pages.', '19.2'),
             ],
             'System' => [
                 new NavItem('settings', 'Settings', 'admin/settings', 'settings', ['settings.manage', 'settings.integrations'], 'Company details, contact, header, footer, forms and integrations.', '12.1', placeholder: false),

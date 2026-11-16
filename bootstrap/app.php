@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Middleware\AddNoindexHeader;
+use App\Http\Middleware\ApplyRedirects;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\NormalizeUrl;
+use App\Http\Middleware\TrackNotFound;
 use App\Support\Errors\ErrorPage;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -23,7 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Global: runs before routing, so 404s and redirects are covered too (SEO-TEC-002, SEO-TEC-010).
-        $middleware->append([AddNoindexHeader::class, NormalizeUrl::class]);
+        // TrackNotFound sees every 404; the manager's redirects run before the URL is normalised, so `/Old/` takes one hop.
+        $middleware->append([AddNoindexHeader::class, TrackNotFound::class, ApplyRedirects::class, NormalizeUrl::class]);
 
         // `gc_consent` is written by the browser (cookie banner, NFR-PRIV-01) and read in plain text.
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'gc_consent']);
