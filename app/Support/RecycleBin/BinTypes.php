@@ -3,8 +3,10 @@
 namespace App\Support\RecycleBin;
 
 use App\Models\Amenity;
+use App\Models\Lead;
 use App\Models\Location;
 use App\Models\MediaAsset;
+use App\Models\NewsletterSubscriber;
 use App\Models\Project;
 use App\Models\Redirect;
 use App\Models\User;
@@ -26,6 +28,8 @@ final class BinTypes
         Location::class,
         Amenity::class,
         Project::class,
+        Lead::class,
+        NewsletterSubscriber::class,
     ];
 
     /**

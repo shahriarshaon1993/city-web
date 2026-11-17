@@ -87,7 +87,7 @@ Legend — Editor: **Page** full-page editor · **Dialog** · **Inline**. Delete
 | Facet pages | Page | — | — (fixed rows) | — | — | 13.2 |
 | Amenities | Dialog | — | Bin + Guard (used by projects) | — | Yes | 13.2 |
 | Projects | Page (tabs) | Full CMS-PUB + featured | Bin + redirect option (DEL-02) | Yes | Featured order | 13.2/14.1 |
-| Leads | Drawer (+ "New lead" dialog, DEC-33) | Pipeline (FR-LEAD-006) | Bin 365 d (Admin) | — | Board | 15.2 |
+| Leads | Drawer (+ "New lead" full page, DEC-33, owner 2026-11-17) | Pipeline (FR-LEAD-006) | Bin 365 d (Admin) | — | Board | 15.2 |
 | Subscribers | — | Pending / active / unsubscribed | Bin 365 d; Erase = Hard | — | — | 15.2 |
 | Pages | Page (builder) | Full CMS-PUB | Bin + Guard (`is_system`) | Yes (custom) | Blocks | 16.1/16.2 |
 | Posts | Page | Full CMS-PUB | Bin | Yes | — | 16.3 |

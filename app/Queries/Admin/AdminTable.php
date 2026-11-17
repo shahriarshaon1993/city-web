@@ -76,14 +76,33 @@ abstract class AdminTable
     /**
      * ADM-TBL-012: export column id → label and value (the client sends the visible ids in order).
      *
-     * @return array<string, array{label: string, value: Closure(TModel): (scalar|null)}>
+     * `text` marks a column whose `+…` numbers must stay text (phone numbers).
+     *
+     * @return array<string, array{label: string, value: Closure(TModel): (scalar|null), text?: bool}>
      */
     abstract public function exportColumns(): array;
+
+    /** The export button and endpoint are offered only when this says yes (a table may need more than "can open"). */
+    public function canExport(User $actor): bool
+    {
+        return true;
+    }
+
+    /**
+     * Views the code ships with (not stored, never editable). Ids are negative so they cannot meet a
+     * saved view; the state is the URL state the view opens (`filter` = name → value).
+     *
+     * @return list<array{id: int, name: string, state: array<string, mixed>}>
+     */
+    protected function builtInViews(User $actor): array
+    {
+        return [];
+    }
 
     /**
      * Option lists with counts for enum filters (ADM-TBL-003).
      *
-     * @return array<string, array<int, array{value: string, label: string, count: int, hint?: string}>>
+     * @return array<string, array<int, array{value: string, label: string, count?: int, hint?: string}>>
      */
     public function filterOptions(User $actor): array
     {
@@ -255,6 +274,16 @@ abstract class AdminTable
         $query = $request->query();
         $viewId = $request->query('view');
 
+        if ($viewId !== null && (int) $viewId < 0 && array_keys($query) === ['view']) {
+            foreach ($this->builtInViews($actor) as $builtIn) {
+                if ($builtIn['id'] === (int) $viewId) {
+                    return $request->url().'?'.http_build_query([...$builtIn['state'], 'view' => $builtIn['id']]);
+                }
+            }
+
+            return null;
+        }
+
         if ($query === [] || ($viewId !== null && array_keys($query) === ['view'])) {
             $view = $viewId !== null
                 ? $this->visibleViews($actor)->whereKey((int) $viewId)->first()
@@ -279,9 +308,28 @@ abstract class AdminTable
     }
 
     /**
-     * @return array<int, array{id: int, name: string, is_shared: bool, is_default: bool, mine: bool, owner: string, state: array<string, mixed>}>
+     * @return array<int, array{id: int, name: string, is_shared: bool, is_default: bool, mine: bool, owner: string, builtin: bool, state: array<string, mixed>}>
      */
-    private function views(User $actor): array
+    public function views(User $actor): array
+    {
+        $builtIn = array_map(fn (array $view): array => [
+            'id' => $view['id'],
+            'name' => $view['name'],
+            'is_shared' => false,
+            'is_default' => false,
+            'mine' => false,
+            'owner' => 'Built in',
+            'builtin' => true,
+            'state' => $view['state'],
+        ], $this->builtInViews($actor));
+
+        return [...$builtIn, ...$this->savedViews($actor)];
+    }
+
+    /**
+     * @return array<int, array{id: int, name: string, is_shared: bool, is_default: bool, mine: bool, owner: string, builtin: bool, state: array<string, mixed>}>
+     */
+    private function savedViews(User $actor): array
     {
         return $this->visibleViews($actor)
             ->with('user:id,name')
@@ -294,6 +342,7 @@ abstract class AdminTable
                 'is_default' => $view->is_default && $view->user_id === $actor->id,
                 'mine' => $view->user_id === $actor->id,
                 'owner' => (string) $view->user?->name,
+                'builtin' => false,
                 'state' => $view->state,
             ])
             ->values()

@@ -33,6 +33,8 @@ export type TableViewItem = {
     is_default: boolean;
     mine: boolean;
     owner: string;
+    /** Shipped with the page (negative id): it cannot be changed or deleted. */
+    builtin?: boolean;
     state: ViewState;
 };
 

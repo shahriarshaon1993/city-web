@@ -2,6 +2,8 @@
 
 namespace App\Support\Admin;
 
+use App\Enums\LeadStatus;
+use App\Models\Lead;
 use App\Models\MediaAsset;
 use App\Models\Project;
 use App\Models\User;
@@ -39,8 +41,8 @@ final class AdminNavigation
                 new NavItem('careers', 'Careers', 'admin/careers', 'briefcase', ['jobs.view'], 'Open roles and their descriptions.', '17.1'),
             ],
             'Sales' => [
-                new NavItem('leads', 'Leads', 'admin/leads', 'phone-call', ['leads.view-all', 'leads.view-assigned'], 'Enquiries from the website: table, board and follow-ups.', '15.2'),
-                new NavItem('subscribers', 'Subscribers', 'admin/subscribers', 'mail', ['subscribers.manage'], 'Newsletter sign-ups, with export and unsubscribe.', '15.2'),
+                new NavItem('leads', 'Leads', 'admin/leads', 'phone-call', ['leads.view-all', 'leads.view-assigned'], 'Enquiries from the website: table, board and follow-ups.', '15.2', placeholder: false),
+                new NavItem('subscribers', 'Subscribers', 'admin/subscribers', 'mail', ['subscribers.manage'], 'Newsletter sign-ups, with export and unsubscribe.', '15.2', placeholder: false),
                 new NavItem('applications', 'Applications', 'admin/applications', 'file-user', ['applications.manage'], 'Job applications and CVs.', '17.1'),
             ],
             'Library' => [
@@ -122,6 +124,8 @@ final class AdminNavigation
                             'media' => MediaAsset::query()->count() ?: null,
                             // design/admin.md §12.1: projects published.
                             'projects' => Project::query()->published()->count() ?: null,
+                            // design/admin.md §12.1: leads unread (new, and visible to this user).
+                            'leads' => Lead::query()->visibleTo($user)->where('status', LeadStatus::New->value)->count() ?: null,
                             default => null,
                         },
                     ];

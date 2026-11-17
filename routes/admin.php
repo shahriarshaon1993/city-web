@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacetPageController;
 use App\Http\Controllers\Admin\FeaturedProjectController;
 use App\Http\Controllers\Admin\LeadAttachmentController;
+use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Admin\RobotsController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SlugController;
+use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\TableViewController;
 use App\Http\Controllers\Admin\UserController;
@@ -227,11 +229,33 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('table-views/{view}', [TableViewController::class, 'update'])->name('table-views.update');
     Route::delete('table-views/{view}', [TableViewController::class, 'destroy'])->name('table-views.destroy');
 
-    // FR-LEAD-011 (15.1): private landowner documents; the Leads screens follow in 15.2.
-    Route::get('leads/{lead}/attachments/{index}', [LeadAttachmentController::class, 'show'])
-        ->whereNumber(['lead', 'index'])
-        ->middleware('admin.can:leads.view-all|leads.view-assigned')
-        ->name('leads.attachments.show');
+    // ADM-SCR-11 Leads. The Policy checks every verb per lead (a Sales Executive reaches only their own, AC-LEAD-05).
+    Route::middleware('admin.can:leads.view-all|leads.view-assigned')->prefix('leads')->name('leads.')->group(function () {
+        Route::get('/', [LeadController::class, 'index'])->name('index');
+        Route::get('board', [LeadController::class, 'board'])->name('board');
+        Route::get('create', [LeadController::class, 'create'])->name('create');
+        Route::post('/', [LeadController::class, 'store'])->name('store');
+        Route::post('bulk', [LeadController::class, 'bulk'])->name('bulk');
+        Route::get('{lead}', [LeadController::class, 'show'])->whereNumber('lead')->name('show');
+        Route::patch('{lead}/status', [LeadController::class, 'status'])->whereNumber('lead')->name('status');
+        Route::patch('{lead}/assignee', [LeadController::class, 'assign'])->whereNumber('lead')->name('assign');
+        Route::post('{lead}/notes', [LeadController::class, 'note'])->whereNumber('lead')->name('notes.store');
+        Route::patch('{lead}/follow-up', [LeadController::class, 'followUp'])->whereNumber('lead')->name('follow-up');
+        Route::delete('{lead}', [LeadController::class, 'destroy'])->whereNumber('lead')->name('destroy');
+        // FR-LEAD-011 (15.1): private landowner documents.
+        Route::get('{lead}/attachments/{index}', [LeadAttachmentController::class, 'show'])
+            ->whereNumber(['lead', 'index'])
+            ->name('attachments.show');
+    });
+
+    // ADM-SCR-12 Subscribers.
+    Route::middleware('admin.can:subscribers.manage')->prefix('subscribers')->name('subscribers.')->group(function () {
+        Route::get('/', [SubscriberController::class, 'index'])->name('index');
+        Route::post('bulk', [SubscriberController::class, 'bulk'])->name('bulk');
+        Route::post('{subscriber}/unsubscribe', [SubscriberController::class, 'unsubscribe'])->whereNumber('subscriber')->name('unsubscribe');
+        Route::delete('{subscriber}', [SubscriberController::class, 'destroy'])->whereNumber('subscriber')->name('destroy');
+        Route::delete('{subscriber}/erase', [SubscriberController::class, 'erase'])->whereNumber('subscriber')->name('erase');
+    });
 
     // Sidebar items whose screens come in later phases (registry: AdminNavigation).
     foreach (AdminNavigation::items() as $item) {

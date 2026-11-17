@@ -18,7 +18,7 @@ class ExportTableRequest extends FormRequest
     {
         $table = AdminTables::find((string) $this->route('table'));
 
-        return $table !== null && $table->isVisibleTo($this->user());
+        return $table !== null && $table->isVisibleTo($this->user()) && $table->canExport($this->user());
     }
 
     /**

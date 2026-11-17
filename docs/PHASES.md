@@ -44,7 +44,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 13.3 | Public projects & locations from the database                              | 13.2           | ✅     |
 | 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ✅     |
 | 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ✅     |
-| 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ⬜     |
+| 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ✅     |
 | 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ⬜     |
 | 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ⬜     |
 | 16.2 | Page builder admin UI                                                      | 16.1           | ⬜     |
@@ -679,6 +679,12 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 15.1 · **Read:** spec/leads.md FR-LEAD-006, FR-LEAD-009, FR-LEAD-010, AC-LEAD-05; spec/admin.md ADM-SCR-11, ADM-SCR-12, leads/subscribers permission rows; design/admin.md CMP-ADM-KANBAN, CMP-ADM-LEAD, §12.3 (Leads row); spec/crud.md rows Leads / Subscribers, TOAST-02, TOAST-06; DECISIONS DEC-33 (manual lead).
 **Build:** leads table with seeded saved views, kanban board (drag + keyboard "Move to…", Undo toast), won/lost reason dialog, detail drawer (Details, Timeline, Notes, Follow-up), call/WhatsApp links, export with phones as text, Viewer masking, Sales Executive sees only own leads; "New lead" dialog for phone/walk-in enquiries (type `manual`, same duplicate + assignment rules); delete → Recycle bin (Admin); subscribers screen (export, unsubscribe, delete → bin, Erase = hard).
 **Test:** a Sales Executive opening another's lead URL → 403; dragging to Won asks for a reason, dragging elsewhere shows Undo; add a lead by hand with a phone that already enquired today → a touch on the existing lead, not a new one; export keeps `+880…`; Viewer sees masked phones.
+
+**Done notes (15.2):**
+- Screens: `admin/leads/Index.vue` (table), `Board.vue`, `Create.vue` (full page, owner decision), `admin/Subscribers.vue`; components in `components/admin/leads/` (drawer, board, reason + assign dialogs). Server: `LeadController`, `SubscriberController`, `LeadsTable`, `SubscribersTable`, `LeadPresenter` (masking, timeline wording). See DEC-87.
+- Actions `ChangeLeadStatus` / `UndoLeadStatus` / `ReassignLead` / `AddLeadNote` / `SetLeadFollowUp` / `CreateManualLead` / `FindRecentLead` (shared with `StoreLead`); subscribers: `UnsubscribeSubscriber`, `EraseSubscriber`. `Lead` and `NewsletterSubscriber` are Recycle bin types (365 d).
+- Shared table toolkit grew: `AdminTable::canExport()` + `builtInViews()` (negative view ids), export column flag `text` (phones keep `+`), `DataTableViews` shows "Built in". Colour tokens exist only as 50/200/400/700/900 (no -500): StatusBadge dots fixed.
+- The drawer is JSON (`GET admin/leads/{id}`); `?lead={id}` on the list or board opens it. 15.3 hooks notifications on `ChangeLeadStatus` / `ReassignLead` / `CreateManualLead`; 17.3 import/export reuses `LeadsTable`. Check: `docs/checks/15.2-leads-admin.php`.
 
 ### 15.3 — Notifications, autoresponder, webhook
 

@@ -9,6 +9,7 @@ namespace App\Enums;
 enum LeadStatus: string
 {
     case New = 'new';
+    case NeedsReview = 'needs_review';
     case Contacted = 'contacted';
     case SiteVisitScheduled = 'site_visit_scheduled';
     case SiteVisitDone = 'site_visit_done';
@@ -16,7 +17,27 @@ enum LeadStatus: string
     case Won = 'won';
     case Lost = 'lost';
     case Spam = 'spam';
-    case NeedsReview = 'needs_review';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::New => 'New',
+            self::NeedsReview => 'Needs review',
+            self::Contacted => 'Contacted',
+            self::SiteVisitScheduled => 'Site visit scheduled',
+            self::SiteVisitDone => 'Site visit done',
+            self::Negotiation => 'Negotiation',
+            self::Won => 'Won',
+            self::Lost => 'Lost',
+            self::Spam => 'Spam',
+        };
+    }
+
+    /** Won and lost need a reason (FR-LEAD-006). */
+    public function needsReason(): bool
+    {
+        return $this === self::Won || $this === self::Lost;
+    }
 
     /**
      * Statuses that no longer count as open work (round-robin by least open leads, FR-LEAD-007).

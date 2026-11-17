@@ -40,3 +40,25 @@ export function timeAgo(iso: string, now: number = Date.now()): string {
 
     return days <= 30 ? `${days}d ago` : formatDateTime(iso).split(' · ')[0];
 }
+
+const WALL_CLOCK = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Dhaka',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+});
+
+/** `2026-12-01T09:00`: a moment as Dhaka wall time, the value of a date-time input. */
+export function dhakaInputValue(value: Date | string): string {
+    const part = Object.fromEntries(
+        WALL_CLOCK.formatToParts(new Date(value)).map((item) => [
+            item.type,
+            item.value,
+        ]),
+    );
+
+    return `${part.year}-${part.month}-${part.day}T${part.hour}:${part.minute}`;
+}

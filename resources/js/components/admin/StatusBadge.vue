@@ -22,10 +22,10 @@ const classes = computed(
 const dot = computed(
     () =>
         ({
-            success: 'bg-success-500',
-            info: 'bg-info-500',
-            warning: 'bg-warning-500',
-            error: 'bg-error-500',
+            success: 'bg-success-400',
+            info: 'bg-info-400',
+            warning: 'bg-warning-400',
+            error: 'bg-error-400',
         })[props.tone] ?? 'bg-stone-400',
 );
 </script>

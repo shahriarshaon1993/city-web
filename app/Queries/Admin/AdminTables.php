@@ -21,6 +21,8 @@ final class AdminTables
         NotFoundTable::class,
         ProjectsTable::class,
         AmenitiesTable::class,
+        LeadsTable::class,
+        SubscribersTable::class,
     ];
 
     /**

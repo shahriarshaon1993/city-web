@@ -160,7 +160,12 @@ function confirmDelete(): void {
                     >
                         <span class="truncate">{{ view.name }}</span>
                         <span
-                            v-if="view.is_shared"
+                            v-if="view.builtin"
+                            class="shrink-0 text-xs text-muted-foreground"
+                            >Built in</span
+                        >
+                        <span
+                            v-else-if="view.is_shared"
                             class="flex shrink-0 items-center gap-1 text-xs text-muted-foreground"
                         >
                             <Users class="size-3" aria-hidden="true" />

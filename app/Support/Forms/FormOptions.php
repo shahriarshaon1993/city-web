@@ -95,6 +95,12 @@ final class FormOptions
         ],
     ];
 
+    /** The wording of one stored choice, for the admin screens (`null` when the list does not know it). */
+    public static function label(string $list, string $value): ?string
+    {
+        return self::CHOICES[$list][$value] ?? null;
+    }
+
     /**
      * Allowed values of one choice list, for `Rule::in()`.
      *

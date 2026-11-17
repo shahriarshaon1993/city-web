@@ -69,7 +69,8 @@ export function parseTableState(
         widths: parseWidths(params.get('widths')),
         density:
             density === 'comfortable' || density === 'compact' ? density : null,
-        view: Number.isInteger(view) && view > 0 ? view : null,
+        // Negative ids are the views a page ships with (AdminTable::builtInViews).
+        view: Number.isInteger(view) && view !== 0 ? view : null,
         layout: layout === 'grid' || layout === 'list' ? layout : null,
     };
 }

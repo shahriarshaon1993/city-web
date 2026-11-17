@@ -57,8 +57,11 @@ final class ExportTable
             $writer = SimpleExcelWriter::streamDownload($filename, writerCallback: fn ($writer) => $writer->openToFile('php://output'));
             $writer->addHeader($table->exportHeader($columns));
 
+            $available = $table->exportColumns();
+            $text = array_map(fn (string $id): bool => $available[$id]['text'] ?? false, $columns);
+
             foreach ($table->exportRows($request, $actor, $columns) as $cells) {
-                $writer->addRow(array_map($this->safe(...), $cells));
+                $writer->addRow(array_map(fn (mixed $cell, bool $isText): mixed => $this->safe($cell, $isText), $cells, $text));
             }
 
             $writer->close();
@@ -67,10 +70,15 @@ final class ExportTable
 
     /**
      * A cell that starts with = + - @ is read as a formula by Excel; prefix it so a name like
-     * "=HYPERLINK(…)" stays text.
+     * "=HYPERLINK(…)" stays text. A column marked `text` (phone numbers, FR-LEAD-010) keeps a value
+     * that is only `+` and digits as it is: the leading `+` is the point, and a number cannot be a formula.
      */
-    private function safe(mixed $value): mixed
+    private function safe(mixed $value, bool $isText = false): mixed
     {
+        if ($isText && is_string($value) && preg_match('/^\+\d{4,20}$/', $value) === 1) {
+            return $value;
+        }
+
         return is_string($value) && $value !== '' && in_array($value[0], ['=', '+', '-', '@'], true)
             ? "'".$value
             : $value;

@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 final class StoreLead
 {
     public function __construct(
+        private readonly FindRecentLead $findRecentLead,
         private readonly AssignLead $assignLead,
         private readonly StoreLeadDocuments $storeDocuments,
     ) {}
@@ -39,7 +40,7 @@ final class StoreLead
         TurnstileResult $turnstile,
     ): Lead {
         return DB::transaction(function () use ($type, $data, $phone, $project, $context, $turnstile): Lead {
-            $existing = $this->recentLead($phone, $project);
+            $existing = $this->findRecentLead->handle($phone, $project);
             $reference = $existing->reference ?? (string) Str::ulid();
             $spam = SpamRules::reason(is_string($data['message'] ?? null) ? $data['message'] : null);
             $attachments = $this->storeDocuments->handle(is_array($data['documents'] ?? null) ? $data['documents'] : [], $reference);
@@ -94,19 +95,6 @@ final class StoreLead
 
             return $lead;
         });
-    }
-
-    /**
-     * FR-LEAD-004: same normalised phone and same project (or none) within the duplicate window.
-     */
-    private function recentLead(string $phone, ?Project $project): ?Lead
-    {
-        return Lead::query()
-            ->where('phone', $phone)
-            ->when($project === null, fn ($query) => $query->whereNull('project_id'), fn ($query) => $query->where('project_id', $project?->id))
-            ->where('created_at', '>=', now()->subHours(Lead::DUPLICATE_WINDOW_HOURS))
-            ->latest('id')
-            ->first();
     }
 
     /**
