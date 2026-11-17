@@ -155,13 +155,18 @@ class HandleInertiaRequests extends Middleware
             'seo' => fn (): array => SeoData::raw((string) Settings::get('general', 'site_name'))
                 ->noindex()
                 ->toArray($request),
+            // CMS-PUB-005: set by the preview route; the layout shows the ribbon.
+            'preview' => fn (): ?array => $request->attributes->get('preview'),
             'ui' => [
                 'motion' => Inertia::once(fn (): array => SharedSettings::motion()),
                 // CMP-COOKIE-01: the stored choice (null until decided or after a version bump), the
                 // banner settings and the analytics IDs (SEO-ANA-001). The browser owns the cookie.
                 'consent' => fn (): ?array => ConsentCookie::read($request, SharedSettings::cookies()['version']),
                 'cookies' => Inertia::once(fn (): array => SharedSettings::cookies()),
-                'analytics' => Inertia::once(fn (): array => SharedSettings::analytics()),
+                // SEO-ANA: a preview never loads analytics (CMS-PUB-005).
+                'analytics' => Inertia::once(fn (): array => $request->attributes->has('preview')
+                    ? ['gtm_id' => null, 'ga4_id' => null]
+                    : SharedSettings::analytics()),
             ],
         ];
     }

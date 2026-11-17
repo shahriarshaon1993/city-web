@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\NotFoundController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\PublishingController;
 use App\Http\Controllers\Admin\RecycleBinController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\RobotsController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Admin\TableViewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Support\Admin\AdminNavigation;
+use App\Support\Publishing\Publishing;
 use App\Support\RecycleBin\BinTypes;
 use Illuminate\Support\Facades\Route;
 
@@ -105,8 +107,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('{project}/edit', [ProjectController::class, 'edit'])->name('edit');
         Route::patch('{project}', [ProjectController::class, 'update'])->name('update');
         Route::delete('{project}', [ProjectController::class, 'destroy'])->name('destroy');
-        Route::post('{project}/publish', [ProjectController::class, 'publish'])->name('publish');
-        Route::post('{project}/unpublish', [ProjectController::class, 'unpublish'])->name('unpublish');
+        Route::patch('{project}/autosave', [ProjectController::class, 'autosave'])->middleware('throttle:30,1')->name('autosave');
         Route::patch('{project}/featured', [ProjectController::class, 'featured'])->name('featured');
         Route::post('{project}/duplicate', [ProjectController::class, 'duplicate'])->name('duplicate');
     });
@@ -122,6 +123,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
             Route::post('areas', [LocationController::class, 'storeArea'])->name('areas.store');
             Route::get('areas/{location}/edit', [LocationController::class, 'editArea'])->name('areas.edit');
             Route::patch('areas/{location}', [LocationController::class, 'updateArea'])->name('areas.update');
+            Route::patch('areas/{location}/autosave', [LocationController::class, 'autosaveArea'])->middleware('throttle:30,1')->name('areas.autosave');
             Route::delete('{location}', [LocationController::class, 'destroy'])->name('destroy');
         });
 
@@ -136,6 +138,26 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::patch('amenities/{amenity}', [AmenityController::class, 'update'])->name('amenities.update');
         Route::delete('amenities/{amenity}', [AmenityController::class, 'destroy'])->name('amenities.destroy');
     });
+
+    // CMS-PUB workflow verbs for every publishable entity: publish, schedule, discard, revisions, preview.
+    // The entity's own Policy decides each verb; the group only keeps out users with no content access at all.
+    Route::middleware('admin.can:projects.view|catalog.view')
+        ->prefix('publishing/{type}/{id}')
+        ->whereIn('type', Publishing::types())
+        ->whereNumber('id')
+        ->name('publishing.')
+        ->group(function () {
+            Route::post('publish', [PublishingController::class, 'publish'])->name('publish');
+            Route::post('unpublish', [PublishingController::class, 'unpublish'])->name('unpublish');
+            Route::post('discard', [PublishingController::class, 'discard'])->name('discard');
+            Route::post('schedule', [PublishingController::class, 'schedule'])->name('schedule');
+            Route::post('unschedule', [PublishingController::class, 'unschedule'])->name('unschedule');
+            Route::get('revisions', [PublishingController::class, 'revisions'])->name('revisions');
+            Route::get('revisions/{revision}/diff', [PublishingController::class, 'diff'])->name('diff');
+            Route::post('revisions/{revision}/restore', [PublishingController::class, 'restore'])->name('restore');
+            Route::get('preview', [PublishingController::class, 'preview'])->name('preview');
+            Route::post('preview-link', [PublishingController::class, 'previewLink'])->middleware('throttle:30,1')->name('preview-link');
+        });
 
     // ADM-SCR-13 media library (CMP-ADM-MEDIA, CMP-ADM-PICKER). The Policy / Form Requests check each action.
     Route::prefix('media')->name('media.')->group(function () {

@@ -6,17 +6,19 @@ defineProps<{
 </script>
 
 <template>
-    <!-- CMP-ADM-FORM section: title + help on the left third, fields on the right two thirds from 1280 px. -->
-    <section
-        class="grid gap-6 rounded-lg border bg-card p-5 text-card-foreground md:p-6 xl:grid-cols-3 xl:gap-10"
-    >
-        <div>
-            <h2 class="text-base font-semibold">{{ title }}</h2>
-            <p v-if="description" class="mt-1 text-sm text-muted-foreground">
+    <!-- CMP-ADM-FORM section: the title and its help sit on top, the fields use the full card width below.
+         (Owner-approved: the old title-left / fields-right split pushed the fields off-screen.) -->
+    <section class="rounded-xl border bg-card p-5 text-card-foreground md:p-7">
+        <header class="mb-5 border-b pb-4">
+            <h2 class="text-base font-semibold tracking-tight">{{ title }}</h2>
+            <p
+                v-if="description"
+                class="mt-1 max-w-prose text-sm text-muted-foreground"
+            >
                 {{ description }}
             </p>
-        </div>
-        <div class="min-w-0 xl:col-span-2">
+        </header>
+        <div class="min-w-0">
             <slot />
         </div>
     </section>

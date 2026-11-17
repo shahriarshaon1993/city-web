@@ -6,7 +6,11 @@ use App\Actions\Activity\LogActivity;
 use App\Models\Project;
 use App\Models\User;
 
-/** FR-PROJ-010: the featured star. A newly featured project goes to the end of the manual order. */
+/**
+ * FR-PROJ-010: the featured star. A newly featured project goes to the end of the manual order. The
+ * star is a quick change on the live row (CRUD-01), so a pending revision is kept in step instead of
+ * undoing it when it is published.
+ */
 final class SetProjectFeatured
 {
     public function __construct(private readonly LogActivity $logActivity) {}
@@ -21,6 +25,9 @@ final class SetProjectFeatured
             'is_featured' => $featured,
             'featured_order' => $featured ? ((int) Project::query()->where('is_featured', true)->max('featured_order')) + 1 : null,
         ])->save();
+
+        $pending = $project->pendingRevision;
+        $pending?->forceFill(['payload' => [...$pending->payload, 'is_featured' => $featured]])->save();
 
         $this->logActivity->handle(
             'projects',

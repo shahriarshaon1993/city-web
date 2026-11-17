@@ -112,7 +112,10 @@ const addReason = computed(() =>
 );
 
 function addRow(): void {
-    model.value = [...rows.value, JSON.parse(JSON.stringify(props.field.blank ?? ''))];
+    model.value = [
+        ...rows.value,
+        JSON.parse(JSON.stringify(props.field.blank ?? '')),
+    ];
 }
 
 function removeRow(index: number): void {

@@ -9,9 +9,11 @@ use App\Enums\Lifecycle;
 use App\Enums\PublishStatus;
 use App\Enums\Segment;
 use App\Enums\VideoType;
+use App\Models\Concerns\HasRevisions;
 use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSlugHistory;
 use App\Models\Concerns\Publishable;
+use App\Models\Contracts\PublishableEntity;
 use App\Support\Media\UsesMedia;
 use App\Support\RecycleBin\BinBehaviour;
 use App\Support\RecycleBin\RestoreConflict;
@@ -21,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -93,6 +94,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $published_at
  * @property int|null $pending_revision_id
  * @property int $lock_version
+ * @property int|null $edited_by
  * @property string|null $archived_redirect_to
  * @property Carbon|null $deleted_at
  */
@@ -106,9 +108,9 @@ use Illuminate\Support\Carbon;
     'price_from_bdt', 'price_from_manual', 'price_note', 'is_featured', 'featured_order', 'brochure_gated',
     'default_assignee_id', 'whatsapp_override', 'publish_status', 'published_at', 'archived_redirect_to',
 ])]
-class Project extends Model implements Trashable, UsesMedia
+class Project extends Model implements PublishableEntity, Trashable, UsesMedia
 {
-    use BinBehaviour, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
+    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
 
     /** FR-PROJ limits. */
     public const int GALLERY_MAX = 60;
@@ -280,22 +282,6 @@ class Project extends Model implements Trashable, UsesMedia
     public function defaultAssignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'default_assignee_id');
-    }
-
-    /**
-     * @return BelongsTo<Revision, $this>
-     */
-    public function pendingRevision(): BelongsTo
-    {
-        return $this->belongsTo(Revision::class, 'pending_revision_id');
-    }
-
-    /**
-     * @return MorphMany<Revision, $this>
-     */
-    public function revisions(): MorphMany
-    {
-        return $this->morphMany(Revision::class, 'revisionable');
     }
 
     /** The "From ৳ …" figure a visitor may see, or null when the project hides its prices (AC-PROJ-01). */

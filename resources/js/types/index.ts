@@ -8,3 +8,4 @@ export * from './settings';
 export * from './menus';
 export * from './seo';
 export * from './catalog';
+export * from './publishing';

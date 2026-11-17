@@ -42,7 +42,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ✅     |
 | 13.2 | Locations & projects admin                                                 | 13.1           | ✅     |
 | 13.3 | Public projects & locations from the database                              | 13.2           | ✅     |
-| 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ⬜     |
+| 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ✅     |
 | 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ⬜     |
 | 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ⬜     |
 | 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ⬜     |
@@ -648,6 +648,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 13.3 · **Read:** spec/cms.md §8.6 (CMS-PUB-001..006 + workflow), DM-REV; spec/projects.md AC-PROJ-04; spec/admin.md §10.8; design/admin.md CMP-ADM-REV, CMP-ADM-FORM; spec/architecture.md ARC-012.
 **Build:** pending revision on editing a published entity, Publish changes / Discard, schedule (Asia/Dhaka) + scheduler every minute running the queue worker, keep 30 revisions + field diff + restore, signed 60-min preview with ribbon + `noindex` + no analytics, `lock_version` conflict dialog, unsaved-changes guard + autosave of the pending revision every 60 s (UX-10, design/patterns.md), `EntityPublished` event (cache bust now; sitemap/snapshot listeners join in 19.x). Applied to projects and locations; later entities reuse it.
 **Test:** edit a published project → the live page is unchanged until "Publish changes"; schedule 2 minutes ahead with `php artisan schedule:work` → it goes live; the preview link works in a private window; two tabs editing → the second save shows the conflict.
+
+**Done notes (14.1):**
+- Generic workflow in `app/Support/Publishing` (`PublishingDriver`, `Publishing` registry, `ProjectPublishing`/`AreaPublishing`, hydrators, `RevisionDiff`, `PreviewLink`) + `app/Actions/Publishing/*` (Save/Publish/Unpublish/Schedule/Unschedule/Discard/Restore/PublishDue); a new entity = a driver + `HasRevisions` + `PublishableEntity`. See DEC-85.
+- Mapping shared with the save Actions: `ProjectAttributes`, `AreaAttributes`; `PublishingState` + `AreaEditor` feed the editors; `SavesPublishable` trait handles save/autosave/conflict in controllers.
+- Public side: `Site\PreviewController` (signed `/preview/{type}/{id}`), `ProjectDetail::preview()`, `AreaPage::preview()`, shared `preview` prop → `PreviewRibbon.vue`.
+- Admin UI: `PublishingRail`, `ScheduleDialog`, `ConflictDialog`, `RevisionsPanel`, `usePublishingEditor` (autosave 60 s, lock), `lib/http.ts` `sendJson`; list pages show "Pending changes" / schedule.
+- Scheduler in `routes/console.php` (`publishing:run` + `queue:work --stop-when-empty`); production cron must call `schedule:run` every minute.
+- Later phases: pages/articles reuse the driver; 15.3 adds the failed-schedule notification; 19.x adds sitemap/snapshot listeners on `EntityPublished`. Check: `docs/checks/14.1-publishing.php`.
 
 ## Phase 15 — Leads
 

@@ -22,27 +22,42 @@ final class AreaPage
             $area = Location::query()->areas()->published()->where('slug', $slug)
                 ->with(['parent', 'hero.media', 'nearby', 'seoMeta.ogImage.media'])->first();
 
-            if ($area === null) {
-                return null;
-            }
-
-            $seo = $area->seoMeta;
-
-            return [
-                'id' => $area->id,
-                'area' => LocationResource::make($area)->resolve(),
-                'intro' => (string) $area->intro,
-                'segment_intros' => array_filter($area->segment_intros ?? [], fn (string $html): bool => trim(strip_tags($html)) !== ''),
-                'centre' => ['lat' => $area->latitude ?? 23.8103, 'lng' => $area->longitude ?? 90.4125, 'zoom' => $area->zoom],
-                'seo' => [
-                    'meta_title' => $seo?->meta_title,
-                    'meta_description' => $seo?->meta_description,
-                    'robots' => $seo?->robots,
-                    'canonical_url' => $seo?->canonical_url,
-                    'og_image' => $seo?->ogImage?->ogUrl() ?? $area->hero?->ogUrl(),
-                ],
-            ];
+            return $area === null ? null : self::fromModel($area);
         });
+    }
+
+    /**
+     * CMS-PUB-005: the same page data for an area that is not (or not yet) public, read from an
+     * unsaved copy built from a revision (`AreaHydrator`). Never cached.
+     *
+     * @return array{id: int, area: array<string, mixed>, intro: string, segment_intros: array<string, string>, centre: array{lat: float, lng: float, zoom: int}, seo: array<string, mixed>}
+     */
+    public static function preview(Location $area): array
+    {
+        return self::fromModel($area);
+    }
+
+    /**
+     * @return array{id: int, area: array<string, mixed>, intro: string, segment_intros: array<string, string>, centre: array{lat: float, lng: float, zoom: int}, seo: array<string, mixed>}
+     */
+    private static function fromModel(Location $area): array
+    {
+        $seo = $area->seoMeta;
+
+        return [
+            'id' => $area->id,
+            'area' => LocationResource::make($area)->resolve(),
+            'intro' => (string) $area->intro,
+            'segment_intros' => array_filter($area->segment_intros ?? [], fn (string $html): bool => trim(strip_tags($html)) !== ''),
+            'centre' => ['lat' => $area->latitude ?? 23.8103, 'lng' => $area->longitude ?? 90.4125, 'zoom' => $area->zoom],
+            'seo' => [
+                'meta_title' => $seo?->meta_title,
+                'meta_description' => $seo?->meta_description,
+                'robots' => $seo?->robots,
+                'canonical_url' => $seo?->canonical_url,
+                'og_image' => $seo?->ogImage?->ogUrl() ?? $area->hero?->ogUrl(),
+            ],
+        ];
     }
 
     /**

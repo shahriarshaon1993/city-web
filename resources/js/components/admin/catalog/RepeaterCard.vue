@@ -31,7 +31,7 @@ const bodyId = useId();
     <section
         :class="
             cn(
-                'rounded-lg border bg-card text-card-foreground',
+                'rounded-xl border bg-background text-card-foreground',
                 (errors ?? 0) > 0 && 'border-destructive/60',
             )
         "

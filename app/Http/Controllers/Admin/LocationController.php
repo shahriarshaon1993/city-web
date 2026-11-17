@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Locations\ReorderLocations;
 use App\Actions\Locations\SaveArea;
 use App\Actions\Locations\SaveCity;
+use App\Actions\Publishing\SaveEntityChanges;
 use App\Actions\RecycleBin\MoveToRecycleBin;
 use App\Enums\Segment;
+use App\Http\Controllers\Admin\Concerns\SavesPublishable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReorderRequest;
 use App\Http\Requests\Admin\SaveAreaRequest;
@@ -14,11 +16,13 @@ use App\Http\Requests\Admin\SaveCityRequest;
 use App\Http\Resources\Admin\MediaAssetResource;
 use App\Models\Location;
 use App\Models\MediaAsset;
+use App\Queries\Admin\AreaEditor;
 use App\Queries\Admin\LocationTree;
-use App\Queries\Admin\ProjectEditor;
+use App\Queries\Admin\PublishingState;
 use App\Queries\Admin\RecycleBinTable;
 use App\Support\Locations\Indexability;
 use App\Support\Toasts\Toast;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -33,6 +37,8 @@ use Inertia\Response;
  */
 class LocationController extends Controller
 {
+    use SavesPublishable;
+
     public function index(Request $request, LocationTree $tree): Response
     {
         Gate::authorize('viewAny', Location::class);
@@ -103,15 +109,20 @@ class LocationController extends Controller
         return $this->areaEditor($request, $location, null);
     }
 
-    public function updateArea(SaveAreaRequest $request, Location $location, SaveArea $saveArea): RedirectResponse
+    /** CMS-PUB-002: a published area saves to its pending revision; a stale save opens the conflict dialog (CMS-PUB-006). */
+    public function updateArea(SaveAreaRequest $request, Location $location, SaveEntityChanges $saveEntityChanges): RedirectResponse
     {
         abort_if($location->isCity(), 404);
 
-        $saveArea->handle($request->user(), $request->validated(), $location);
+        return $this->saveChanges($request, $saveEntityChanges, $location, $request->validated(), 'area');
+    }
 
-        Toast::success('Area saved')->description($location->name)->flash();
+    /** UX-10: the editor saves by itself every 60 seconds while it has unsaved changes. */
+    public function autosaveArea(SaveAreaRequest $request, Location $location, SaveEntityChanges $saveEntityChanges): JsonResponse
+    {
+        abort_if($location->isCity(), 404);
 
-        return back();
+        return $this->autosaveChanges($request, $saveEntityChanges, $location, $request->validated());
     }
 
     /** DEL-03: a city with areas or an area with projects is refused; the dialog on the page listed them already. */
@@ -153,23 +164,8 @@ class LocationController extends Controller
     private function areaEditor(Request $request, ?Location $area, ?int $cityId): Response
     {
         $actor = $request->user();
-        $area?->load(['nearby', 'seoMeta']);
-
-        $form = [
-            'name' => $area->name ?? '',
-            'slug' => $area->slug ?? '',
-            'parent_id' => $area->parent_id ?? $cityId,
-            'publish_status' => $area?->publish_status->value ?? 'draft',
-            'intro' => $area->intro ?? '',
-            'segment_intros' => collect(Segment::cases())->mapWithKeys(fn (Segment $segment): array => [$segment->value => $area?->segment_intros[$segment->value] ?? ''])->all(),
-            'facts' => $area->facts ?? [],
-            'hero_asset_id' => $area?->hero_asset_id,
-            'latitude' => $area?->latitude,
-            'longitude' => $area?->longitude,
-            'zoom' => $area->zoom ?? 14,
-            'nearby_ids' => $area?->nearby->pluck('id')->all() ?? [],
-            'seo' => ProjectEditor::seo($area?->seoMeta),
-        ];
+        // CMS-PUB-002: the editor starts from the pending revision when there is one.
+        $form = $area === null ? AreaEditor::form(null, $cityId) : PublishingState::form($area);
 
         $assetIds = array_filter([$form['hero_asset_id'], $form['seo']['og_image_asset_id']]);
 
@@ -177,10 +173,9 @@ class LocationController extends Controller
             'area' => $area === null ? null : [
                 'id' => $area->id,
                 'name' => $area->name,
-                'status' => $area->publish_status->value,
-                'public_url' => $area->isPublished() ? url("/locations/{$area->slug}") : null,
                 'projects_count' => $area->projects()->count(),
                 'indexability' => app(Indexability::class)->for($area),
+                ...PublishingState::workflow($area, $actor),
             ],
             'form' => $form,
             'assets' => MediaAsset::query()->whereKey($assetIds)->with('media')->get()
@@ -197,6 +192,7 @@ class LocationController extends Controller
             'lastSaved' => $area?->updated_at?->toIso8601String(),
             'can' => [
                 'save' => $area === null ? $actor->can('create', Location::class) : $actor->can('update', $area),
+                'publish' => $area !== null && $actor->can('publish', $area),
                 'delete' => $area !== null && $actor->can('delete', $area),
             ],
             'breadcrumbs' => [

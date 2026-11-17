@@ -4,6 +4,7 @@ namespace App\Actions\Projects;
 
 use App\Models\Project;
 use App\Models\ProjectUnitType;
+use Illuminate\Support\Collection;
 
 /**
  * DM-PROJ denormalised columns: recomputes `size_min/max_sft`, `beds_*`, `baths_*` and `price_from_bdt`
@@ -19,27 +20,39 @@ final class RefreshProjectDerivedFields
 {
     public function handle(Project $project): Project
     {
-        $units = $project->unitTypes()->get();
-
-        $project->forceFill([
-            'size_min_sft' => $units->isEmpty() ? null : $units->min('size_sft'),
-            'size_max_sft' => $units->isEmpty() ? null : $units->max(fn (ProjectUnitType $unit): int => $unit->size_sft_max ?? $unit->size_sft),
-            'beds_min' => $units->whereNotNull('bedrooms')->min('bedrooms'),
-            'beds_max' => $units->whereNotNull('bedrooms')->max('bedrooms'),
-            'baths_min' => $units->whereNotNull('bathrooms')->min('bathrooms'),
-            'baths_max' => $units->whereNotNull('bathrooms')->max('bathrooms'),
-        ]);
-
-        if (! $project->price_from_manual) {
-            $project->price_from_bdt = $units
-                ->filter(fn (ProjectUnitType $unit): bool => $unit->show_price && $unit->price_bdt !== null)
-                ->min('price_bdt');
-        }
+        $project->forceFill(self::derive($project->unitTypes()->get(), $project->price_from_manual));
 
         if ($project->isDirty()) {
             $project->saveQuietly();
         }
 
         return $project;
+    }
+
+    /**
+     * The derived columns for a set of unit types, without touching the database (a preview builds
+     * an unsaved project with them, `ProjectHydrator`).
+     *
+     * @param  Collection<int, ProjectUnitType>  $units
+     * @return array<string, int|null>
+     */
+    public static function derive(Collection $units, bool $priceIsManual): array
+    {
+        $derived = [
+            'size_min_sft' => $units->isEmpty() ? null : $units->min('size_sft'),
+            'size_max_sft' => $units->isEmpty() ? null : $units->max(fn (ProjectUnitType $unit): int => $unit->size_sft_max ?? $unit->size_sft),
+            'beds_min' => $units->whereNotNull('bedrooms')->min('bedrooms'),
+            'beds_max' => $units->whereNotNull('bedrooms')->max('bedrooms'),
+            'baths_min' => $units->whereNotNull('bathrooms')->min('bathrooms'),
+            'baths_max' => $units->whereNotNull('bathrooms')->max('bathrooms'),
+        ];
+
+        if (! $priceIsManual) {
+            $derived['price_from_bdt'] = $units
+                ->filter(fn (ProjectUnitType $unit): bool => $unit->show_price && $unit->price_bdt !== null)
+                ->min('price_bdt');
+        }
+
+        return $derived;
     }
 }

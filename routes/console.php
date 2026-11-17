@@ -16,3 +16,11 @@ Schedule::command('not-found:purge')->dailyAt('03:15');
 
 // DEL-06: nightly auto-delete of Recycle bin items past their date.
 Schedule::command('recycle-bin:purge')->dailyAt('03:00');
+
+// ARC-012 / CMS-PUB-003: every minute publish what is due (scheduled items, pending revisions), then
+// run the queue worker for 50 s (media conversions, later notifications and snapshots). Shared hosting
+// has no daemon, so the host cron's `schedule:run` is the only process (20.1).
+Schedule::command('publishing:run')->everyMinute()->withoutOverlapping();
+Schedule::command('queue:work --stop-when-empty --max-time=50 --queue=default,notifications,media,snapshots,exports')
+    ->everyMinute()
+    ->withoutOverlapping();

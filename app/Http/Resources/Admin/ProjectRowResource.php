@@ -34,10 +34,17 @@ class ProjectRowResource extends JsonResource
             'area' => $this->location?->name,
             'city' => $this->location?->parent?->name,
             'status' => ['value' => $this->publish_status->value, 'label' => $this->publish_status->label()],
+            // CMS-PUB: changes waiting on a published project, and when something goes live by itself.
+            'pending' => $live && $this->pending_revision_id !== null,
+            'scheduled_at' => match (true) {
+                $this->publish_status === PublishStatus::Scheduled => $this->published_at?->toIso8601String(),
+                $live && $this->pending_revision_id !== null => $this->pendingRevision?->publish_at?->toIso8601String(),
+                default => null,
+            },
             'is_featured' => $this->is_featured,
             'updated_at' => $this->updated_at?->toIso8601String(),
             'edit_url' => route('admin.projects.edit', $this->resource),
-            // HELP-04: published projects link to the site; drafts have no preview until 14.1.
+            // HELP-04: published projects link to the site; a draft or pending one opens its preview.
             'public_url' => $live ? url("/projects/{$this->slug}") : null,
             'can' => [
                 'edit' => $actor->can('update', $this->resource),

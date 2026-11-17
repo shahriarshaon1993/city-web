@@ -32,10 +32,26 @@ final class ProjectDetail
     {
         $payload = CatalogCache::remember("projects:detail:{$slug}", CatalogCache::PAGE_TTL, fn (): ?array => self::build($slug));
 
-        if ($payload === null) {
-            return null;
-        }
+        return $payload === null ? null : self::withEnquiry($payload, $slug);
+    }
 
+    /**
+     * CMS-PUB-005: the same page data for a project that is not (or not yet) public, read from an
+     * unsaved copy built from a revision (`ProjectHydrator`). Never cached.
+     *
+     * @return array{project: array<string, mixed>, meta: ProjectMetaInput, seo: array<string, mixed>}
+     */
+    public static function preview(Project $project): array
+    {
+        return self::withEnquiry(self::fromModel($project), $project->slug);
+    }
+
+    /**
+     * @param  array{project: array<string, mixed>, meta: ProjectMetaInput, seo: array<string, mixed>, enquiry: array<string, mixed>}  $payload
+     * @return array{project: array<string, mixed>, meta: ProjectMetaInput, seo: array<string, mixed>}
+     */
+    private static function withEnquiry(array $payload, string $slug): array
+    {
         $project = $payload['project'];
         $base = $payload['enquiry'];
         $project['enquiry'] = [
@@ -87,10 +103,17 @@ final class ProjectDetail
                 'progressUpdates.photos.media', 'seoMeta.ogImage.media',
             ])->first();
 
-        if ($project === null) {
-            return null;
-        }
+        return $project === null ? null : self::fromModel($project);
+    }
 
+    /**
+     * Page data of a project with its relations loaded (location.parent, cover.media, amenities,
+     * unitTypes, nearbyPlaces, documents, progressUpdates.photos.media, seoMeta.ogImage.media).
+     *
+     * @return array{project: array<string, mixed>, meta: ProjectMetaInput, seo: array<string, mixed>, enquiry: array<string, mixed>}
+     */
+    private static function fromModel(Project $project): array
+    {
         $assets = AssetMap::load([
             $project->cover_asset_id,
             $project->video_poster_asset_id,
@@ -147,7 +170,11 @@ final class ProjectDetail
      */
     private static function similar(Project $project): array
     {
-        $picks = $project->similar()->published()->with(ProjectCards::WITH)->get();
+        // A preview carries its own picks (the unsaved similar list); a saved project asks the database.
+        $picks = $project->relationLoaded('similar')
+            ? Project::query()->published()->whereKey($project->similar->pluck('id'))->with(ProjectCards::WITH)->get()
+                ->sortBy(fn (Project $pick): int|string|false => array_search($pick->id, $project->similar->pluck('id')->all(), true))->values()
+            : $project->similar()->published()->with(ProjectCards::WITH)->get();
 
         if ($picks->isNotEmpty()) {
             return ProjectCards::cards($picks->take(Project::SIMILAR_MAX));

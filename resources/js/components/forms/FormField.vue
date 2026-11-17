@@ -53,7 +53,9 @@ const showCounter = computed(
                 <span class="sr-only">(required)</span>
             </template>
         </legend>
-        <Label v-else :for="id" :required="required">{{ label }}</Label>
+        <Label v-else :id="`${id}-label`" :for="id" :required="required">{{
+            label
+        }}</Label>
 
         <slot :id="id" :describedby="describedby" :invalid="!!error" />
 

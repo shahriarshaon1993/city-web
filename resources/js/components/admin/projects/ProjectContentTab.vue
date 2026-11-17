@@ -42,7 +42,7 @@ function addHighlight(): void {
             <FormField
                 id="field-overview"
                 label="Overview"
-                helper="Plain paragraphs (a blank line starts a new one) or simple HTML. The formatting toolbar arrives with the news editor."
+                helper="Use the toolbar for headings, bold, links and lists. Paste plain text to keep it clean."
                 :error="errors.overview"
             >
                 <template #default="{ describedby, invalid }">

@@ -25,8 +25,10 @@ const props = withDefaults(
             errors: Record<string, string | undefined>;
             recentlySuccessful: boolean;
         };
-        /** ISO time of the last save, from the server. */
+        /** ISO time of the last save, from the server (or the last autosave). */
         lastSaved?: string | null;
+        /** One short line under "Last saved", e.g. "Autosaved" (UX-10). */
+        note?: string | null;
         saveLabel?: string;
         /** Overrides the default reason for the disabled save button. */
         saveReason?: string | null;
@@ -43,6 +45,13 @@ useUnsavedGuard(() => props.form.isDirty);
 // --- Last saved ---------------------------------------------------------------------------------
 const savedAt = ref<string | null>(props.lastSaved);
 const now = useNow({ interval: 30_000 });
+
+watch(
+    () => props.lastSaved,
+    (value) => {
+        savedAt.value = value;
+    },
+);
 
 watch(
     () => props.form.recentlySuccessful,
@@ -123,7 +132,7 @@ watch(
     </AdminPageHeader>
 
     <div
-        class="gap-8 xl:grid xl:grid-cols-[minmax(0,1fr)_17rem] xl:items-start"
+        class="gap-8 xl:grid xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start"
     >
         <div class="flex min-w-0 flex-col gap-6">
             <ErrorSummary
@@ -146,6 +155,7 @@ watch(
                     <template v-else-if="savedText"
                         >Last saved {{ savedText }}</template
                     >
+                    <template v-if="note"> · {{ note }}</template>
                 </p>
                 <ReasonButton
                     type="button"
@@ -160,7 +170,7 @@ watch(
 
         <!-- ≥ 1280 px: sticky action rail -->
         <aside
-            class="sticky top-20 hidden flex-col gap-4 rounded-lg border bg-card p-4 xl:flex"
+            class="sticky top-20 hidden max-h-[calc(100dvh-6rem)] flex-col gap-4 overflow-y-auto overscroll-contain rounded-xl border bg-card p-5 xl:flex"
             aria-label="Actions"
         >
             <ReasonButton
@@ -186,6 +196,7 @@ watch(
                     >Last saved {{ savedText }}</template
                 >
                 <template v-else>Not saved yet</template>
+                <span v-if="note" class="block" role="status">{{ note }}</span>
             </p>
             <slot name="rail" />
         </aside>

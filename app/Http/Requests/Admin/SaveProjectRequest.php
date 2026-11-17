@@ -29,7 +29,7 @@ use Illuminate\Validation\Rule;
 /**
  * The project editor (ADM-SCR-01) with the exact rules of spec/projects.md. Saving a draft is
  * blocked only by format rules; the publish-only rules (cover, 4 gallery images, overview length,
- * …) are the checklist of `PublishProject` (VAL-05). Image size minimums apply to newly chosen
+ * …) are the checklist of `PublishEntity` (VAL-05). Image size minimums apply to newly chosen
  * images only, so an older project always saves.
  */
 class SaveProjectRequest extends FormRequest

@@ -28,11 +28,10 @@ import {
     destroy,
     duplicate,
     featured,
-    publish,
-    unpublish,
     index as projectsIndex,
 } from '@/routes/admin/projects';
 import { index as featuredIndex } from '@/routes/admin/projects/featured';
+import { preview, publish, unpublish } from '@/routes/admin/publishing';
 import { index as binIndex } from '@/routes/admin/recycle-bin';
 import type {
     DataTableBulkAction,
@@ -130,6 +129,23 @@ const tone = {
     archived: 'warning',
     draft: 'neutral',
 } as const;
+
+/** The longer sentence behind a status badge (HELP-06). */
+function statusHint(row: ProjectRow): string | undefined {
+    const when = row.scheduled_at ? formatDateTime(row.scheduled_at) : null;
+
+    if (row.pending) {
+        return when
+            ? `Published. Changes are waiting and go live ${when}.`
+            : 'Published. Changes are waiting: the live version is older.';
+    }
+
+    if (row.status.value === 'scheduled' && when) {
+        return `Scheduled. Goes live ${when} (Dhaka time).`;
+    }
+
+    return undefined;
+}
 
 // --- inline featured star (CRUD-01): optimistic, the server's answer wins ------------------------
 const pending = reactive<Record<number, boolean>>({});
@@ -244,20 +260,28 @@ function rowActions(row: ProjectRow): DataTableRowAction[] {
         },
         {
             id: 'preview',
-            label: 'Preview',
+            label: row.pending ? 'Preview changes' : 'Preview',
             icon: Eye,
-            hidden: live,
-            disabledReason:
-                'Preview of drafts arrives with the publishing workflow.',
-            onSelect: () => undefined,
+            hidden: (live && !row.pending) || !row.can.edit,
+            // CMS-PUB-005: opens the signed 60-minute preview of the saved version.
+            onSelect: () =>
+                window.open(
+                    preview.url({ type: 'project', id: row.id }),
+                    '_blank',
+                    'noopener',
+                ),
         },
         {
             id: 'publish',
-            label: 'Publish',
+            label: row.pending ? 'Publish changes' : 'Publish',
             icon: Upload,
-            hidden: live || !row.can.publish,
+            hidden: (live && !row.pending) || !row.can.publish,
             onSelect: () =>
-                router.post(publish.url(row.id), {}, { preserveScroll: true }),
+                router.post(
+                    publish.url({ type: 'project', id: row.id }),
+                    {},
+                    { preserveScroll: true },
+                ),
         },
         {
             id: 'unpublish',
@@ -266,7 +290,7 @@ function rowActions(row: ProjectRow): DataTableRowAction[] {
             hidden: !live || !row.can.publish,
             onSelect: () =>
                 router.post(
-                    unpublish.url(row.id),
+                    unpublish.url({ type: 'project', id: row.id }),
                     {},
                     { preserveScroll: true },
                 ),
@@ -452,10 +476,13 @@ const statusTabs = computed<ListTab[]>(() => {
             <span v-else class="text-muted-foreground">–</span>
         </template>
         <template #cell-publish_status="{ row }">
-            <StatusBadge
-                :label="row.status.label"
-                :tone="tone[row.status.value]"
-            />
+            <!-- HELP-06: plain words plus the detail in a tooltip; colour is never the only signal. -->
+            <span :title="statusHint(row)">
+                <StatusBadge
+                    :label="row.pending ? 'Pending changes' : row.status.label"
+                    :tone="row.pending ? 'warning' : tone[row.status.value]"
+                />
+            </span>
         </template>
         <template #cell-is_featured="{ row }">
             <Button

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 
 /**
- * DM-REV (CMS-PUB-002/004): the JSON of a full form payload, `pending` (waiting to go live) or
- * `published` (history). 13.1 only creates the table and the model; 14.1 writes and applies them.
+ * DM-REV (CMS-PUB-002/004): the JSON of a full form payload, `pending` (waiting to go live; one per
+ * entity, optionally with its own `publish_at`) or `published` (history, the last 30 are kept).
  *
  * @property int $id
  * @property string $revisionable_type
@@ -18,10 +19,11 @@ use Illuminate\Support\Carbon;
  * @property string $kind
  * @property array<string, mixed> $payload
  * @property string|null $note
+ * @property Carbon|null $publish_at
  * @property int|null $created_by
- * @property Carbon|null $created_at
+ * @property CarbonInterface|null $created_at
  */
-#[Fillable(['kind', 'payload', 'note', 'created_by'])]
+#[Fillable(['kind', 'payload', 'note', 'publish_at', 'created_by'])]
 class Revision extends Model
 {
     public const UPDATED_AT = null;
@@ -35,7 +37,7 @@ class Revision extends Model
      */
     protected function casts(): array
     {
-        return ['payload' => 'array'];
+        return ['payload' => 'array', 'publish_at' => 'datetime'];
     }
 
     /**

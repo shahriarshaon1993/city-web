@@ -590,6 +590,68 @@
    §3.2: ≤ 68ch, Inter body, light Manrope headings, hairline rules). The
    server allows p, h2, h3, ul, ol, blockquote, a, strong, em, hr, table. */
 @layer components {
+    /* CMP-ADM-RTE: the writing area of the admin rich-text editor (Tiptap). */
+    .rte-frame .rte-content {
+        min-height: calc(var(--rte-lines, 10) * 1.65em);
+        max-height: 34rem;
+        overflow-y: auto;
+        padding: 1rem 1.125rem;
+        font-size: 0.9375rem;
+        line-height: 1.65;
+        outline: none;
+    }
+    .rte-frame .rte-content > * + * {
+        margin-top: 0.85em;
+    }
+    .rte-frame .rte-content h2 {
+        font-size: 1.25rem;
+        line-height: 1.3;
+        font-weight: 600;
+        margin-top: 1.4em;
+    }
+    .rte-frame .rte-content h3 {
+        font-size: 1.0625rem;
+        line-height: 1.35;
+        font-weight: 600;
+        margin-top: 1.2em;
+    }
+    .rte-frame .rte-content h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        margin-top: 1.1em;
+    }
+    .rte-frame .rte-content > :first-child {
+        margin-top: 0;
+    }
+    .rte-frame .rte-content ul,
+    .rte-frame .rte-content ol {
+        padding-left: 1.4rem;
+    }
+    .rte-frame .rte-content ul {
+        list-style: disc;
+    }
+    .rte-frame .rte-content ol {
+        list-style: decimal;
+    }
+    .rte-frame .rte-content li + li {
+        margin-top: 0.25em;
+    }
+    .rte-frame .rte-content li > p {
+        margin: 0;
+    }
+    .rte-frame .rte-content blockquote {
+        border-left: 3px solid var(--border);
+        padding-left: 1rem;
+        color: var(--muted-foreground);
+    }
+    .rte-frame .rte-content a {
+        color: var(--primary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+}
+
+@layer components {
     .rich-text {
         @apply text-body-lg text-foreground;
     }

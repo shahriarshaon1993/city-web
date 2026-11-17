@@ -4,6 +4,7 @@ import AdminSection from '@/components/admin/AdminSection.vue';
 import ChoiceField from '@/components/admin/catalog/ChoiceField.vue';
 import MediaIdsField from '@/components/admin/catalog/MediaIdsField.vue';
 import RepeaterCard from '@/components/admin/catalog/RepeaterCard.vue';
+import MonthField from '@/components/admin/catalog/MonthField.vue';
 import TextField from '@/components/admin/catalog/TextField.vue';
 import { newKey } from '@/components/admin/catalog/context';
 import FormField from '@/components/forms/FormField.vue';
@@ -94,10 +95,9 @@ function lowerThanEarlier(update: ProgressForm): boolean {
             >
                 <div class="grid gap-5">
                     <div class="grid gap-5 md:grid-cols-3">
-                        <TextField
+                        <MonthField
                             :id="fid('progress_updates', index, 'reported_on')"
                             v-model="update.reported_on"
-                            type="month"
                             label="Month"
                             required
                             :error="

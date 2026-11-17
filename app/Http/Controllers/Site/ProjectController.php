@@ -7,6 +7,7 @@ use App\Queries\Site\ProjectDetail;
 use App\Support\Catalog\CatalogCopy;
 use App\Support\Demo\DemoContent;
 use App\Support\Seo\ProjectMeta;
+use App\Support\Seo\SeoData;
 use App\Support\Seo\SeoOverrides;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
+ * @phpstan-import-type ProjectMetaInput from ProjectMeta
+ *
  * PG-04 `/projects/{slug}` (LAY-PROJ-DETAIL). A slug that used to belong to a project 301s to its
  * current page (SEO-TEC-003); a deleted project answers 301 to the page an editor chose, else 410
  * Gone for 90 days, then 404 (AC-PROJ-06). Drafts, scheduled and archived projects are 404.
@@ -28,6 +31,24 @@ class ProjectController extends Controller
             return $this->missing($slug);
         }
 
+        return $this->render($request, $page);
+    }
+
+    /**
+     * CMS-PUB-005: the page of an unsaved copy (a pending revision), `noindex,nofollow`.
+     *
+     * @param  array{project: array<string, mixed>, meta: ProjectMetaInput, seo: array<string, mixed>}  $page
+     */
+    public function preview(Request $request, array $page): Response
+    {
+        return $this->render($request, $page, true);
+    }
+
+    /**
+     * @param  array{project: array<string, mixed>, meta: ProjectMetaInput, seo: array<string, mixed>}  $page
+     */
+    private function render(Request $request, array $page, bool $preview = false): Response
+    {
         $project = $page['project'];
 
         // HERO-012: the first gallery photo is the LCP image (gallery-hero preset).
@@ -38,6 +59,10 @@ class ProjectController extends Controller
             null,
             $project['cover']['alt'] ?? null,
         )->lcp($project['cover'], null, '(min-width:1440px) 1440px, 100vw');
+
+        if ($preview) {
+            $seo->robots(SeoData::ROBOTS_NONE);
+        }
 
         return Inertia::render('Site/Project', [
             'project' => $project,

@@ -50,7 +50,7 @@ npm versions were read from the npm registry on 25 Oct 2026. PHP versions were r
 | Motion | `lenis` | 1.3.27 | Smooth scroll |
 | Media UI | `photoswipe` 5.4.4, `embla-carousel-vue` 8.6.0 | — | Lightbox, carousels |
 | Maps | `leaflet` 1.9.4, `leaflet.markercluster` 1.5.3 | — | OSM tiles |
-| Editor | `@tiptap/vue-3` | 3.32.0 | Plus starter-kit, link, image, table, youtube extensions (same major) |
+| Editor | `@tiptap/vue-3` | 3.34.0 | Plus starter-kit, link, image, table, youtube extensions (same major) |
 | DnD | `vue-draggable-plus` | 0.6.1 | Block list, menus, ordering |
 | Utils | `@vueuse/core` | 15.0.0 | |
 | Validation (client) | `zod` | 4.6.7 | Mirrors lead-form rules for instant feedback |

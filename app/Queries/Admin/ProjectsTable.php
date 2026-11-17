@@ -45,7 +45,7 @@ final class ProjectsTable extends AdminTable
 
     protected function baseQuery(User $actor): Builder
     {
-        return Project::query()->with(['cover.media', 'location.parent']);
+        return Project::query()->with(['cover.media', 'location.parent', 'pendingRevision:id,publish_at']);
     }
 
     protected function filters(): array

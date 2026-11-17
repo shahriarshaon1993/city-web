@@ -24,6 +24,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useConfirm } from '@/composables/useConfirm';
+import { formatDateTime } from '@/lib/admin-format';
 import {
     destroy as destroyLocation,
     order as orderLocations,
@@ -275,14 +276,32 @@ function areaActions(area: AreaNode): DataTableRowAction[] {
                                     class="text-sm font-medium hover:underline"
                                     >{{ area.name }}</Link
                                 >
-                                <StatusBadge
-                                    :label="area.status_label"
-                                    :tone="
-                                        area.status === 'published'
-                                            ? 'success'
-                                            : 'neutral'
+                                <span
+                                    :title="
+                                        area.pending
+                                            ? 'Published. Changes are waiting: the live version is older.'
+                                            : area.scheduled_at
+                                              ? `Scheduled. Goes live ${formatDateTime(area.scheduled_at)} (Dhaka time).`
+                                              : undefined
                                     "
-                                />
+                                >
+                                    <StatusBadge
+                                        :label="
+                                            area.pending
+                                                ? 'Pending changes'
+                                                : area.status_label
+                                        "
+                                        :tone="
+                                            area.pending
+                                                ? 'warning'
+                                                : area.status === 'published'
+                                                  ? 'success'
+                                                  : area.status === 'scheduled'
+                                                    ? 'info'
+                                                    : 'neutral'
+                                        "
+                                    />
+                                </span>
                                 <Tooltip>
                                     <TooltipTrigger as-child>
                                         <span

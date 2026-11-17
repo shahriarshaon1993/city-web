@@ -2,6 +2,7 @@
 
 namespace App\Queries\Admin;
 
+use App\Enums\PublishStatus;
 use App\Models\Location;
 use App\Models\Project;
 use App\Support\Locations\Indexability;
@@ -37,6 +38,8 @@ final class LocationTree
                     'slug' => $area->slug,
                     'status' => $area->publish_status->value,
                     'status_label' => $area->publish_status->label(),
+                    'pending' => $area->publish_status === PublishStatus::Published && $area->pending_revision_id !== null,
+                    'scheduled_at' => $area->publish_status === PublishStatus::Scheduled ? $area->published_at?->toIso8601String() : null,
                     'projects_count' => $projects,
                     'published_projects' => $verdict['published_projects'],
                     'indexable' => $verdict['indexable'],

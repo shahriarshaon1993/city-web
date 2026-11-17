@@ -3,6 +3,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, nextTick, provide, reactive, ref, watch } from 'vue';
 import AdminEditor from '@/components/admin/AdminEditor.vue';
 import ErrorBadge from '@/components/admin/ErrorBadge.vue';
+import ConflictDialog from '@/components/admin/publishing/ConflictDialog.vue';
 import {
     assetMapKey,
     createAssetMap,
@@ -18,6 +19,7 @@ import ProjectNearbyTab from '@/components/admin/projects/ProjectNearbyTab.vue';
 import ProjectPricingTab from '@/components/admin/projects/ProjectPricingTab.vue';
 import ProjectProgressTab from '@/components/admin/projects/ProjectProgressTab.vue';
 import ProjectRail from '@/components/admin/projects/ProjectRail.vue';
+import ProjectRevisionsTab from '@/components/admin/projects/ProjectRevisionsTab.vue';
 import ProjectRoutingTab from '@/components/admin/projects/ProjectRoutingTab.vue';
 import ProjectSeoTab from '@/components/admin/projects/ProjectSeoTab.vue';
 import ProjectUnitsTab from '@/components/admin/projects/ProjectUnitsTab.vue';
@@ -28,13 +30,13 @@ import {
     tabOfError,
 } from '@/components/admin/projects/context';
 import { useConfirm } from '@/composables/useConfirm';
+import { usePublishingEditor } from '@/composables/usePublishingEditor';
 import { cn } from '@/lib/utils';
 import {
+    autosave,
     duplicate,
     destroy,
-    publish,
     store,
-    unpublish,
     update,
     index as projectsIndex,
 } from '@/routes/admin/projects';
@@ -50,7 +52,9 @@ import type {
 // ADM-SCR-01 project editor (design/admin.md §12.4): tabs Basics … SEO on one form, one Save, the
 // publish checklist and the verbs in the rail. Errors in a tab show as a red count on it, a
 // repeater card with errors opens itself, and the error summary jumps across tabs (VAL-07).
-// The Revisions tab and Schedule arrive with the publishing workflow (14.1).
+// Publishing (14.1, CMS-PUB): saving a published project stores pending changes, the rail publishes,
+// schedules, previews and discards them, the Revisions tab compares and restores, a stale save opens
+// the conflict dialog and the form autosaves every 60 seconds (UX-10).
 const props = defineProps<{
     project: ProjectSummary | null;
     form: ProjectFormData;
@@ -92,6 +96,17 @@ function withKeys(data: ProjectFormData): ProjectFormData {
 
 const form = useForm<ProjectFormData>(withKeys(props.form));
 const confirm = useConfirm();
+const editor = usePublishingEditor({
+    form,
+    workflow: () => props.project,
+    lastSaved: () => props.lastSaved,
+    autosaveUrl: () => (props.project ? autosave.url(props.project.id) : null),
+    canEdit: () => props.can.update,
+    reseed: () => {
+        form.defaults(withKeys(props.form));
+        form.reset();
+    },
+});
 
 provide(assetMapKey, createAssetMap(props.assets));
 provide(
@@ -132,6 +147,7 @@ const TABS = [
     { key: 'pricing', label: 'Pricing' },
     { key: 'routing', label: 'Lead routing' },
     { key: 'seo', label: 'SEO' },
+    { key: 'revisions', label: 'Revisions' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -142,9 +158,10 @@ const tab = ref<TabKey>('basics');
 const tabs = computed(() =>
     TABS.filter(
         (item) =>
-            item.key !== 'units' ||
-            form.segment !== 'land' ||
-            form.unit_types.length > 0,
+            (item.key !== 'units' ||
+                form.segment !== 'land' ||
+                form.unit_types.length > 0) &&
+            (item.key !== 'revisions' || props.project !== null),
     ),
 );
 
@@ -172,6 +189,7 @@ const components: Record<TabKey, unknown> = {
     pricing: ProjectPricingTab,
     routing: ProjectRoutingTab,
     seo: ProjectSeoTab,
+    revisions: ProjectRevisionsTab,
 };
 
 function onTabKey(event: KeyboardEvent, index: number): void {
@@ -231,33 +249,15 @@ const isDraft = computed(
     () => !props.project || props.project.status !== 'published',
 );
 
-function save(): void {
+function save(overwrite = false): void {
     const options = { preserveScroll: true };
+
+    editor.prepare(overwrite);
 
     if (props.project) {
         form.patch(update.url(props.project.id), options);
     } else {
         form.post(store.url(), options);
-    }
-}
-
-function publishNow(): void {
-    if (props.project) {
-        router.post(
-            publish.url(props.project.id),
-            {},
-            { preserveScroll: true },
-        );
-    }
-}
-
-function unpublishNow(): void {
-    if (props.project) {
-        router.post(
-            unpublish.url(props.project.id),
-            {},
-            { preserveScroll: true },
-        );
     }
 }
 
@@ -309,13 +309,14 @@ const title = computed(
                 : 'Fill in the basics and save: the project stays a draft until you publish it.'
         "
         :form="form"
-        :last-saved="lastSaved"
+        :last-saved="editor.savedAt.value"
+        :note="editor.autosaveNote.value"
         :save-label="isDraft ? 'Save draft' : 'Save changes'"
         :save-reason="
             can.update ? null : 'You can read this project but not change it.'
         "
         :field-id="fieldIdOfError"
-        @save="save"
+        @save="save()"
         @reveal="reveal"
     >
         <template #actions>
@@ -365,8 +366,6 @@ const title = computed(
                 :dirty="form.isDirty"
                 :can="can"
                 :path="`/projects/${form.slug}`"
-                @publish="publishNow"
-                @unpublish="unpublishNow"
                 @duplicate="duplicateNow"
                 @delete="deleteNow"
                 @fix="fix"
@@ -386,15 +385,13 @@ const title = computed(
             </section>
 
             <!-- Below 1280 px the rail is hidden, so its verbs and the checklist follow the form. -->
-            <div class="rounded-lg border bg-card p-4 xl:hidden">
+            <div class="rounded-xl border bg-card p-5 xl:hidden">
                 <ProjectRail
                     :project="project"
                     :checklist="checklist"
                     :dirty="form.isDirty"
                     :can="can"
                     :path="`/projects/${form.slug}`"
-                    @publish="publishNow"
-                    @unpublish="unpublishNow"
                     @duplicate="duplicateNow"
                     @delete="deleteNow"
                     @fix="fix"
@@ -402,4 +399,14 @@ const title = computed(
             </div>
         </div>
     </AdminEditor>
+
+    <ConflictDialog
+        v-model:open="editor.conflictOpen.value"
+        :details="editor.conflict.value"
+        :can-overwrite="project?.can_overwrite ?? false"
+        :busy="form.processing"
+        noun="project"
+        @reload="editor.reload()"
+        @overwrite="editor.overwrite(save)"
+    />
 </template>

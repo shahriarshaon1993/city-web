@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Plus, Trash2 } from '@lucide/vue';
 import AdminSection from '@/components/admin/AdminSection.vue';
+import MonthField from '@/components/admin/catalog/MonthField.vue';
 import TextField from '@/components/admin/catalog/TextField.vue';
 import { newKey } from '@/components/admin/catalog/context';
 import { Button } from '@/components/ui/button';
@@ -157,17 +158,16 @@ function addFact(): void {
 
         <AdminSection title="Dates" description="Month and year only.">
             <div class="grid gap-5 md:grid-cols-2">
-                <TextField
+                <MonthField
                     id="field-launch_date"
                     v-model="form.launch_date"
-                    type="month"
                     label="Launch"
                     :error="errors.launch_date"
                 />
-                <TextField
+                <MonthField
                     id="field-handover_date"
                     v-model="form.handover_date"
-                    type="month"
+                    :min="form.launch_date || undefined"
                     label="Handover"
                     helper="Not before the launch month. Hidden once the project is handed over."
                     :error="errors.handover_date"

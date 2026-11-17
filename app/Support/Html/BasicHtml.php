@@ -44,7 +44,8 @@ final class BasicHtml
             return $tag === 'a' ? '<a>' : "<{$tag}>";
         }, $html);
 
-        return trim($html) === '' ? null : trim($html);
+        // An editor that was cleared leaves "<p></p>": no visible text means no value.
+        return trim(strip_tags($html)) === '' ? null : trim($html);
     }
 
     /** Words of the visible text, for "overview ≥ 120 words" and "intro ≥ 150 words". */

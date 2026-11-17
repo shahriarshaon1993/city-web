@@ -2,6 +2,7 @@
 // Shapes of App\Queries\Admin\ProjectEditor, App\Http\Resources\Admin\ProjectRowResource and
 // AmenityRowResource, and of the area / facet editors.
 import type { MediaAsset } from './media';
+import type { PublishingStatus, WorkflowState } from './publishing';
 
 export type CatalogOption = { value: string; label: string };
 export type GroupedOption = {
@@ -192,13 +193,8 @@ export type ChecklistItem = {
     field: string;
 };
 
-export type ProjectSummary = {
-    id: number;
+export type ProjectSummary = WorkflowState & {
     name: string;
-    status: 'draft' | 'scheduled' | 'published' | 'archived';
-    status_label: string;
-    published_at: string | null;
-    public_url: string | null;
     has_redirect: boolean;
 };
 
@@ -212,7 +208,11 @@ export type ProjectRow = {
     booking: string | null;
     area: string | null;
     city: string | null;
-    status: { value: ProjectSummary['status']; label: string };
+    status: { value: PublishingStatus; label: string };
+    /** The published version has changes waiting (CMS-PUB-002). */
+    pending: boolean;
+    /** ISO time when it (or its pending changes) goes live by itself. */
+    scheduled_at: string | null;
     is_featured: boolean;
     updated_at: string | null;
     edit_url: string;
@@ -263,8 +263,11 @@ export type AreaNode = {
     id: number;
     name: string;
     slug: string;
-    status: 'draft' | 'published';
+    status: PublishingStatus;
     status_label: string;
+    /** CMS-PUB-002: the published area has changes waiting. */
+    pending: boolean;
+    scheduled_at: string | null;
     projects_count: number;
     published_projects: number;
     indexable: boolean;
@@ -291,7 +294,6 @@ export type AreaFormData = {
     name: string;
     slug: string;
     parent_id: number | null;
-    publish_status: 'draft' | 'published';
     intro: string;
     segment_intros: Record<string, string>;
     facts: FactForm[];
@@ -310,11 +312,8 @@ export type AreaIndexability = {
     published_projects: number;
 };
 
-export type AreaSummary = {
-    id: number;
+export type AreaSummary = WorkflowState & {
     name: string;
-    status: 'draft' | 'published';
-    public_url: string | null;
     projects_count: number;
     indexability: AreaIndexability;
 };

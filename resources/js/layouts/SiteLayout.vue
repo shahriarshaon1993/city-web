@@ -12,6 +12,7 @@ import {
 import CompareBar from '@/components/site/compare/CompareBar.vue';
 import ConsentBanner from '@/components/site/consent/ConsentBanner.vue';
 import MobileContactBar from '@/components/site/MobileContactBar.vue';
+import PreviewRibbon from '@/components/site/PreviewRibbon.vue';
 import SeoHead from '@/components/site/SeoHead.vue';
 import SkipLink from '@/components/site/SkipLink.vue';
 import SiteFooter from '@/components/site/footer/SiteFooter.vue';
@@ -129,6 +130,10 @@ const toastOffset = computed(() => {
                 <slot />
             </main>
             <SiteFooter />
+            <PreviewRibbon
+                v-if="page.props.preview"
+                :preview="page.props.preview"
+            />
             <MobileContactBar v-model:shown="barShown" />
             <CompareBar
                 v-model:shown="compareShown"

@@ -27,4 +27,10 @@ class LocationPolicy
     {
         return $user->can('catalog.manage');
     }
+
+    /** CMS-PUB: publishing, scheduling and unpublishing an area (the verbs that change what is public). */
+    public function publish(User $user, Location $location): bool
+    {
+        return $user->can('catalog.manage');
+    }
 }

@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\LocationType;
 use App\Enums\PublishStatus;
+use App\Models\Concerns\HasRevisions;
 use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSlugHistory;
 use App\Models\Concerns\Publishable;
+use App\Models\Contracts\PublishableEntity;
 use App\Support\Media\UsesMedia;
 use App\Support\RecycleBin\BinBehaviour;
 use App\Support\RecycleBin\RestoreConflict;
@@ -39,6 +41,9 @@ use Illuminate\Support\Carbon;
  * @property int $zoom
  * @property PublishStatus $publish_status
  * @property Carbon|null $published_at
+ * @property int|null $pending_revision_id
+ * @property int $lock_version
+ * @property int|null $edited_by
  * @property int $sort_order
  * @property Carbon|null $deleted_at
  */
@@ -46,9 +51,9 @@ use Illuminate\Support\Carbon;
     'parent_id', 'type', 'name', 'slug', 'intro', 'facts', 'segment_intros', 'hero_asset_id',
     'latitude', 'longitude', 'zoom', 'publish_status', 'published_at', 'sort_order',
 ])]
-class Location extends Model implements Trashable, UsesMedia
+class Location extends Model implements PublishableEntity, Trashable, UsesMedia
 {
-    use BinBehaviour, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
+    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
 
     /** FR-LOC-002 limits. */
     public const int FACTS_MAX = 8;

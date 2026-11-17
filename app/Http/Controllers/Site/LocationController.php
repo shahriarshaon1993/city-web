@@ -123,6 +123,19 @@ class LocationController extends Controller
         return $this->page($request, $page, $segment, $filters);
     }
 
+    /**
+     * CMS-PUB-005: the area page of an unsaved copy (a pending revision), `noindex,nofollow`. The
+     * projects listed are those of the area's saved slug, since projects know the area by its row.
+     *
+     * @param  array{id: int, area: array<string, mixed>, intro: string, segment_intros: array<string, string>, centre: array{lat: float, lng: float, zoom: int}, seo: array<string, mixed>}  $page
+     */
+    public function preview(Request $request, array $page, string $savedSlug): Response
+    {
+        $filters = ProjectFilters::fromQuery(['area' => $savedSlug], [...AreaDirectory::slugs(), $savedSlug]);
+
+        return $this->page($request, $page, null, ProjectSearch::priceFilterEnabled() ? $filters : $filters->withoutPrice(), true);
+    }
+
     private function missing(string $slug): RedirectResponse
     {
         $current = AreaPage::movedTo($slug);
@@ -145,7 +158,7 @@ class LocationController extends Controller
     /**
      * @param  array{id: int, area: array<string, mixed>, intro: string, segment_intros: array<string, string>, centre: array{lat: float, lng: float, zoom: int}, seo: array<string, mixed>}  $page
      */
-    private function page(Request $request, array $page, ?string $segment, ProjectFilters $filters): Response
+    private function page(Request $request, array $page, ?string $segment, ProjectFilters $filters, bool $preview = false): Response
     {
         $results = $this->search->search($filters);
 
@@ -191,6 +204,10 @@ class LocationController extends Controller
 
         if (! $indexable) {
             $seo->noindex();
+        }
+
+        if ($preview) {
+            $seo->robots(SeoData::ROBOTS_NONE);
         }
 
         return Inertia::render('Site/Location', [

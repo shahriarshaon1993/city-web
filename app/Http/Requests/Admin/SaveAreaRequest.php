@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Enums\PublishStatus;
 use App\Enums\Segment;
 use App\Models\Location;
 use App\Rules\UniqueSlug;
@@ -42,7 +41,6 @@ class SaveAreaRequest extends FormRequest
             'name' => ['required', 'string', 'min:2', 'max:100'],
             'slug' => ['required', 'string', 'max:100', 'regex:'.SlugAvailability::PATTERN, new UniqueSlug(Location::class, $id, 'city or area')],
             'parent_id' => ['required', 'integer', Rule::exists('locations', 'id')->where('type', 'city')->whereNull('deleted_at')],
-            'publish_status' => ['required', Rule::in([PublishStatus::Draft->value, PublishStatus::Published->value])],
             'intro' => ['nullable', 'string', 'max:60000'],
             'segment_intros' => ['nullable', 'array'],
             ...collect(Segment::cases())->mapWithKeys(fn (Segment $segment): array => ["segment_intros.{$segment->value}" => ['nullable', 'string', 'max:20000']])->all(),

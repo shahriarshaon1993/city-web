@@ -63,18 +63,18 @@ function move(item: GalleryItemForm, delta: -1 | 1): void {
 
         <ul
             v-if="form.gallery.length"
-            class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            class="grid grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))] gap-4"
         >
             <li
                 v-for="(item, index) in form.gallery"
                 :key="item.key"
                 :class="[
-                    'grid gap-2 rounded-lg border bg-card p-2',
+                    'grid min-w-0 content-start gap-2 rounded-xl border bg-background p-2',
                     itemError(index) ? 'border-destructive/60' : '',
                 ]"
             >
                 <div
-                    class="relative aspect-4/3 overflow-hidden rounded-md bg-muted"
+                    class="relative aspect-4/3 overflow-hidden rounded-lg bg-muted"
                 >
                     <img
                         v-if="assets[item.asset_id]?.thumb_url"
@@ -87,53 +87,49 @@ function move(item: GalleryItemForm, delta: -1 | 1): void {
                     />
                     <span
                         v-if="assets[item.asset_id]?.missing_alt"
-                        class="absolute top-1 left-1 rounded bg-warning px-1.5 py-0.5 text-[11px] font-medium text-white"
+                        class="absolute top-2 left-2 rounded bg-warning px-1.5 py-0.5 text-[11px] font-medium text-white"
                         >No alt text</span
                     >
                     <span
-                        class="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[11px] text-white tabular-nums"
+                        class="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] text-white tabular-nums"
                         >{{ index + 1 }}</span
                     >
                     <button
                         type="button"
-                        class="absolute top-1 right-1 grid size-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                        class="absolute top-2 right-2 grid size-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"
                         :aria-label="`Remove image ${index + 1}`"
                         @click="form.gallery.splice(index, 1)"
                     >
                         <X class="size-4" aria-hidden="true" />
                     </button>
+                    <div class="absolute right-2 bottom-2 flex gap-1">
+                        <button
+                            type="button"
+                            class="grid size-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80 disabled:opacity-40 disabled:hover:bg-black/60"
+                            :disabled="index === 0"
+                            :aria-label="`Move image ${index + 1} earlier`"
+                            @click="move(item, -1)"
+                        >
+                            <ChevronLeft class="size-4" aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            class="grid size-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80 disabled:opacity-40 disabled:hover:bg-black/60"
+                            :disabled="index === form.gallery.length - 1"
+                            :aria-label="`Move image ${index + 1} later`"
+                            @click="move(item, 1)"
+                        >
+                            <ChevronRight class="size-4" aria-hidden="true" />
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-1">
-                    <div class="min-w-0 flex-1">
-                        <AdminSelect
-                            :id="fid('gallery', index, 'category')"
-                            v-model="item.category"
-                            :options="options.gallery_categories"
-                            :invalid="!!errors[`gallery.${index}.category`]"
-                        />
-                    </div>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        :disabled="index === 0"
-                        :aria-label="`Move image ${index + 1} earlier`"
-                        @click="move(item, -1)"
-                    >
-                        <ChevronLeft aria-hidden="true" />
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        :disabled="index === form.gallery.length - 1"
-                        :aria-label="`Move image ${index + 1} later`"
-                        @click="move(item, 1)"
-                    >
-                        <ChevronRight aria-hidden="true" />
-                    </Button>
-                </div>
+                <AdminSelect
+                    :id="fid('gallery', index, 'category')"
+                    v-model="item.category"
+                    :options="options.gallery_categories"
+                    :invalid="!!errors[`gallery.${index}.category`]"
+                />
                 <Input
                     :id="fid('gallery', index, 'caption')"
                     v-model="item.caption"

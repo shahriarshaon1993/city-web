@@ -301,6 +301,13 @@ export type SiteShared = {
     /** Choice lists, limits and consent copy of the lead forms (7.1). */
     forms: FormsShared;
     seo: Seo;
+    /** CMS-PUB-005: set only on a preview page (signed link, 14.1); the layout shows the ribbon. */
+    preview?: {
+        /** Which version is shown: "Pending changes", "Saved version", "Revision of …". */
+        label: string;
+        /** Dhaka time (HH:mm) the signed link stops working. */
+        expires: string;
+    } | null;
     ui: {
         /** Settings → Motion (MOT-R03). */
         motion: {

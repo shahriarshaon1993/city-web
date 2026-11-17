@@ -10,6 +10,7 @@ use App\Http\Controllers\Site\LocationController;
 use App\Http\Controllers\Site\NewsController;
 use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
+use App\Http\Controllers\Site\PreviewController;
 use App\Http\Controllers\Site\ProjectController;
 use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\RobotsTxtController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Site\ThankYouController;
 use App\Support\Errors\ErrorPage;
 use App\Support\Forms\FormType;
 use App\Support\Pages\ReservedSlugs;
+use App\Support\Publishing\Publishing;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -86,6 +88,13 @@ Route::get('compare', [ShortlistController::class, 'compare'])->name('site.compa
 
 // PG-17 (7.2).
 Route::get('contact', ContactController::class)->name('site.contact');
+
+// CMS-PUB-005 (14.1): signed, 60-minute preview of a pending revision for reviewers without an account.
+Route::get('preview/{type}/{id}', [PreviewController::class, 'show'])
+    ->whereIn('type', Publishing::types())
+    ->whereNumber('id')
+    ->middleware('signed')
+    ->name('preview.show');
 
 // SEO-TEC-010 (12.3): dynamic, never a static file.
 Route::get('robots.txt', RobotsTxtController::class)->name('site.robots');

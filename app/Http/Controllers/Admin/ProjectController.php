@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Projects\DeleteProject;
 use App\Actions\Projects\DuplicateProject;
-use App\Actions\Projects\PublishProject;
 use App\Actions\Projects\SaveProject;
 use App\Actions\Projects\SetProjectFeatured;
-use App\Actions\Projects\UnpublishProject;
+use App\Actions\Publishing\PublishEntity;
+use App\Actions\Publishing\SaveEntityChanges;
+use App\Actions\Publishing\UnpublishEntity;
+use App\Http\Controllers\Admin\Concerns\SavesPublishable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkProjectsRequest;
 use App\Http\Requests\Admin\DeleteProjectRequest;
@@ -15,9 +17,10 @@ use App\Http\Requests\Admin\SaveProjectRequest;
 use App\Models\Project;
 use App\Queries\Admin\ProjectEditor;
 use App\Queries\Admin\ProjectsTable;
+use App\Queries\Admin\PublishingState;
 use App\Queries\Admin\RecycleBinTable;
-use App\Support\Projects\PublishChecklist;
 use App\Support\Toasts\Toast;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -31,6 +34,8 @@ use Inertia\Response;
  */
 class ProjectController extends Controller
 {
+    use SavesPublishable;
+
     public function index(Request $request, ProjectsTable $table): Response|RedirectResponse
     {
         Gate::authorize('viewAny', Project::class);
@@ -77,47 +82,16 @@ class ProjectController extends Controller
         return $this->editor($request, $project);
     }
 
-    public function update(SaveProjectRequest $request, Project $project, SaveProject $saveProject): RedirectResponse
+    /** CMS-PUB-002: a published project saves to its pending revision; CMS-PUB-006: a stale save opens the conflict dialog. */
+    public function update(SaveProjectRequest $request, Project $project, SaveEntityChanges $saveEntityChanges): RedirectResponse
     {
-        $saveProject->handle($request->user(), $request->validated(), $project);
-
-        Toast::success('Project saved')->flash();
-
-        return back();
+        return $this->saveChanges($request, $saveEntityChanges, $project, $request->validated(), 'project');
     }
 
-    /** AC-PROJ-03: refused until the checklist passes. */
-    public function publish(Request $request, Project $project, PublishProject $publishProject): RedirectResponse
+    /** UX-10: the editor saves by itself every 60 seconds while it has unsaved changes. */
+    public function autosave(SaveProjectRequest $request, Project $project, SaveEntityChanges $saveEntityChanges): JsonResponse
     {
-        Gate::authorize('publish', $project);
-
-        try {
-            $publishProject->handle($request->user(), $project);
-        } catch (ValidationException $exception) {
-            Toast::error('Project not published')->description($exception->validator->errors()->first())->flash();
-
-            return back();
-        }
-
-        Toast::success('Project published')
-            ->action('View on site', url("/projects/{$project->slug}"))
-            ->flash();
-
-        return back();
-    }
-
-    public function unpublish(Request $request, Project $project, UnpublishProject $unpublishProject): RedirectResponse
-    {
-        Gate::authorize('publish', $project);
-
-        $unpublishProject->handle($request->user(), $project);
-
-        Toast::success('Project unpublished')
-            ->description($project->name.' is a draft again and no longer on the website.')
-            ->undo(route('admin.projects.publish', $project))
-            ->flash();
-
-        return back();
+        return $this->autosaveChanges($request, $saveEntityChanges, $project, $request->validated());
     }
 
     /** The star in the list (CRUD-01): featured projects appear on the home page in manual order. */
@@ -181,8 +155,8 @@ class ProjectController extends Controller
     public function bulk(
         BulkProjectsRequest $request,
         ProjectsTable $table,
-        PublishProject $publishProject,
-        UnpublishProject $unpublishProject,
+        PublishEntity $publishEntity,
+        UnpublishEntity $unpublishEntity,
         DeleteProject $deleteProject,
     ): RedirectResponse {
         $actor = $request->user();
@@ -202,8 +176,8 @@ class ProjectController extends Controller
 
             try {
                 match ($action) {
-                    'publish' => $publishProject->handle($actor, $project),
-                    'unpublish' => $unpublishProject->handle($actor, $project),
+                    'publish' => $publishEntity->handle($actor, $project),
+                    'unpublish' => $unpublishEntity->handle($actor, $project),
                     'delete' => $entries[] = $deleteProject->handle($actor, $project)->id,
                     default => null,
                 };
@@ -237,18 +211,16 @@ class ProjectController extends Controller
     private function editor(Request $request, ?Project $project): Response
     {
         $actor = $request->user();
-        $form = ProjectEditor::form($project);
-        $checklist = $project === null ? [] : app(PublishChecklist::class)->items($project);
+        // CMS-PUB-002: the editor starts from the pending revision when there is one.
+        $form = $project === null ? ProjectEditor::blank() : PublishingState::form($project);
+        $checklist = $project === null ? [] : PublishingState::checklist($project);
 
         return Inertia::render('admin/projects/Edit', [
             'project' => $project === null ? null : [
                 'id' => $project->id,
                 'name' => $project->name,
-                'status' => $project->publish_status->value,
-                'status_label' => $project->publish_status->label(),
-                'published_at' => $project->published_at?->toIso8601String(),
-                'public_url' => $project->isPublished() ? url("/projects/{$project->slug}") : null,
                 'has_redirect' => $project->archived_redirect_to !== null,
+                ...PublishingState::workflow($project, $actor),
             ],
             'form' => $form,
             'assets' => ProjectEditor::assets($request, $form),

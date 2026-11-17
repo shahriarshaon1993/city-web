@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import {
-    CircleCheck,
-    CircleSlash,
-    ExternalLink,
-    Plus,
-    Trash2,
-} from '@lucide/vue';
+import { CircleCheck, CircleSlash, Plus, Trash2 } from '@lucide/vue';
 import { computed, provide, ref, watch } from 'vue';
 import AdminEditor from '@/components/admin/AdminEditor.vue';
 import AdminSection from '@/components/admin/AdminSection.vue';
@@ -17,7 +11,6 @@ import ChoiceField from '@/components/admin/catalog/ChoiceField.vue';
 import RelatedPicker from '@/components/admin/catalog/RelatedPicker.vue';
 import RichTextField from '@/components/admin/catalog/RichTextField.vue';
 import SeoPanel from '@/components/admin/catalog/SeoPanel.vue';
-import SwitchRow from '@/components/admin/catalog/SwitchRow.vue';
 import TextField from '@/components/admin/catalog/TextField.vue';
 import {
     assetMapKey,
@@ -25,12 +18,16 @@ import {
     newKey,
 } from '@/components/admin/catalog/context';
 import { errorView } from '@/components/admin/projects/context';
+import ConflictDialog from '@/components/admin/publishing/ConflictDialog.vue';
+import PublishingRail from '@/components/admin/publishing/PublishingRail.vue';
+import RevisionsPanel from '@/components/admin/publishing/RevisionsPanel.vue';
 import FormField from '@/components/forms/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useConfirm } from '@/composables/useConfirm';
+import { usePublishingEditor } from '@/composables/usePublishingEditor';
 import { destroy, index as locationsIndex } from '@/routes/admin/locations';
-import { store, update } from '@/routes/admin/locations/areas';
+import { autosave, store, update } from '@/routes/admin/locations/areas';
 import type { AreaFormData, AreaOptions, AreaSummary, AssetMap } from '@/types';
 
 // ADM-SCR-04 area editor (FR-LOC-002): identity, intro, facts, map centre, nearby areas and SEO on
@@ -42,7 +39,7 @@ const props = defineProps<{
     assets: AssetMap;
     options: AreaOptions;
     lastSaved: string | null;
-    can: { save: boolean; delete: boolean };
+    can: { save: boolean; publish: boolean; delete: boolean };
 }>();
 
 function withKeys(data: AreaFormData): AreaFormData {
@@ -56,6 +53,20 @@ const form = useForm<AreaFormData>(withKeys(props.form));
 const confirm = useConfirm();
 const errors = errorView(form);
 
+// CMS-PUB (14.1): a published area saves to pending changes; stale saves open the conflict dialog;
+// the form autosaves every 60 seconds (UX-10).
+const editor = usePublishingEditor({
+    form,
+    workflow: () => props.area,
+    lastSaved: () => props.lastSaved,
+    autosaveUrl: () => (props.area ? autosave.url(props.area.id) : null),
+    canEdit: () => props.can.save,
+    reseed: () => {
+        form.defaults(withKeys(props.form));
+        form.reset();
+    },
+});
+
 provide(assetMapKey, createAssetMap(props.assets));
 
 watch(
@@ -65,13 +76,6 @@ watch(
         form.reset();
     },
 );
-
-const published = computed({
-    get: () => form.publish_status === 'published',
-    set: (value: boolean) => {
-        form.publish_status = value ? 'published' : 'draft';
-    },
-});
 
 // FR-LOC-003 live: the saved project count with the words of the intro as typed.
 const words = computed(() => {
@@ -105,8 +109,10 @@ function addFact(): void {
     }
 }
 
-function save(): void {
+function save(overwrite = false): void {
     const options = { preserveScroll: true };
+
+    editor.prepare(overwrite);
 
     if (props.area) {
         form.patch(update.url(props.area.id), options);
@@ -162,13 +168,20 @@ const segmentIntro = ref(
                 : 'Choose the city, name the area and save. Publish it when its intro is ready.'
         "
         :form="form"
-        :last-saved="lastSaved"
-        save-label="Save area"
+        :last-saved="editor.savedAt.value"
+        :note="editor.autosaveNote.value"
+        :save-label="
+            area && area.status !== 'published'
+                ? 'Save draft'
+                : area
+                  ? 'Save changes'
+                  : 'Save area'
+        "
         :save-reason="
             can.save ? null : 'You can read this area but not change it.'
         "
         :field-id="fieldId"
-        @save="save"
+        @save="save()"
     >
         <template #actions>
             <Link
@@ -179,23 +192,24 @@ const segmentIntro = ref(
         </template>
 
         <template #rail>
+            <PublishingRail
+                :workflow="area"
+                noun="area"
+                :checklist="[]"
+                :dirty="form.isDirty"
+                :can-publish="can.publish"
+                :can-edit="can.save"
+                :path="`/locations/${form.slug}`"
+            />
+            <p v-if="!area" class="border-t pt-4 text-xs text-muted-foreground">
+                Save the area first. It stays a draft until you publish it.
+            </p>
             <div class="grid gap-3 border-t pt-4">
                 <p v-if="area" class="text-xs text-muted-foreground">
                     {{ area.projects_count }}
                     {{ area.projects_count === 1 ? 'project' : 'projects' }} in
                     this area.
                 </p>
-                <Button
-                    v-if="area?.public_url"
-                    as-child
-                    variant="ghost"
-                    class="w-full"
-                >
-                    <a :href="area.public_url" target="_blank" rel="noopener">
-                        <ExternalLink aria-hidden="true" />
-                        View on site
-                    </a>
-                </Button>
                 <ReasonButton
                     v-if="area && can.delete"
                     type="button"
@@ -250,13 +264,6 @@ const segmentIntro = ref(
                         :options="cityOptions"
                         helper="Move an area to another city here."
                         :error="errors.parent_id"
-                    />
-                    <SwitchRow
-                        id="field-publish_status"
-                        v-model="published"
-                        label="Published"
-                        helper="A draft area is hidden from the website, and so are its landing pages."
-                        :error="errors.publish_status"
                     />
                 </div>
             </AdminSection>
@@ -519,6 +526,30 @@ const segmentIntro = ref(
                     :errors="errors"
                 />
             </AdminSection>
+
+            <AdminSection
+                v-if="area"
+                title="Revisions"
+                description="Pending changes and what was published before. Compare a version with the live area, or restore it."
+            >
+                <RevisionsPanel
+                    :type="area.type"
+                    :id="area.id"
+                    :refresh-key="`${area.lock_version}:${area.status}`"
+                    :can-restore="can.save"
+                    noun="area"
+                />
+            </AdminSection>
         </div>
     </AdminEditor>
+
+    <ConflictDialog
+        v-model:open="editor.conflictOpen.value"
+        :details="editor.conflict.value"
+        :can-overwrite="area?.can_overwrite ?? false"
+        :busy="form.processing"
+        noun="area"
+        @reload="editor.reload()"
+        @overwrite="editor.overwrite(save)"
+    />
 </template>
