@@ -4,7 +4,10 @@ namespace App\Actions\Leads;
 
 use App\Actions\Activity\LogActivity;
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
 use App\Enums\LeadStatus;
+use App\Events\LeadCreated;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\Project;
 use App\Models\User;
@@ -58,6 +61,8 @@ final class CreateManualLead
 
                 $this->logActivity->handle('leads', 'touched', 'Enquiry added to an existing lead', $actor, $existing, ['channel' => $channelKey]);
 
+                LeadUpdated::dispatch($existing, LeadChange::Touched, $actor);
+
                 return ['lead' => $existing, 'touched' => true];
             }
 
@@ -86,17 +91,20 @@ final class CreateManualLead
 
             $owner = $assignee ?? (! $actor->can('leads.view-all') ? $actor : null);
 
+            // The owner and follow-up belong to the creation: one `lead.created`, not extra updates.
             if ($owner !== null) {
-                $this->reassignLead->handle($actor, $lead, $owner);
+                $this->reassignLead->handle($actor, $lead, $owner, announce: false);
             } else {
                 $this->assignLead->handle($lead, $project);
             }
 
             if ($followUpAt !== null) {
-                $this->setFollowUp->handle($actor, $lead, $followUpAt);
+                $this->setFollowUp->handle($actor, $lead, $followUpAt, announce: false);
             }
 
             $this->logActivity->handle('leads', 'created', 'Lead added by hand', $actor, $lead, ['channel' => $channelKey]);
+
+            LeadCreated::dispatch($lead, $actor);
 
             return ['lead' => $lead, 'touched' => false];
         });

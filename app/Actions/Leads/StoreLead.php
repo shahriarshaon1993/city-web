@@ -3,7 +3,10 @@
 namespace App\Actions\Leads;
 
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
 use App\Enums\LeadStatus;
+use App\Events\LeadCreated;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\Project;
 use App\Support\Forms\FormType;
@@ -93,6 +96,8 @@ final class StoreLead
                 $this->assignLead->handle($lead, $project);
             }
 
+            LeadCreated::dispatch($lead);
+
             return $lead;
         });
     }
@@ -125,6 +130,8 @@ final class StoreLead
                 'turnstile' => $turnstile->value,
             ]),
         ]);
+
+        LeadUpdated::dispatch($lead, LeadChange::Touched);
 
         return $lead;
     }

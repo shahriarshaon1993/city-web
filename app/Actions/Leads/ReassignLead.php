@@ -4,6 +4,8 @@ namespace App\Actions\Leads;
 
 use App\Actions\Activity\LogActivity;
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -17,13 +19,16 @@ final class ReassignLead
 {
     public function __construct(private readonly LogActivity $logActivity) {}
 
-    public function handle(User $actor, Lead $lead, ?User $assignee): bool
+    /**
+     * @param  bool  $announce  false while a lead is being created, which announces itself (LeadCreated)
+     */
+    public function handle(User $actor, Lead $lead, ?User $assignee, bool $announce = true): bool
     {
         if ($lead->assigned_to === $assignee?->id) {
             return false;
         }
 
-        DB::transaction(function () use ($actor, $lead, $assignee): void {
+        DB::transaction(function () use ($actor, $lead, $assignee, $announce): void {
             $previous = $lead->assignee?->name;
 
             $lead->forceFill(['assigned_to' => $assignee?->id])->save();
@@ -48,6 +53,10 @@ final class ReassignLead
                 $lead,
                 ['to' => $assignee?->id],
             );
+
+            if ($announce) {
+                LeadUpdated::dispatch($lead, LeadChange::Assigned, $actor);
+            }
         });
 
         return true;

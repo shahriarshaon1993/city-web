@@ -4,6 +4,8 @@ namespace App\Actions\Leads;
 
 use App\Actions\Activity\LogActivity;
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\User;
@@ -36,6 +38,8 @@ final class AddLeadNote
         ]);
 
         $this->logActivity->handle('leads', 'noted', 'Note added to a lead', $actor, $lead);
+
+        LeadUpdated::dispatch($lead, LeadChange::Note, $actor);
 
         return $activity;
     }

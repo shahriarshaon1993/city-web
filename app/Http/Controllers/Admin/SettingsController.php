@@ -6,8 +6,10 @@ use App\Actions\Settings\UpdateSettings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Http\Resources\Admin\MediaAssetResource;
+use App\Jobs\SendLeadWebhook;
 use App\Models\MediaAsset;
 use App\Models\Setting;
+use App\Models\WebhookDelivery;
 use App\Support\Settings\Field;
 use App\Support\Settings\Settings;
 use App\Support\Settings\SettingsGroup;
@@ -55,6 +57,7 @@ class SettingsController extends Controller
             'values' => $this->values($definition),
             'secrets' => $this->secrets($definition),
             'assets' => $this->assets($request, $definition),
+            'deliveries' => $definition->key === 'webhook' ? $this->deliveries() : null,
             'lastSaved' => Settings::lastSaved($definition->key),
             'breadcrumbs' => [
                 ['title' => 'System', 'href' => null],
@@ -120,6 +123,40 @@ class SettingsController extends Controller
         }
 
         return $out;
+    }
+
+    /**
+     * FR-LEAD-012: the last deliveries of the lead webhook (kept 30 days), newest first.
+     *
+     * @return list<array{id: int, event: string, lead: array{id: int, name: string}|null, state: string, status_code: int|null, attempts: int, response_excerpt: string|null, created_at: string|null}>
+     */
+    private function deliveries(): array
+    {
+        $maxAttempts = count(SendLeadWebhook::RETRY_MINUTES) + 1;
+
+        return WebhookDelivery::query()
+            ->with('lead:id,name')
+            ->latest('id')
+            ->limit(20)
+            ->get()
+            ->map(fn (WebhookDelivery $delivery): array => [
+                'id' => $delivery->id,
+                'event' => $delivery->event,
+                'lead' => $delivery->lead === null ? null : ['id' => $delivery->lead->id, 'name' => $delivery->lead->name],
+                'state' => match (true) {
+                    $delivery->delivered_at !== null => 'delivered',
+                    $delivery->status_code === 0 => 'skipped',
+                    $delivery->attempts === 0 => 'queued',
+                    $delivery->attempts < $maxAttempts => 'retrying',
+                    default => 'failed',
+                },
+                'status_code' => $delivery->status_code,
+                'attempts' => $delivery->attempts,
+                'response_excerpt' => $delivery->response_excerpt,
+                'created_at' => $delivery->created_at?->toIso8601String(),
+            ])
+            ->values()
+            ->all();
     }
 
     /**

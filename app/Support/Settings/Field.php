@@ -79,6 +79,8 @@ final class Field
     /** @var list<string> */
     private array $hosts = [];
 
+    private bool $allowHttp = false;
+
     /** @var array{allowed: list<string>, required: list<string>}|null */
     private ?array $tokens = null;
 
@@ -255,6 +257,16 @@ final class Field
     public function rows(int $rows): self
     {
         $this->rows = $rows;
+
+        return $this;
+    }
+
+    /**
+     * A `url` field normally takes https only; this also accepts http (for a receiver on this machine).
+     */
+    public function allowHttp(bool $allow = true): self
+    {
+        $this->allowHttp = $allow;
 
         return $this;
     }
@@ -584,7 +596,7 @@ final class Field
             self::SELECT => ['string', Rule::in(array_column($this->options, 'value'))],
             self::MEDIA => ['integer', $this->mediaRule(...)],
             self::EMAIL => ['string', 'email:rfc', 'max:'.($this->max ?? 190)],
-            self::URL => ['string', 'url:https', 'max:'.($this->max ?? 500)],
+            self::URL => ['string', $this->allowHttp ? 'url:http,https' : 'url:https', 'max:'.($this->max ?? 500)],
             self::LINK => ['string', 'max:'.($this->max ?? 500), $this->linkRule(...)],
             default => ['string', 'max:'.($this->max ?? $this->defaultMax() ?? 190)],
         }];

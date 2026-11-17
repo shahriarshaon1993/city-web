@@ -8,7 +8,7 @@ use App\Support\Settings\SettingsGroup;
 /**
  * Settings → Forms and Notifications (spec/cms.md §8.2). Forms = consent and thank-you copy per
  * lead form, spam-protection keys and the brochure gate. Notifications = who is emailed and the
- * auto-reply; stored now, sent by 15.3.
+ * auto-reply (FR-LEAD-008).
  */
 final class FormGroups
 {

@@ -27,3 +27,9 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --queue=default,no
 
 // NFR-PRIV-04: lead IPs older than 90 days become hashes.
 Schedule::command('leads:hash-ips')->dailyAt('03:30');
+
+// §10.8: one "follow-ups due today" digest per assignee at 09:00 Dhaka time (the host cron runs every minute).
+Schedule::command('leads:notify-follow-ups')->dailyAt('09:00')->timezone('Asia/Dhaka');
+
+// FR-LEAD-012: the webhook delivery log is kept for 30 days.
+Schedule::command('webhooks:prune')->dailyAt('03:45');

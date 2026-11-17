@@ -4,7 +4,9 @@ namespace App\Actions\Leads;
 
 use App\Actions\Activity\LogActivity;
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
 use App\Enums\LeadStatus;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +40,8 @@ final class UndoLeadStatus
                 'from' => $from->value,
                 'to' => $previous->value,
             ]);
+
+            LeadUpdated::dispatch($lead, LeadChange::Status, $actor);
         });
     }
 }

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { Bell, ExternalLink, Search } from '@lucide/vue';
+import { ExternalLink, Search } from '@lucide/vue';
 import { computed } from 'vue';
 import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
 import AdminThemeToggle from '@/components/admin/AdminThemeToggle.vue';
 import AdminUserMenu from '@/components/admin/AdminUserMenu.vue';
+import NotificationBell from '@/components/admin/notifications/NotificationBell.vue';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
@@ -68,22 +69,7 @@ const crumbs = computed(
                 </a>
             </Button>
 
-            <Tooltip>
-                <TooltipTrigger as-child>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-disabled="true"
-                        aria-label="Notifications (none yet)"
-                        class="cursor-not-allowed"
-                    >
-                        <Bell class="size-5" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                    >Notifications arrive in phase 15.3.</TooltipContent
-                >
-            </Tooltip>
+            <NotificationBell />
 
             <AdminThemeToggle />
             <AdminUserMenu />

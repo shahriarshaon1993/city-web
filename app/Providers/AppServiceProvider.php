@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\LeadCreated;
+use App\Events\LeadUpdated;
+use App\Listeners\ForwardLeadToWebhook;
+use App\Listeners\NotifyAboutLead;
 use App\Listeners\RecordAuthEvents;
 use App\Models\Amenity;
 use App\Models\FacetPage;
@@ -64,6 +68,19 @@ class AppServiceProvider extends ServiceProvider
         $this->configureAuthorization();
         $this->configureAuthEvents();
         $this->configureCatalogCache();
+        $this->configureLeadEvents();
+    }
+
+    /**
+     * FR-LEAD-008 / FR-LEAD-012: a lead created or changed raises a notification, the optional emails
+     * and the optional webhook. Explicit, because one listener class answers two events.
+     */
+    protected function configureLeadEvents(): void
+    {
+        Event::listen(LeadCreated::class, [NotifyAboutLead::class, 'onCreated']);
+        Event::listen(LeadUpdated::class, [NotifyAboutLead::class, 'onUpdated']);
+        Event::listen(LeadCreated::class, [ForwardLeadToWebhook::class, 'onCreated']);
+        Event::listen(LeadUpdated::class, [ForwardLeadToWebhook::class, 'onUpdated']);
     }
 
     /**

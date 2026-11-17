@@ -183,11 +183,13 @@ final class SystemGroups
             'Lead webhook' => [
                 Field::bool('enabled', 'Send leads to the webhook')
                     ->help('Off by default.'),
-                Field::url('url', 'Webhook URL')->placeholder('https://')
-                    ->help('Must start with https://. Each lead is sent as JSON with a signature header.'),
+                Field::url('url', 'Webhook URL')->placeholder('https://')->allowHttp(app()->isLocal())
+                    ->help(app()->isLocal() ? 'Must start with https:// (http:// is accepted on this local copy only). Each lead is sent as JSON with a signature header.' : 'Must start with https://. Each lead is sent as JSON with a signature header.'),
                 Field::secret('secret', 'Signing secret')->max(200)
-                    ->help('Used to sign each request so the receiver can check it came from this site. Never shown again after saving.'),
+                    ->help('Every request carries X-Signature: sha256=… (HMAC-SHA256 of the body with this secret) so the receiver can check it came from this site. Required: nothing is sent without it. Never shown again after saving.'),
             ],
+        ], [
+            'Lead webhook' => 'Sent when a lead is created or changes (status, owner, follow-up, note, repeat enquiry). A failed delivery is retried after 1, 5 and 15 minutes. Recent deliveries are listed below the form and kept for 30 days.',
         ]);
     }
 

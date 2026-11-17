@@ -45,7 +45,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ✅     |
 | 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ✅     |
 | 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ✅     |
-| 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ⬜     |
+| 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ✅     |
 | 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ⬜     |
 | 16.2 | Page builder admin UI                                                      | 16.1           | ⬜     |
 | 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ⬜     |
@@ -691,6 +691,13 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 15.2 · **Read:** spec/leads.md FR-LEAD-008, FR-LEAD-012, DM-WEBH; spec/admin.md §10.8, ADM-SCR-21; design/admin.md CMP-ADM-NOTIF; spec/cms.md §8.2 (Notifications, Webhook groups).
 **Build:** database notifications (new lead, assigned to you, follow-up due 09:00), bell count polled every 60 s while visible, toast on arrival, inbox page; optional SMTP emails (off by default) and autoresponder; signed webhook (HMAC) with 3 retries and a 30-day delivery log.
 **Test:** submit a lead → bell count within 60 s; enable email with the log mailer → mail in the log; webhook to a local test route with a valid signature; an endpoint returning 500 is retried.
+
+**Done notes (15.3):**
+- Events `LeadCreated` / `LeadUpdated` (`LeadChange`: touched, status, assigned, follow_up, note), after-commit, raised by the 15.1/15.2 lead Actions; `ReassignLead` / `SetLeadFollowUp` take `announce: false` while a lead is being created. Listeners `NotifyAboutLead` + `ForwardLeadToWebhook` (explicit in `AppServiceProvider`). Sync and wrapped in `report()`, so a failure never reaches the visitor. See DEC-88.
+- Notifications: `app/Notifications/{NewLead,LeadAssigned,FollowUpsDue}Notification` (database only, no phone in data), `Support/Notifications/NotificationKind` (add later types here), Actions `app/Actions/Notifications/*`, `leads:notify-follow-ups` daily 09:00 Dhaka. Inbox = `NotificationController` + `admin/Notifications.vue`; bell = `NotificationBell.vue` (60 s poll, shared prop `notifications.unread`).
+- Mail: `NewLeadMail` (team, Settings → Notifications) and `LeadAutoresponderMail` (`Leads/SendLeadAutoresponder`), queue `notifications`, both default off.
+- Webhook: `Webhooks/{QueueLeadWebhook, DeliverWebhook, PruneWebhookDeliveries}`, job `SendLeadWebhook` (1/5/15 min), model `WebhookDelivery`, log under Settings → Webhook, `webhooks:prune` daily. `Field::allowHttp()` for local receivers.
+- Later phases: 17.1 adds "new job application", 16.x/19.x/18.x their §10.8 types via `NotificationKind` + the bell/inbox as they are. Check: `docs/checks/15.3-notifications.php`.
 
 ## Phase 16 — Page builder & content
 

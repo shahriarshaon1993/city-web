@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NotFoundController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -62,6 +63,17 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('profile/sessions', [ProfileController::class, 'destroyOtherSessions'])
         ->middleware('throttle:6,1')
         ->name('profile.sessions.destroy');
+
+    // ADM-SCR-21 Notifications: every signed-in user's own inbox, no permission needed. `feed` is the
+    // 60-second poll of the bell (FR-LEAD-008a).
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('feed', [NotificationController::class, 'feed'])->name('feed');
+        Route::post('read-all', [NotificationController::class, 'readAll'])->name('read-all');
+        Route::delete('read', [NotificationController::class, 'clear'])->name('clear');
+        Route::post('{notification}/read', [NotificationController::class, 'read'])->whereUuid('notification')->name('read');
+        Route::delete('{notification}', [NotificationController::class, 'destroy'])->whereUuid('notification')->name('destroy');
+    });
 
     // ADM-SCR-16 Users & roles. `admin/users` opens for either permission; the controllers authorise each tab.
     Route::middleware('admin.can:users.manage|roles.manage')->prefix('users')->name('users.')->group(function () {

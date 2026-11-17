@@ -10,3 +10,4 @@ export * from './seo';
 export * from './catalog';
 export * from './publishing';
 export * from './leads';
+export * from './notifications';

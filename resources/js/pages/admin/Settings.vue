@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import SettingsEditor from '@/components/admin/settings/SettingsEditor.vue';
-import type { SettingsAssets, SettingsGroupInfo, SettingsTab } from '@/types';
+import WebhookDeliveries from '@/components/admin/settings/WebhookDeliveries.vue';
+import type {
+    SettingsAssets,
+    SettingsGroupInfo,
+    SettingsTab,
+    WebhookDeliveryRow,
+} from '@/types';
 
 // ADM-SCR-15: Settings, a tab per group. The editor is keyed so a tab switch or a save re-reads
-// the server values into a fresh form.
+// the server values into a fresh form. The Webhook tab also lists its recent deliveries.
 defineProps<{
     tabs: SettingsTab[];
     group: SettingsGroupInfo;
@@ -12,6 +18,7 @@ defineProps<{
     secrets: Record<string, boolean>;
     assets: SettingsAssets;
     lastSaved: string | null;
+    deliveries: WebhookDeliveryRow[] | null;
 }>();
 </script>
 
@@ -27,4 +34,6 @@ defineProps<{
         :assets="assets"
         :last-saved="lastSaved"
     />
+
+    <WebhookDeliveries v-if="deliveries !== null" :deliveries="deliveries" />
 </template>

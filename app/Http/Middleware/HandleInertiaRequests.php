@@ -103,6 +103,8 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => fn (): ?array => $this->shareAuth($request),
             'navigation' => fn (): array => $request->user() ? AdminNavigation::forUser($request->user()) : [],
+            // FR-LEAD-008a: the bell's first count; the poll (`admin.notifications.feed`) keeps it fresh.
+            'notifications' => fn (): array => ['unread' => $request->user()?->unreadNotifications()->count() ?? 0],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

@@ -4,7 +4,9 @@ namespace App\Actions\Leads;
 
 use App\Actions\Activity\LogActivity;
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
 use App\Enums\LeadStatus;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\User;
 use App\Support\Leads\LeadReasons;
@@ -54,6 +56,8 @@ final class ChangeLeadStatus
                 'from' => $from->value,
                 'to' => $to->value,
             ]);
+
+            LeadUpdated::dispatch($lead, LeadChange::Status, $actor);
         });
 
         return true;

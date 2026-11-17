@@ -4,6 +4,8 @@ namespace App\Actions\Leads;
 
 use App\Actions\Activity\LogActivity;
 use App\Enums\LeadActivityKind;
+use App\Enums\LeadChange;
+use App\Events\LeadUpdated;
 use App\Models\Lead;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -17,7 +19,10 @@ final class SetLeadFollowUp
 {
     public function __construct(private readonly LogActivity $logActivity) {}
 
-    public function handle(User $actor, Lead $lead, ?CarbonInterface $at): bool
+    /**
+     * @param  bool  $announce  false while a lead is being created, which announces itself (LeadCreated)
+     */
+    public function handle(User $actor, Lead $lead, ?CarbonInterface $at, bool $announce = true): bool
     {
         $previous = $lead->follow_up_at;
 
@@ -27,7 +32,7 @@ final class SetLeadFollowUp
             return false;
         }
 
-        DB::transaction(function () use ($actor, $lead, $at, $previous): void {
+        DB::transaction(function () use ($actor, $lead, $at, $previous, $announce): void {
             $lead->forceFill(['follow_up_at' => $at])->save();
 
             $lead->activities()->create([
@@ -40,6 +45,10 @@ final class SetLeadFollowUp
             ]);
 
             $this->logActivity->handle('leads', 'follow_up', $at === null ? 'Lead follow-up cleared' : 'Lead follow-up set', $actor, $lead);
+
+            if ($announce) {
+                LeadUpdated::dispatch($lead, LeadChange::FollowUp, $actor);
+            }
         });
 
         return true;
