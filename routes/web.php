@@ -12,6 +12,7 @@ use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\PreviewController;
 use App\Http\Controllers\Site\ProjectController;
+use App\Http\Controllers\Site\ProjectDocumentController;
 use App\Http\Controllers\Site\ProjectListingController;
 use App\Http\Controllers\Site\RobotsTxtController;
 use App\Http\Controllers\Site\SearchController;
@@ -23,6 +24,7 @@ use App\Support\Forms\FormType;
 use App\Support\Pages\ReservedSlugs;
 use App\Support\Publishing\Publishing;
 use Illuminate\Support\Facades\Route;
+use Spatie\Honeypot\ProtectAgainstSpam;
 
 Route::get('/', HomeController::class)->name('home');
 // PG-07…11, PG-23/24 (6.3). The custom-page catch-all (PG-25) is registered last.
@@ -100,8 +102,10 @@ Route::get('preview/{type}/{id}', [PreviewController::class, 'show'])
 Route::get('robots.txt', RobotsTxtController::class)->name('site.robots');
 
 // FR-LEAD workflow (7.1, 7.2): the seven lead forms post here and land on PG-22.
+// FR-LEAD-003: rate limit (AC-LEAD-03), then honeypot + minimum fill time (AC-LEAD-02).
 Route::post('forms/{form}', [FormController::class, 'store'])
     ->whereIn('form', FormType::slugs())
+    ->middleware(['throttle:lead-forms', ProtectAgainstSpam::class])
     ->name('site.forms.store');
 Route::get('thank-you/{form}', ThankYouController::class)
     ->whereIn('form', FormType::slugs())
@@ -109,8 +113,21 @@ Route::get('thank-you/{form}', ThankYouController::class)
 
 // Footer / article newsletter sign-up (7.2); the form shows its own success state.
 Route::post('newsletter', [NewsletterController::class, 'store'])
-    ->middleware('throttle:6,1')
+    ->middleware(['throttle:lead-forms', ProtectAgainstSpam::class])
     ->name('site.newsletter.store');
+// Links in the double opt-in mail and in every newsletter: the token is the proof (DM-SUBS).
+Route::get('newsletter/confirm/{token}', [NewsletterController::class, 'confirm'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('site.newsletter.confirm');
+Route::get('newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('site.newsletter.unsubscribe');
+
+// AC-PROJ-05: gated brochure, signed URL valid 10 minutes (CreateBrochureLink).
+Route::get('projects/{slug}/documents/{document}/download', [ProjectDocumentController::class, 'download'])
+    ->whereNumber('document')
+    ->middleware('signed')
+    ->name('site.projects.documents.download');
 
 Route::post('internal/client-errors', ClientErrorController::class)
     ->middleware('throttle:client-errors')

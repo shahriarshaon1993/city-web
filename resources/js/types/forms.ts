@@ -71,6 +71,16 @@ export type FormsShared = {
     /** FR-LEAD-014: consent text per lead type (underscore key). */
     consent: Record<string, string>;
     privacy_url: string;
+    /** FR-LEAD-003: Turnstile site key (null = off) and the honeypot field names. */
+    spam: {
+        turnstile_site_key: string | null;
+        honeypot: {
+            enabled: boolean;
+            name: string;
+            valid_from_name: string;
+            valid_from: string;
+        };
+    };
 };
 
 /** The project a form was opened for (prefilled, hidden field). */

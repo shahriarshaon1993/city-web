@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacetPageController;
 use App\Http\Controllers\Admin\FeaturedProjectController;
+use App\Http\Controllers\Admin\LeadAttachmentController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
@@ -225,6 +226,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('table-views', [TableViewController::class, 'store'])->name('table-views.store');
     Route::patch('table-views/{view}', [TableViewController::class, 'update'])->name('table-views.update');
     Route::delete('table-views/{view}', [TableViewController::class, 'destroy'])->name('table-views.destroy');
+
+    // FR-LEAD-011 (15.1): private landowner documents; the Leads screens follow in 15.2.
+    Route::get('leads/{lead}/attachments/{index}', [LeadAttachmentController::class, 'show'])
+        ->whereNumber(['lead', 'index'])
+        ->middleware('admin.can:leads.view-all|leads.view-assigned')
+        ->name('leads.attachments.show');
 
     // Sidebar items whose screens come in later phases (registry: AdminNavigation).
     foreach (AdminNavigation::items() as $item) {

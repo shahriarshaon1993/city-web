@@ -82,6 +82,8 @@ const lead = useLeadForm({
     slug: 'job-application',
     location: props.location,
     url: apply.url(),
+    // FR-LEAD-003 reaches job applications with 17.1 (they are not leads).
+    spam: false,
     initial: {
         name: '',
         phone_country: forms.default_country,

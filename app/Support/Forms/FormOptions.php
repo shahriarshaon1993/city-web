@@ -3,6 +3,7 @@
 namespace App\Support\Forms;
 
 use App\Queries\Site\AreaDirectory;
+use App\Support\Leads\SpamProtectionProps;
 use App\Support\Settings\Settings;
 use Carbon\CarbonImmutable;
 
@@ -173,6 +174,7 @@ final class FormOptions
             'callback_dialog' => $settings['callback_dialog'],
             'consent' => $settings['consent'],
             'privacy_url' => $settings['privacy_url'],
+            'spam' => SpamProtectionProps::shared(),
         ];
     }
 }

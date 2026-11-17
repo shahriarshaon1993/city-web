@@ -43,7 +43,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 13.2 | Locations & projects admin                                                 | 13.1           | ✅     |
 | 13.3 | Public projects & locations from the database                              | 13.2           | ✅     |
 | 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ✅     |
-| 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ⬜     |
+| 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ✅     |
 | 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ⬜     |
 | 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ⬜     |
 | 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ⬜     |
@@ -664,6 +664,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 14.1 · **Read:** spec/leads.md FR-LEAD-001..007, FR-LEAD-011, FR-LEAD-014, AC-LEAD-01..04, data model; spec/projects.md FR-PROJ-004, AC-PROJ-05 (gated brochure: lead + 10-min signed download URL); spec/careers.md DM-APP (private files); spec/nfr-ops.md NFR-PRIV-01..04, NFR-SEC-10; spec/cms.md §8.2 Forms group.
 **Build:** owner approves `spatie/laravel-honeypot` 4. Leads + lead_activities + newsletter_subscribers; the 7.1 Form Requests now store; Turnstile (script loads when the form is in view; 3 s timeout → `needs_review`); honeypot + minimum time (fake success); rate limits with 429 + Retry-After; content rules → `spam`; E.164 normalisation; 24 h duplicate touch; assignment rule; private uploads served as attachments with `nosniff`; consent text stored; newsletter single/double opt-in.
 **Test:** AC-PROJ-05 (brochure download link expires after 10 minutes); AC-LEAD-01..04; honeypot filled → normal thank-you, no row; the 6th submission in 10 minutes → 429 page; the same phone + project twice → one lead with a touch.
+
+**Done notes (15.1):**
+- Package `spatie/laravel-honeypot` 4.7.3; `FakeSuccessResponder` (config) answers like a success and stores nothing; field names + encrypted "not before" time travel in `forms.spam` (`SpamProtectionProps`). See DEC-86.
+- `app/Actions/Leads`: `SubmitLead` (Turnstile, 20/day per phone, one lead per project) → `StoreLead` (duplicate touch, spam/needs_review status) → `AssignLead`; `StoreLeadDocuments` (private disk), `CreateBrochureLink` (signed 10 min), `HashOldLeadIps` (`leads:hash-ips` daily). `LeadContext` carries IP/agent/GA id/token.
+- Newsletter: `SubscribeToNewsletter` (double opt-in only when `notifications.email_enabled`), `Confirm…`/`Unsubscribe…`, mail `ConfirmNewsletterSubscription`, page `Site/NewsletterStatus`.
+- Limits: named limiter `lead-forms` (5 / 10 min / IP / form) on `forms/{form}` and `newsletter`, then `ProtectAgainstSpam`.
+- Private files: `admin.leads.attachments.show` + `LeadPolicy::view` (15.2 adds update/assign/export/delete).
+- Frontend: `useSpamProtection`, `components/forms/SpamProtection.vue` (in `FormFooter` and `NewsletterForm`); `useLeadForm({ spam: false })` for careers until 17.1.
+- Later phases: 15.2 builds the admin on these models (`leads.view-all|view-assigned`); 15.3 sends the team/autoresponder mails and the webhook; 17.1 adds spam protection + storage to job applications. Check: `docs/checks/15.1-leads.php`.
 
 ### 15.2 — Leads admin: table, board, detail drawer, subscribers
 

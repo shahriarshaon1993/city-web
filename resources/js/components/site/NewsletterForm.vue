@@ -3,7 +3,9 @@ import { useForm, usePage } from '@inertiajs/vue3';
 import { CircleAlert, LoaderCircle } from '@lucide/vue';
 import { nextTick, ref, useId, useTemplateRef } from 'vue';
 import ConsentField from '@/components/forms/ConsentField.vue';
+import SpamProtection from '@/components/forms/SpamProtection.vue';
 import { Button } from '@/components/ui/button';
+import { useSpamProtection } from '@/composables/useSpamProtection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { accepted, email, firstError, required } from '@/lib/forms/rules';
@@ -27,6 +29,8 @@ const ids = {
 };
 
 const form = useForm({ email: '', consent: false });
+// FR-LEAD-003: honeypot + Turnstile, as on the lead forms.
+const spam = useSpamProtection();
 const done = ref(false);
 const status = useTemplateRef<HTMLElement>('status');
 
@@ -80,8 +84,11 @@ async function submit(): Promise<void> {
         return;
     }
 
+    await spam.ready();
+
     form.transform((data) => ({
         ...data,
+        ...spam.fields(),
         source_url: window.location.pathname,
         form_location: `newsletter_${props.location}`,
     })).post(store.url(), {
@@ -96,6 +103,7 @@ async function submit(): Promise<void> {
         onError: () => {
             void nextTick(focusFirstError);
         },
+        onFinish: () => spam.reset(),
     });
 }
 </script>
@@ -168,6 +176,12 @@ async function submit(): Promise<void> {
                 <span>{{ form.errors.email }}</span>
             </p>
         </div>
+        <SpamProtection
+            :spam="spam"
+            :error="
+                (form.errors as Record<string, string | undefined>).turnstile
+            "
+        />
         <ConsentField
             :id="ids.consent"
             v-model="form.consent"

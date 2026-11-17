@@ -24,3 +24,6 @@ Schedule::command('publishing:run')->everyMinute()->withoutOverlapping();
 Schedule::command('queue:work --stop-when-empty --max-time=50 --queue=default,notifications,media,snapshots,exports')
     ->everyMinute()
     ->withoutOverlapping();
+
+// NFR-PRIV-04: lead IPs older than 90 days become hashes.
+Schedule::command('leads:hash-ips')->dailyAt('03:30');

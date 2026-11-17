@@ -3,6 +3,7 @@ import type { InertiaForm } from '@inertiajs/vue3';
 import type { FormDataConvertible, VisitOptions } from '@inertiajs/core';
 import { computed, inject, nextTick, provide, ref, useId } from 'vue';
 import type { InjectionKey, Ref } from 'vue';
+import { useSpamProtection } from '@/composables/useSpamProtection';
 import { readAttribution } from '@/lib/forms/attribution';
 import { firstError } from '@/lib/forms/rules';
 import type { Rules } from '@/lib/forms/rules';
@@ -37,6 +38,8 @@ type Config<T extends FormValues> = {
     rules: Rules<T>;
     /** Extra fields sent with the form (e.g. the project slug). */
     extra?: () => Record<string, FormDataConvertible>;
+    /** FR-LEAD-003 honeypot + Turnstile; the job application joins in 17.1. Default true. */
+    spam?: boolean;
 };
 
 /**
@@ -58,9 +61,13 @@ export function useLeadForm<T extends FormValues>(config: Config<T>) {
     const showSummary = ref(false);
     const order = Object.keys(config.initial);
 
+    const spam = useSpamProtection();
+    const spamOn = config.spam !== false && spam.enabled;
+
     loose.transform((data) => ({
         ...data,
         ...config.extra?.(),
+        ...(spamOn ? spam.fields() : {}),
         ...readAttribution(),
         source_url: window.location.pathname + window.location.search,
         form_location: config.location,
@@ -182,14 +189,25 @@ export function useLeadForm<T extends FormValues>(config: Config<T>) {
             return;
         }
 
-        loose.post(config.url ?? `/forms/${config.slug}`, {
-            preserveScroll: true,
-            preserveState: true,
-            ...options,
-            onError: (errors) => {
-                void focusSummary();
-                options.onError?.(errors);
-            },
+        // FR-LEAD-003: wait up to 3 s for the Turnstile token, then send either way.
+        void (spamOn ? spam.ready() : Promise.resolve()).then(() => {
+            loose.post(config.url ?? `/forms/${config.slug}`, {
+                preserveScroll: true,
+                preserveState: true,
+                ...options,
+                onError: (errors) => {
+                    void focusSummary();
+                    options.onError?.(errors);
+                },
+                onFinish: (visit) => {
+                    // A Turnstile token works once.
+                    if (spamOn) {
+                        spam.reset();
+                    }
+
+                    options.onFinish?.(visit);
+                },
+            });
         });
     }
 
@@ -198,6 +216,7 @@ export function useLeadForm<T extends FormValues>(config: Config<T>) {
         form,
         uid,
         fieldId,
+        spam: spamOn ? spam : null,
         error,
         onBlur,
         onChange,

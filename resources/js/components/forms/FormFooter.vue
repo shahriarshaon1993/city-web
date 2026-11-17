@@ -2,6 +2,7 @@
 import { usePage } from '@inertiajs/vue3';
 import { LoaderCircle } from '@lucide/vue';
 import ConsentField from '@/components/forms/ConsentField.vue';
+import SpamProtection from '@/components/forms/SpamProtection.vue';
 import { Button } from '@/components/ui/button';
 import { useLeadFormContext } from '@/composables/useLeadForm';
 import type { SitePageProps } from '@/types/site';
@@ -19,6 +20,12 @@ const forms = usePage<SitePageProps>().props.forms;
 </script>
 
 <template>
+    <SpamProtection
+        v-if="lead.spam"
+        :id="lead.fieldId('turnstile')"
+        :spam="lead.spam"
+        :error="lead.error('turnstile')"
+    />
     <ConsentField
         :id="lead.fieldId('consent')"
         v-model="lead.form.consent"

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -97,6 +98,16 @@ class User extends Authenticatable implements MustVerifyEmail, Trashable, UsesMe
     public function binTrashed(): void
     {
         DB::table('sessions')->where('user_id', $this->getKey())->delete();
+    }
+
+    /**
+     * FR-LEAD-007: the leads assigned to this user.
+     *
+     * @return HasMany<Lead, $this>
+     */
+    public function assignedLeads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'assigned_to');
     }
 
     /**

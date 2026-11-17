@@ -69,6 +69,9 @@ function submit(): void {
                 ?.download?.url;
 
             if (!url) {
+                // The project has no file yet: the lead is saved, the team follows up.
+                notify.info('Thank you. Our team will send you the brochure.');
+
                 return;
             }
 

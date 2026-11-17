@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Listeners\RecordAuthEvents;
 use App\Models\Amenity;
 use App\Models\FacetPage;
+use App\Models\Lead;
 use App\Models\Location;
 use App\Models\MediaAsset;
 use App\Models\MediaFolder;
 use App\Models\Menu;
+use App\Models\NewsletterSubscriber;
 use App\Models\Project;
 use App\Models\ProjectDocument;
 use App\Models\ProjectNearbyPlace;
@@ -88,6 +90,8 @@ class AppServiceProvider extends ServiceProvider
             'location' => Location::class,
             'amenity' => Amenity::class,
             'facet_page' => FacetPage::class,
+            'lead' => Lead::class,
+            'newsletter_subscriber' => NewsletterSubscriber::class,
         ]);
     }
 
@@ -128,6 +132,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // SEO-ANA-006: browser error reports, 10/min/IP.
         RateLimiter::for('client-errors', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
+
+        // FR-LEAD-003c / AC-LEAD-03: 5 submissions per 10 minutes per IP per form; the 6th is a 429 with
+        // Retry-After. The newsletter counts as its own form. The 20-a-day limit per phone is in SubmitLead.
+        RateLimiter::for('lead-forms', fn (Request $request): Limit => Limit::perMinutes(10, 5)
+            ->by($request->ip().'|'.($request->route('form') ?? 'newsletter')));
     }
 
     /**

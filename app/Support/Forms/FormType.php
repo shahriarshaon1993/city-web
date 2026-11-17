@@ -59,4 +59,23 @@ enum FormType: string
             self::Nrb => NrbRequest::class,
         };
     }
+
+    /**
+     * The type-specific fields stored in `leads.answers` (DM-LEAD); the person, message, consent
+     * and tracking fields have their own columns.
+     *
+     * @return list<string>
+     */
+    public function answerKeys(): array
+    {
+        return match ($this) {
+            self::ProjectInquiry => ['timeline', 'purpose', 'contact_time'],
+            self::SiteVisit => ['visit_date', 'visit_slot', 'visitors'],
+            self::BrochureDownload => [],
+            self::Callback => ['contact_time'],
+            self::Contact => ['subject'],
+            self::Landowner => ['land_location', 'land_size_katha', 'road_width_ft', 'plot_facing', 'ownership'],
+            self::Nrb => ['contact_time', 'budget_band'],
+        };
+    }
 }
