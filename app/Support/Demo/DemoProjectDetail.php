@@ -21,7 +21,7 @@ use App\Support\Seo\Breadcrumbs;
  * @phpstan-import-type MediaImage from DemoMedia
  *
  * @phpstan-type GalleryItemData array{id: int, category: string, category_label: string, image: MediaImage|null}
- * @phpstan-type ProjectDetailData array{id: int, slug: string, url: string, name: string, segment: string, segment_label: string, lifecycle: string, lifecycle_label: string, booking_state: string, booking_label: string|null, is_featured: bool, location: array{area: string, city: string, url: string}, cover: MediaImage|null, size_min_sft: int|null, size_max_sft: int|null, beds_min: int|null, beds_max: int|null, baths_min: int|null, baths_max: int|null, land_katha: int|float|null, price_from_bdt: int|null, price_note: string|null, tagline: string, segment_url: string|null, handover_date: string|null, gallery: list<GalleryItemData>, overview: string, design_narrative: string|null, highlights: list<array{id: int, title: string, text: string, image: MediaImage|null}>, facts: array<string, mixed>, custom_facts: list<array{label: string, value: string}>, amenities: list<array<string, mixed>>, unit_types: list<array<string, mixed>>, breadcrumbs: list<array{label: string, url: string|null}>, video: array<string, mixed>|null, virtual_tour_url: string|null, progress: list<array<string, mixed>>, coordinates: array{lat: float, lng: float}, address: string|null, nearby: list<array<string, mixed>>, design_team: list<array{role: string, role_label: string, name: string}>, documents: list<array<string, mixed>>, faq: list<array{id: int, question: string, answer: string}>, similar: list<ProjectCardData>, enquiry: array{heading: string, whatsapp: string|null, whatsapp_text: string}}
+ * @phpstan-type ProjectDetailData array{id: int, slug: string, url: string, name: string, segment: string, segment_label: string, lifecycle: string, lifecycle_label: string, booking_state: string, booking_label: string|null, is_featured: bool, location: array{area: string, city: string, url: string}, cover: MediaImage|null, size_min_sft: int|null, size_max_sft: int|null, beds_min: int|null, beds_max: int|null, baths_min: int|null, baths_max: int|null, land_katha: int|float|null, price_from_bdt: int|null, price_note: string|null, tagline: string, segment_url: string|null, handover_date: string|null, gallery: list<GalleryItemData>, overview: string, design_narrative: string|null, highlights: list<array{id: int, title: string, text: string, image: MediaImage|null}>, facts: array<string, mixed>, custom_facts: list<array{label: string, value: string}>, amenities: list<array<string, mixed>>, unit_types: list<array<string, mixed>>, breadcrumbs: list<array{label: string, url: string|null}>, video: array<string, mixed>|null, virtual_tour_url: string|null, progress: list<array<string, mixed>>, coordinates: array{lat: float, lng: float}, address: string|null, nearby: list<array<string, mixed>>, design_team: list<array{role: string, role_label: string, name: string}>, documents: list<array<string, mixed>>, similar: list<ProjectCardData>, enquiry: array{heading: string, whatsapp: string|null, whatsapp_text: string}}
  */
 final class DemoProjectDetail
 {
@@ -69,53 +69,6 @@ final class DemoProjectDetail
     private const array FACINGS = ['South', 'North-east', 'East', 'South-west'];
 
     /**
-     * PG-04 section headings, tab labels and enquiry texts (template copy,
-     * 16.x moves it to Settings); `{project}` is replaced by the page.
-     *
-     * @return array<string, mixed>
-     */
-    public static function copy(): array
-    {
-        return [
-            'overview_heading' => 'Overview',
-            'overview_tab' => 'Overview',
-            'facts_heading' => 'At a glance',
-            'facts_tab' => 'At a glance',
-            'amenities_heading' => 'Amenities',
-            'amenities_tab' => 'Amenities',
-            'units_heading' => 'Unit types and floor plans',
-            'units_tab' => 'Plans',
-            'gallery_heading' => 'Gallery',
-            'gallery_tab' => 'Gallery',
-            'price_from_label' => 'Starting from',
-            'video_heading' => 'Video and virtual tour',
-            'video_tab' => 'Video',
-            'tour_label' => 'Take the virtual tour',
-            'team_heading' => 'Design team',
-            'progress_heading' => 'Construction progress',
-            'progress_tab' => 'Progress',
-            'progress_timeline_heading' => 'All updates',
-            'location_heading' => 'Location',
-            'location_tab' => 'Location',
-            'nearby_heading' => 'Nearby',
-            'documents_heading' => 'Brochure and documents',
-            'documents_tab' => 'Documents',
-            'faq_heading' => 'Questions and answers',
-            'similar_heading' => 'Similar projects',
-            'price_on_request' => 'Price on request',
-            'sales_name' => 'Gemcon sales team',
-            'enquire_title' => 'Enquire about {project}',
-            'enquire_text' => 'Tell us what you are looking for and our sales team will call you back within one working day.',
-            'visit_title' => 'Book a site visit to {project}',
-            'visit_text' => 'Pick a day and time that suits you; our sales team confirms the visit by phone. Video visits are available for buyers abroad.',
-            'brochure_title' => 'Download the {project} brochure',
-            'brochure_text' => 'Leave your name and phone number and the download starts at once.',
-            'dialog_alternative' => 'Prefer to talk now?',
-            'progress_stages' => DemoContent::progressStages(),
-        ];
-    }
-
-    /**
      * ProjectDetailResource shape (ProjectDetail in types/project.ts), or null for an unknown slug.
      *
      * @return ProjectDetailData|null
@@ -156,7 +109,7 @@ final class DemoProjectDetail
             'segment_url' => ProjectFilters::landingUrl('segment', $row['segment']),
             'location' => [
                 ...$card['location'],
-                'url' => ProjectFilters::fromQuery(['area' => [$row['area']]], DemoProjectSearch::areaSlugs())->url(false),
+                'url' => ProjectFilters::fromQuery(['area' => [$row['area']]], array_column(DemoProjects::areas(), 'slug'))->url(false),
             ],
             'handover_date' => $row['handover'] === null ? null : $row['handover'].'-01',
             // Computed from the shown unit types (FR-PROJ-009); land has none.
@@ -190,7 +143,6 @@ final class DemoProjectDetail
             'nearby' => DemoProjectSections::nearby($row),
             'design_team' => DemoProjectSections::designTeam($row),
             'documents' => DemoProjectSections::documents($row),
-            'faq' => DemoProjectSections::faq($row),
             'similar' => DemoProjectSections::similar($row),
             'enquiry' => DemoProjectSections::enquiry($row),
         ];

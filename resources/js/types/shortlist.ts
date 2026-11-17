@@ -1,5 +1,5 @@
 // PG-20 / PG-21 contract (8.3): App\Http\Controllers\Site\ShortlistController
-// with App\Support\Demo\DemoShortlist now, Project Resources in 13.3.
+// with App\Queries\Site\ShortlistProjects (cards + compare table).
 
 import type { Breadcrumb, ProjectCard } from '@/types/site';
 

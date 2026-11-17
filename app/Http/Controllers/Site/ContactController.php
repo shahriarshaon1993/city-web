@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Models\Project;
 use App\Support\Demo\DemoBlocks;
 use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoProjects;
 use App\Support\Forms\FormOptions;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
@@ -26,7 +26,7 @@ class ContactController extends Controller
     {
         $copy = Settings::group('contact_page');
         $slug = $request->query('project');
-        $row = collect(DemoProjects::rows())->firstWhere('slug', is_string($slug) ? $slug : null);
+        $row = is_string($slug) ? Project::query()->published()->where('slug', $slug)->first(['slug', 'name']) : null;
 
         $subject = $request->query('subject');
         $subject = is_string($subject) && in_array($subject, FormOptions::values('subject'), true)
@@ -51,9 +51,9 @@ class ContactController extends Controller
                 'social_heading' => $copy['social_heading'],
                 'whatsapp_text' => $row === null
                     ? $copy['whatsapp_text']
-                    : str_replace('{project}', $row['name'], $copy['whatsapp_text_project']),
+                    : str_replace('{project}', $row->name, $copy['whatsapp_text_project']),
             ],
-            'project' => $row === null ? null : ['slug' => $row['slug'], 'name' => $row['name']],
+            'project' => $row === null ? null : ['slug' => $row->slug, 'name' => $row->name],
             'subject' => $subject,
             'seo' => SeoData::page($copy['title'], $copy['description'])->toArray($request),
         ]);

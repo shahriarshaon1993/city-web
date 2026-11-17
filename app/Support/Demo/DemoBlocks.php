@@ -2,6 +2,8 @@
 
 namespace App\Support\Demo;
 
+use App\Queries\Site\AreaDirectory;
+use App\Support\Catalog\CatalogCopy;
 use App\Support\Seo\Breadcrumbs;
 
 /**
@@ -144,15 +146,16 @@ final class DemoBlocks
     private static function peopleAndPlaces(): array
     {
         $images = fn (array $keys): array => array_values(array_filter(array_map(DemoMedia::image(...), $keys)));
+        $areaImages = AreaDirectory::images();
         $areas = array_map(
             fn (array $area): array => [
                 'slug' => $area['slug'],
                 'name' => $area['name'],
                 'url' => route('site.locations.show', $area['slug'], false),
                 'count' => $area['count'],
-                'image' => ($detail = DemoLocations::detail($area['slug'])) === null ? null : DemoMedia::image($detail['image']),
+                'image' => $areaImages[$area['slug']] ?? null,
             ],
-            DemoProjects::topAreas(7),
+            AreaDirectory::top(7),
         );
 
         return [
@@ -184,7 +187,7 @@ final class DemoBlocks
             self::block(18, 'locations_grid', [
                 'heading' => 'Where we build',
                 'areas' => $areas,
-                'no_projects' => DemoLocations::copy()['no_projects'],
+                'no_projects' => CatalogCopy::locations()['no_projects'],
                 'view_all' => ['label' => 'All locations', 'url' => '/locations', 'new_tab' => false],
             ], spacing: 'lg'),
             self::block(19, 'faq', [

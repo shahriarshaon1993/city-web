@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Site;
 
+use App\Enums\Segment;
 use App\Http\Controllers\Controller;
+use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\AreaPage;
+use App\Queries\Site\ProjectCards;
+use App\Queries\Site\ProjectSearch;
+use App\Support\Catalog\CatalogCopy;
 use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoLocations;
-use App\Support\Demo\DemoMedia;
-use App\Support\Demo\DemoProjects;
-use App\Support\Demo\DemoProjectSearch;
 use App\Support\Search\ProjectFilters;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\LocationMeta;
 use App\Support\Seo\ProjectMeta;
 use App\Support\Seo\SeoData;
+use App\Support\Seo\SeoOverrides;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,27 +26,26 @@ use Inertia\Response;
  * `/locations/{area}/{segment}` (LAY-LOC-DETAIL). Area pages are listing
  * landing pages (FR-SRCH-008): they accept only `page`; any other filter,
  * sort or view 301s to its `/projects?…` URL. Indexability follows
- * FR-LOC-003/004. 13.3 swaps the demo classes for the Location model and
- * the Eloquent search (same shapes).
+ * FR-LOC-003/004. An area that used to have another slug 301s to the current
+ * one (SEO-TEC-003); an unpublished or unknown area is a 404.
  */
 class LocationController extends Controller
 {
-    public function __construct(private readonly DemoProjectSearch $search) {}
+    public function __construct(private readonly ProjectSearch $search) {}
 
     public function index(Request $request): Response
     {
-        $copy = DemoLocations::copy();
+        $copy = CatalogCopy::locations();
+        $images = AreaDirectory::images();
         $cities = [];
 
-        foreach (DemoProjects::areas() as $area) {
-            $image = DemoLocations::detail($area['slug'])['image'] ?? null;
-
+        foreach (AreaDirectory::all() as $area) {
             $cities[$area['city']][] = [
                 'slug' => $area['slug'],
                 'name' => $area['name'],
                 'url' => route('site.locations.show', $area['slug'], false),
                 'count' => $area['count'],
-                'image' => $image === null ? null : DemoMedia::image($image),
+                'image' => $images[$area['slug']] ?? null,
             ];
         }
 
@@ -76,7 +78,11 @@ class LocationController extends Controller
 
     public function show(Request $request, string $area): Response|RedirectResponse
     {
-        abort_if(DemoLocations::detail($area) === null, 404);
+        $page = AreaPage::find($area);
+
+        if ($page === null) {
+            return $this->missing($area);
+        }
 
         $filters = $this->filters($request, ['area' => $area]);
 
@@ -84,16 +90,20 @@ class LocationController extends Controller
             return redirect()->to($filters->url(), 301);
         }
 
-        return $this->page($request, $area, null, $filters);
+        return $this->page($request, $page, null, $filters);
     }
 
     public function segment(Request $request, string $area, string $segment): Response|RedirectResponse
     {
-        abort_if(DemoLocations::detail($area) === null, 404);
+        $page = AreaPage::find($area);
+
+        if ($page === null) {
+            return $this->missing($area);
+        }
 
         // FR-LOC-004: the page exists only with ≥ 2 published projects in the segment.
         $segment = ProjectFilters::enumValue($segment);
-        abort_if((DemoProjectSearch::segmentCounts($area)[$segment] ?? 0) < 2, 404);
+        abort_if((AreaDirectory::segmentCounts($page['id'])[$segment] ?? 0) < 2, 404);
 
         $filters = $this->filters($request, ['area' => $area, 'segment' => $segment]);
 
@@ -110,7 +120,16 @@ class LocationController extends Controller
             return redirect()->to($filters->url(), 301);
         }
 
-        return $this->page($request, $area, $segment, $filters);
+        return $this->page($request, $page, $segment, $filters);
+    }
+
+    private function missing(string $slug): RedirectResponse
+    {
+        $current = AreaPage::movedTo($slug);
+
+        abort_if($current === null, 404);
+
+        return redirect()->to(route('site.locations.show', $current, false), 301);
     }
 
     /**
@@ -118,26 +137,28 @@ class LocationController extends Controller
      */
     private function filters(Request $request, array $pathFacets): ProjectFilters
     {
-        $filters = ProjectFilters::fromQuery($request->query() + $pathFacets, DemoProjectSearch::areaSlugs());
+        $filters = ProjectFilters::fromQuery($request->query() + $pathFacets, AreaDirectory::slugs());
 
-        return DemoProjectSearch::priceFilterEnabled() ? $filters : $filters->withoutPrice();
+        return ProjectSearch::priceFilterEnabled() ? $filters : $filters->withoutPrice();
     }
 
-    private function page(Request $request, string $slug, ?string $segment, ProjectFilters $filters): Response
+    /**
+     * @param  array{id: int, area: array<string, mixed>, intro: string, segment_intros: array<string, string>, centre: array{lat: float, lng: float, zoom: int}, seo: array<string, mixed>}  $page
+     */
+    private function page(Request $request, array $page, ?string $segment, ProjectFilters $filters): Response
     {
         $results = $this->search->search($filters);
 
         abort_if($filters->page > $results['meta']['last_page'], 404);
 
-        $area = DemoProjects::area($slug);
-        $detail = DemoLocations::detail($slug) ?? abort(404);
-        $centre = DemoLocations::centre($slug);
-        $counts = DemoProjectSearch::segmentCounts($slug);
+        $area = $page['area'];
+        $slug = $area['slug'];
+        $counts = AreaDirectory::segmentCounts($page['id']);
         $total = array_sum($counts);
         $areaUrl = route('site.locations.show', $slug, false);
-        $areaIntro = DemoLocations::introHtml($slug);
+        $areaIntro = $page['intro'];
         $fill = fn (string $text, array $extra = []): string => strtr($text, ['{area}' => $area['name'], '{city}' => $area['city'], ...$extra]);
-        $copy = DemoLocations::copy();
+        $copy = CatalogCopy::locations();
         $noun = null;
 
         if ($segment === null) {
@@ -148,23 +169,24 @@ class LocationController extends Controller
         } else {
             // FR-LOC-004: without its own intro, a template sentence + the area intro, noindex.
             $noun = ProjectMeta::SEGMENT_NOUNS[$segment];
-            $own = $detail['segments'][$segment] ?? null;
+            $own = $page['segment_intros'][$segment] ?? null;
             $title = $fill($copy['segment_title'], ['{segment}' => $noun]);
             $intro = $own ?? $fill($copy['segment_template'], [
                 '{count}' => (string) $counts[$segment],
-                '{segment_lower}' => strtolower(DemoProjects::SEGMENT_LABELS[$segment]),
+                '{segment_lower}' => strtolower(Segment::from($segment)->label()),
             ]).$areaIntro;
             $indexable = $own !== null;
-            $breadcrumbs = Breadcrumbs::to(DemoProjects::SEGMENT_LABELS[$segment], [
+            $breadcrumbs = Breadcrumbs::to(Segment::from($segment)->label(), [
                 [$copy['directory_title'], route('site.locations.index', absolute: false)],
                 [$area['name'], $areaUrl],
             ]);
         }
 
-        $hero = DemoMedia::image($detail['image']);
+        $hero = $area['hero'];
 
-        $seo = SeoData::raw(LocationMeta::title($area['name'], $area['city'], $noun), LocationMeta::description($intro))
-            ->image(DemoMedia::ogImage($detail['image']), $hero['alt'] ?? null)
+        // The editor's SEO panel belongs to the area page; an area × segment page keeps the templates.
+        $stored = $segment === null ? $page['seo'] : ['og_image' => $page['seo']['og_image'] ?? null];
+        $seo = SeoOverrides::apply($stored, LocationMeta::title($area['name'], $area['city'], $noun), LocationMeta::description($intro), null, $hero['alt'] ?? null)
             ->lcp($hero, null, '100vw');
 
         if (! $indexable) {
@@ -181,24 +203,20 @@ class LocationController extends Controller
                 'title' => $title,
                 'intro' => $intro,
                 'hero' => $hero,
-                'facts' => array_map(fn (array $fact): array => ['label' => $fact[0], 'value' => $fact[1]], $detail['facts']),
-                'faq' => array_map(
-                    fn (array $item, int $index): array => ['id' => $index + 1, 'question' => $item[0], 'answer' => $item[1]],
-                    $detail['faq'],
-                    array_keys($detail['faq']),
-                ),
+                'facts' => $area['facts'],
+                'faq' => $area['faq'],
                 'project_count' => $total,
                 'segment' => $segment,
                 'segments' => $this->segmentLinks($slug, $counts),
-                'nearby' => $this->nearby($detail['nearby']),
+                'nearby' => $area['nearby'],
                 'breadcrumbs' => $breadcrumbs,
             ],
             'map' => [
                 'projects' => $this->search->mapProjects($filters),
-                'centre' => ['lat' => $centre['lat'], 'lng' => $centre['lng']],
-                'zoom' => $centre['zoom'],
+                'centre' => ['lat' => $page['centre']['lat'], 'lng' => $page['centre']['lng']],
+                'zoom' => $page['centre']['zoom'],
             ],
-            'newest' => $total === 0 ? $this->search->newest() : [],
+            'newest' => $total === 0 ? ProjectCards::newest() : [],
             'copy' => array_map($fill, array_intersect_key($copy, array_flip([
                 'facts_heading', 'projects_heading', 'map_heading', 'nearby_heading', 'faq_heading',
                 'empty_title', 'empty_body', 'newest_heading',
@@ -226,7 +244,7 @@ class LocationController extends Controller
             if ($count > 0) {
                 $links[] = [
                     'value' => $segment,
-                    'label' => DemoProjects::SEGMENT_LABELS[$segment],
+                    'label' => Segment::from($segment)->label(),
                     'count' => $count,
                     'url' => $count >= 2 ? route('site.locations.segment', [$slug, ProjectFilters::urlSlug($segment)], false) : null,
                 ];
@@ -234,23 +252,5 @@ class LocationController extends Controller
         }
 
         return $links;
-    }
-
-    /**
-     * Nearby areas (manual, ≤ 6) as LocationLinks rows (SEO-ONP-005).
-     *
-     * @param  list<string>  $slugs
-     * @return list<array{name: string, city: string, count: int, url: string}>
-     */
-    private function nearby(array $slugs): array
-    {
-        $areas = array_column(DemoProjects::areas(), null, 'slug');
-
-        return array_map(fn (string $slug): array => [
-            'name' => $areas[$slug]['name'],
-            'city' => $areas[$slug]['city'],
-            'count' => $areas[$slug]['count'],
-            'url' => route('site.locations.show', $slug, false),
-        ], array_slice($slugs, 0, 6));
     }
 }

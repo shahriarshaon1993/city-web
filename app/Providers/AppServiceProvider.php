@@ -10,14 +10,18 @@ use App\Models\MediaAsset;
 use App\Models\MediaFolder;
 use App\Models\Menu;
 use App\Models\Project;
+use App\Models\ProjectDocument;
+use App\Models\ProjectNearbyPlace;
 use App\Models\ProjectProgressUpdate;
 use App\Models\ProjectUnitType;
 use App\Models\Redirect;
+use App\Models\SeoMeta;
 use App\Models\Setting;
 use App\Models\User;
 use App\Policies\RolePolicy;
 use App\Support\Auth\LoginThrottle;
 use App\Support\Auth\SystemRole;
+use App\Support\Catalog\CatalogCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -34,6 +38,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\LoginRateLimiter;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
@@ -56,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->configureAuthorization();
         $this->configureAuthEvents();
+        $this->configureCatalogCache();
     }
 
     /**
@@ -83,6 +89,25 @@ class AppServiceProvider extends ServiceProvider
             'amenity' => Amenity::class,
             'facet_page' => FacetPage::class,
         ]);
+    }
+
+    /**
+     * CMS-CACHE-002: any change to what a public project or area page shows raises the catalogue
+     * version, so cached cards, lists and pages are rebuilt on the next request.
+     */
+    protected function configureCatalogCache(): void
+    {
+        $models = [
+            Project::class, ProjectUnitType::class, ProjectProgressUpdate::class, ProjectNearbyPlace::class,
+            ProjectDocument::class, Location::class, Amenity::class, FacetPage::class, SeoMeta::class,
+            MediaAsset::class, Media::class,
+        ];
+
+        foreach ($models as $model) {
+            foreach (['saved', 'deleted', 'restored'] as $event) {
+                $model::registerModelEvent($event, static fn (): null => CatalogCache::bust());
+            }
+        }
     }
 
     /**

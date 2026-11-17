@@ -2,6 +2,14 @@
 
 namespace App\Support\Demo;
 
+use App\Enums\Lifecycle;
+use App\Enums\Segment;
+use App\Http\Resources\Media\MediaImageResource;
+use App\Models\Project;
+use App\Models\ProjectProgressUpdate;
+use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\ProjectCards;
+use App\Support\Catalog\CatalogCache;
 use App\Support\Menus\PublicMenus;
 use App\Support\Search\ProjectFilters;
 use App\Support\Settings\Settings;
@@ -136,7 +144,7 @@ final class DemoContent
             'locations_heading' => $footer['locations_heading'],
             'locations' => array_map(
                 fn (array $area): array => $item($area['name'], '/locations/'.$area['slug'], count: $area['count']),
-                DemoProjects::topAreas(),
+                AreaDirectory::top(),
             ),
         ];
     }
@@ -294,12 +302,12 @@ final class DemoContent
                 'tiles' => array_map(
                     fn (string $segment, string $image): array => [
                         'segment' => $segment,
-                        'label' => DemoProjects::SEGMENT_LABELS[$segment],
+                        'label' => Segment::from($segment)->label(),
                         'description' => self::SEGMENT_DESCRIPTIONS[$segment],
                         'image' => DemoMedia::image($image),
                         'url' => '/projects/type/'.str_replace('_', '-', $segment),
                     ],
-                    array_keys(DemoProjects::SEGMENT_LABELS),
+                    array_map(fn (Segment $segment): string => $segment->value, Segment::cases()),
                     ['projects/projects-01', 'projects/projects-03', 'projects/projects-06', 'projects/projects-05'],
                 ),
             ]),
@@ -378,13 +386,15 @@ final class DemoContent
     public static function testimonials(bool $nrbOnly = false): array
     {
         $cards = [];
+        // Testimonials still link to a project by slug (demo until 16.4); the name comes from the catalogue.
+        $names = Project::query()->published()->whereIn('slug', array_filter(array_column(self::TESTIMONIALS, 'project')))->pluck('name', 'slug');
 
         foreach (self::TESTIMONIALS as $index => $row) {
             if ($nrbOnly && ! $row['is_nrb']) {
                 continue;
             }
 
-            $project = $row['project'] === null ? null : DemoProjects::row($row['project']);
+            $project = $row['project'] !== null && isset($names[$row['project']]) ? ['name' => $names[$row['project']], 'slug' => $row['project']] : null;
 
             $cards[] = [
                 'id' => $index + 1,
@@ -445,34 +455,46 @@ final class DemoContent
     }
 
     /**
-     * CMP-PROG-01 summaries: the latest progress update of each project.
+     * CMP-PROG-01 summaries: the latest progress update of each ongoing project, most recently
+     * reported first (3 at most).
      *
      * @return list<array<string, mixed>>
      */
     private static function progressSummaries(): array
     {
-        $summaries = [];
+        return CatalogCache::remember('projects:progress-summaries', CatalogCache::LISTING_TTL, function (): array {
+            $updates = [];
 
-        foreach (self::PROGRESS as $update) {
-            $project = DemoProjects::row($update['project']);
+            $projects = Project::query()->published()
+                ->where('lifecycle', Lifecycle::Ongoing->value)
+                ->with([...ProjectCards::WITH, 'progressUpdates.photos.media'])
+                ->get();
 
-            $summaries[] = [
+            foreach ($projects as $project) {
+                $update = $project->progressUpdates->first();
+
+                if ($update instanceof ProjectProgressUpdate) {
+                    $updates[] = [$project, $update];
+                }
+            }
+
+            usort($updates, fn (array $a, array $b): int => $b[1]->reported_on <=> $a[1]->reported_on);
+
+            return array_map(fn (array $pair): array => [
                 'project' => [
-                    'id' => $project['id'],
-                    'name' => $project['name'],
-                    'url' => '/projects/'.$project['slug'],
-                    'location' => ['area' => DemoProjects::area($project['area'])['name'], 'city' => DemoProjects::area($project['area'])['city']],
+                    'id' => $pair[0]->id,
+                    'name' => $pair[0]->name,
+                    'url' => '/projects/'.$pair[0]->slug,
+                    'location' => ['area' => $pair[0]->location->name, 'city' => $pair[0]->location->parent->name ?? ''],
                 ],
-                'percent' => $update['percent'],
-                'stage' => $update['stage'],
-                'stage_label' => self::PROGRESS_STAGES[$update['stage']],
-                'reported_on' => $update['reported_on'],
-                'note' => $update['note'],
-                'photo' => DemoMedia::image($update['photo']),
-            ];
-        }
-
-        return $summaries;
+                'percent' => $pair[1]->percent,
+                'stage' => $pair[1]->stage->value,
+                'stage_label' => $pair[1]->stage->label(),
+                'reported_on' => $pair[1]->reported_on->toDateString(),
+                'note' => $pair[1]->note,
+                'photo' => ($photo = $pair[1]->photos->first()) === null ? null : MediaImageResource::make($photo)->resolve(),
+            ], array_slice($updates, 0, 3));
+        });
     }
 
     /**
@@ -490,19 +512,19 @@ final class DemoContent
 
         $cities = [];
 
-        foreach (DemoProjects::areas() as $area) {
+        foreach (AreaDirectory::all() as $area) {
             $cities[$area['city']][] = $option($area['slug'], $area['name'], '/locations/'.$area['slug']);
         }
 
         return [
             'action' => '/projects',
             'segments' => array_map(
-                fn (string $value): array => $option($value, DemoProjects::SEGMENT_LABELS[$value], '/projects/type/'.$slug($value)),
+                fn (string $value): array => $option($value, Segment::from($value)->label(), '/projects/type/'.$slug($value)),
                 ['residential', 'commercial', 'land'],
             ),
             'statuses' => array_map(
-                fn (string $value): array => $option($value, DemoProjects::LIFECYCLE_LABELS[$value], '/projects/status/'.$slug($value)),
-                array_keys(DemoProjects::LIFECYCLE_LABELS),
+                fn (string $value): array => $option($value, Lifecycle::from($value)->label(), '/projects/status/'.$slug($value)),
+                array_map(fn (Lifecycle $lifecycle): string => $lifecycle->value, Lifecycle::cases()),
             ),
             'cities' => array_map(
                 fn (string $city, array $cityAreas): array => ['city' => $city, 'areas' => $cityAreas],
@@ -534,23 +556,15 @@ final class DemoContent
      */
     public static function projectCards(bool $featuredOnly = false, ?string $segment = null, ?string $lifecycle = null, ?int $limit = null): array
     {
-        $cards = [];
-
-        foreach (DemoProjects::rows() as $row) {
-            if (($featuredOnly && ! $row['featured'])
-                || ($segment !== null && $row['segment'] !== $segment)
-                || ($lifecycle !== null && $row['lifecycle'] !== $lifecycle)) {
-                continue;
-            }
-
-            if ($limit !== null && count($cards) >= $limit) {
-                break;
-            }
-
-            $cards[] = DemoProjects::card($row);
+        if ($featuredOnly) {
+            return ProjectCards::featured($limit);
         }
 
-        return $cards;
+        return ProjectCards::filtered(
+            $segment === null ? null : Segment::tryFrom($segment),
+            $lifecycle === null ? null : Lifecycle::tryFrom($lifecycle),
+            $limit,
+        );
     }
 
     /**

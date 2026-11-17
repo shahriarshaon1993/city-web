@@ -2,7 +2,7 @@
 
 namespace App\Support\Forms;
 
-use App\Support\Demo\DemoProjects;
+use App\Queries\Site\AreaDirectory;
 use App\Support\Settings\Settings;
 use Carbon\CarbonImmutable;
 
@@ -141,7 +141,7 @@ final class FormOptions
                 ...$choices,
                 'areas' => array_map(
                     fn (array $area): array => ['value' => $area['name'], 'label' => $area['city']],
-                    DemoProjects::areas(),
+                    AreaDirectory::all(),
                 ),
             ],
             'countries' => Countries::all(),

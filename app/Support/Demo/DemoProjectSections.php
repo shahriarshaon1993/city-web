@@ -264,40 +264,6 @@ final class DemoProjectSections
     }
 
     /**
-     * Project FAQs (answers are sanitised HTML in Part B).
-     *
-     * @param  DemoProject  $row
-     * @return list<array{id: int, question: string, answer: string}>
-     */
-    public static function faq(array $row): array
-    {
-        $items = match ($row['segment']) {
-            'land' => [
-                ['Are the plot titles clear?', '<p>Yes. Every plot has a registered deed and completed mutation, and we hand over the full chain of title documents for your lawyer to check before booking.</p>'],
-                ['Can I combine two plots?', '<p>Adjoining plots can be bought together and registered as one, subject to RAJUK rules for the combined size.</p>'],
-                ['When are the utilities connected?', '<p>Roads, drainage and water lines are complete before handover. Electricity and gas connections are applied for in the owner\'s name with our help.</p>'],
-            ],
-            'commercial' => [
-                ['Can I buy a whole floor?', '<p>Yes. Floors can be bought whole or as suites, and adjoining suites can be joined later without structural work.</p>'],
-                ['Is there parking for visitors?', '<p>Each unit comes with allocated basement parking, and part of the ground-floor parking is kept for visitors.</p>'],
-                ['When can I start the fit-out?', '<p>Fit-out can start once the floor is handed over; our team shares the services drawings and fit-out guidelines in advance.</p>'],
-            ],
-            default => [
-                ['What is the payment schedule?', '<p>A booking money payment is followed by a down payment and instalments linked to construction progress. The sales team shares the full schedule for each unit type.</p>'],
-                ['Is the project approved by RAJUK?', '<p>Yes. The approval number is listed under At a glance, and copies of the approval are available at our sales office.</p>'],
-                ['Can I buy from abroad?', '<p>Yes. Many of our buyers are non-resident Bangladeshis. We arrange video site visits, send documents by email and accept payments through bank channels.</p>'],
-                ...($row['segment'] === 'mixed_use' ? [['Are the shops sold separately?', '<p>Yes. Shops on the ground and first floors are sold separately from the apartments and have their own entrance.</p>']] : []),
-            ],
-        };
-
-        return array_map(
-            fn (array $item, int $index): array => ['id' => $row['id'] * 100 + $index + 1, 'question' => $item[0], 'answer' => $item[1]],
-            $items,
-            array_keys($items),
-        );
-    }
-
-    /**
      * AC-PROJ-07: no manual picks in the demo, so up to 3 projects of the
      * same segment and city, newest first, excluding the project itself.
      *

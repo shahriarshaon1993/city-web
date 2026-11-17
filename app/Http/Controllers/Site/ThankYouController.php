@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Support\Demo\DemoProjects;
-use App\Support\Demo\DemoProjectSections;
+use App\Queries\Site\ProjectCards;
+use App\Queries\Site\ProjectDetail;
 use App\Support\Forms\FormType;
 use App\Support\Seo\SeoData;
 use App\Support\Settings\Settings;
@@ -20,8 +20,6 @@ use Inertia\Response;
  * renders but `generate_lead` is not fired. A shortlist enquiry fires one
  * `generate_lead` per project, as it creates one lead each (FR-SHORT-004).
  * Always `noindex,nofollow`.
- *
- * @phpstan-import-type DemoProject from DemoProjects
  */
 class ThankYouController extends Controller
 {
@@ -38,14 +36,13 @@ class ThankYouController extends Controller
         // FR-SHORT-004: a shortlist enquiry names several projects (one lead each).
         $slugs = array_values(array_filter(
             is_array($lead['project_slugs'] ?? null) ? $lead['project_slugs'] : [],
-            fn (mixed $slug): bool => $this->projectRow($slug) !== null,
+            fn (mixed $slug): bool => $this->projectCard($slug) !== null,
         ));
-        $row = $this->projectRow($lead['project_slug'] ?? (count($slugs) === 1 ? $slugs[0] : null));
-        $project = $row === null ? null : DemoProjects::card($row);
+        $project = $this->projectCard($lead['project_slug'] ?? (count($slugs) === 1 ? $slugs[0] : null));
 
-        $whatsappText = $row === null
+        $whatsappText = $project === null
             ? $settings['thank_you_whatsapp']
-            : str_replace('{project}', $row['name'], $settings['thank_you_whatsapp_project']);
+            : str_replace('{project}', $project['name'], $settings['thank_you_whatsapp_project']);
 
         return Inertia::render('Site/ThankYou', [
             'form' => $type->slug(),
@@ -54,13 +51,13 @@ class ThankYouController extends Controller
             'steps' => $copy['steps'],
             'project' => $project === null ? null : ['slug' => $project['slug'], 'name' => $project['name'], 'url' => $project['url']],
             'related' => in_array($type, self::PROJECT_FORMS, true)
-                ? ['heading' => $settings['thank_you_related_heading'], 'projects' => $this->related($row)]
+                ? ['heading' => $settings['thank_you_related_heading'], 'projects' => $this->related($project)]
                 : null,
             'whatsapp_text' => $whatsappText,
             'lead' => $lead === null ? null : [
                 'reference' => (string) $lead['reference'],
                 'lead_type' => $type->value,
-                'project_slug' => $row['slug'] ?? null,
+                'project_slug' => $project['slug'] ?? null,
                 'project_slugs' => $slugs,
                 'form_location' => is_string($lead['form_location'] ?? null) ? $lead['form_location'] : null,
             ],
@@ -69,44 +66,40 @@ class ThankYouController extends Controller
     }
 
     /**
-     * @return DemoProject|null
+     * The card of a published project, or null for an unknown or unpublished slug.
+     *
+     * @return array<string, mixed>|null
      */
-    private function projectRow(mixed $slug): ?array
+    private function projectCard(mixed $slug): ?array
     {
         if (! is_string($slug)) {
             return null;
         }
 
-        foreach (DemoProjects::rows() as $row) {
-            if ($row['slug'] === $slug) {
-                return $row;
-            }
-        }
+        $project = ProjectCards::query()->where('slug', $slug)->first();
 
-        return null;
+        return $project === null ? null : ProjectCards::cards($project->newCollection([$project]))[0];
     }
 
     /**
      * Similar projects of the one the visitor asked about, else the featured ones.
      *
-     * @param  DemoProject|null  $row
+     * @param  array<string, mixed>|null  $project
      * @return list<array<string, mixed>>
      */
-    private function related(?array $row): array
+    private function related(?array $project): array
     {
-        if ($row !== null) {
-            $similar = DemoProjectSections::similar($row);
+        if ($project !== null) {
+            $similar = ProjectDetail::find($project['slug'])['project']['similar'] ?? [];
 
             if ($similar !== []) {
                 return $similar;
             }
         }
 
-        $featured = array_filter(
-            DemoProjects::rows(),
-            fn (array $other): bool => $other['featured'] && $other['slug'] !== ($row['slug'] ?? null),
-        );
-
-        return array_map(DemoProjects::card(...), array_slice(array_values($featured), 0, 3));
+        return array_slice(array_values(array_filter(
+            ProjectCards::featured(4),
+            fn (array $card): bool => $card['slug'] !== ($project['slug'] ?? null),
+        )), 0, 3);
     }
 }

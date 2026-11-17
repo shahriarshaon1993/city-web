@@ -1,7 +1,6 @@
 // PG-02/PG-03 project listing props (spec/search.md): `projects`, `facets`
 // and `meta` are what a filter change reloads (FR-SRCH-003); the rest is
-// page chrome. Shapes match App\Support\Demo\DemoProjectSearch, which 13.3's
-// Eloquent search keeps.
+// page chrome. Shapes come from App\Queries\Site\ProjectSearch.
 import type { CtaBandBlock } from '@/types/blocks';
 import type { MapProject } from '@/types/location';
 import type { Breadcrumb, ProjectCard } from '@/types/site';

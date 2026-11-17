@@ -2,6 +2,8 @@
 
 namespace App\Support\Demo;
 
+use App\Models\Project;
+use App\Queries\Site\ProjectCards;
 use App\Support\Seo\SeoData;
 use Illuminate\Support\Carbon;
 
@@ -412,10 +414,9 @@ final class DemoNews
             $post['tags'],
         );
 
-        $projects = array_map(
-            fn (string $slug): array => DemoProjects::card(DemoProjects::row($slug)),
-            $post['projects'],
-        );
+        // Related projects are still named by slug in the demo posts (16.3 moves them to a relation).
+        $cards = array_column(ProjectCards::byIds(array_values(array_map(intval(...), Project::query()->published()->whereIn('slug', $post['projects'])->pluck('id')->all()))), null, 'slug');
+        $projects = array_values(array_filter(array_map(fn (string $slug): ?array => $cards[$slug] ?? null, $post['projects'])));
 
         return [
             ...self::card($post),
@@ -515,7 +516,7 @@ final class DemoNews
      *
      * @param  list<Block>  $blocks
      */
-    private static function bodyHtml(array $blocks): string
+    public static function bodyHtml(array $blocks): string
     {
         $html = '';
 

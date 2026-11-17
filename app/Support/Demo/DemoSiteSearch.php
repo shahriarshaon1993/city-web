@@ -2,6 +2,10 @@
 
 namespace App\Support\Demo;
 
+use App\Models\Project;
+use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\ProjectCards;
+
 /**
  * Part A site search (PG-19, FR-SRCH-010 result grouping): every word of the
  * query must appear in a record; title matches rank first. Projects search
@@ -39,15 +43,16 @@ final class DemoSiteSearch
     {
         $words = self::words($query);
 
-        $projects = self::rank(array_map(fn (array $row): array => [
-            'title' => $row['name'],
-            'text' => implode(' ', [$row['tagline'], DemoProjects::area($row['area'])['name'], DemoProjects::area($row['area'])['city'], DemoProjects::SEGMENT_LABELS[$row['segment']], DemoProjectDetail::overviewText($row)]),
-            'item' => DemoProjects::card($row),
-        ], DemoProjects::rows()), $words);
+        // Interim (17.2 replaces this with Scout): every published project, matched in memory.
+        $projects = self::rank(array_values(ProjectCards::query()->get()->map(fn (Project $project): array => [
+            'title' => $project->name,
+            'text' => implode(' ', [$project->tagline, $project->location->name, $project->location->parent?->name, $project->segment->label(), strip_tags((string) $project->overview)]),
+            'item' => ProjectCards::cards($project->newCollection([$project]))[0],
+        ])->all()), $words);
 
         $posts = self::rank(array_map(fn (array $post): array => [
             'title' => $post['title'],
-            'text' => $post['excerpt'].' '.strip_tags(DemoNews::article($post)['body']),
+            'text' => $post['excerpt'].' '.strip_tags(DemoNews::bodyHtml($post['body'])),
             'item' => DemoNews::card($post),
         ], DemoNews::published()), $words);
 
@@ -101,7 +106,7 @@ final class DemoSiteSearch
     {
         return array_map(
             fn (array $area): array => ['name' => $area['name'], 'city' => $area['city'], 'url' => '/locations/'.$area['slug'], 'count' => $area['count']],
-            DemoProjects::topAreas(6),
+            AreaDirectory::top(6),
         );
     }
 

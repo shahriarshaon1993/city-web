@@ -6,7 +6,7 @@ use InvalidArgumentException;
 
 /**
  * Part A projects and areas (DEC-29): DM-PROJ / DM-LOC rows reduced to what
- * the cards, the listing (DemoProjectSearch) and the menus need. Placeholder
+ * the seeders need (since 13.3 the public site reads the database). Placeholder
  * names and figures until the client's list arrives; prices of
  * `price_visible: false` rows never leave the server (AC-PROJ-01). IDs are
  * the row position (1-based) and must stay stable: the shortlist stores them.

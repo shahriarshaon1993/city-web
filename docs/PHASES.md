@@ -41,7 +41,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 12.3 | SEO base: redirects, 404 monitor, robots.txt                               | 12.1           | ✅     |
 | 13.1 | Schema & models: locations, projects, unit types, relations                | 12.3           | ✅     |
 | 13.2 | Locations & projects admin                                                 | 13.1           | ✅     |
-| 13.3 | Public projects & locations from the database                              | 13.2           | ⬜     |
+| 13.3 | Public projects & locations from the database                              | 13.2           | ✅     |
 | 14.1 | Draft, revisions, scheduling, preview, locking                             | 13.3           | ⬜     |
 | 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ⬜     |
 | 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ⬜     |
@@ -631,6 +631,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 13.2 · **Read:** spec/search.md FR-SRCH-004, FR-SRCH-011; spec/projects.md AC-PROJ-06, AC-PROJ-07; spec/cms.md CMS-CACHE-002, CMS-CACHE-003; spec/architecture.md ARC-001, ARC-002; spec/performance-a11y.md SEO-PERF-014.
 **Build:** Eloquent `ProjectSearch` (FULLTEXT + short-query LIKE fallback, facet counts) returning the 4.1 shape; API Resources for card/detail/location matching the TS types; similar projects auto rule; soft-deleted project → 410 for 90 days or 301 to its redirect; versioned cache keys; demo projects/locations removed from DemoContent.
 **Test:** repeat the 4.1–5.1 checklists on DB data; ≤ 25 queries per page (query log); a hidden price never appears in view-source or the page props; a deleted project → 410.
+
+**Done notes (2026-11-17):**
+- Reads: `Queries/Site/{ProjectSearch,ProjectCards,ProjectDetail,AreaDirectory,AreaPage,FacetPages,ShortlistProjects}` + `Http/Resources/Site/{ProjectCard,ProjectDetail,Location}Resource`; prices only via `publicPriceFrom()` / `publicPrice()`; gated documents carry no URL. `AssetMap` batch-loads library images.
+- Cache: `Support/Catalog/CatalogCache` (`cachever:projects`, keys `…:v{n}`, version read once per request; listings 10 min, pages 24 h); `AppServiceProvider::configureCatalogCache()` busts after commit on catalogue model events. `CatalogCopy` holds PG-04/05/06 copy.
+- Search = FULLTEXT on name+tagline (LIKE under 4 chars, plus area/city names); slim rows cached, filters and disjunctive facet counts run in memory. Price filter shows only when enough projects show a price (FR-SRCH-005).
+- Missing project: slug history 301 → `archived_redirect_to` 301 → 410 within 90 days → 404 (areas: slug history 301 / 404). `SeoOverrides` applies the editor's SEO panel on project and area pages.
+- `Demo*` project/location classes stay only as seeder source; `DemoProjectSearch` deleted; FAQs stay in `DemoCatalogFaqs` until 16.4; `DemoSiteSearch` matches projects in memory until the 17.2 Scout search.
+- Warm query counts 8–15 per page (limit 25); check script `docs/checks/13.3-public-catalog.php`.
+- Known: a scheduled project goes live within the 10-minute listing TTL until 14.1 adds publish events; YouTube duration is null (no column); facet page intro prints as plain text.
 
 ## Phase 14 — Publishing workflow
 

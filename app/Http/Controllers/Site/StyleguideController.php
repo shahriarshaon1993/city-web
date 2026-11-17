@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Queries\Site\ProjectDetail;
 use App\Support\Demo\DemoBlocks;
 use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoMedia;
-use App\Support\Demo\DemoProjectDetail;
 use App\Support\Format;
 use App\Support\Seo\SeoData;
 use Illuminate\Http\Request;
@@ -31,7 +31,7 @@ class StyleguideController extends Controller
                 'interior' => DemoMedia::image('interiors/interiors-01'),
                 'thumbs' => array_map(DemoMedia::image(...), ['projects/projects-02', 'projects/projects-03', 'interiors/interiors-02', 'progress/progress-01']),
             ],
-            'projects' => DemoContent::projectCards(),
+            'projects' => DemoContent::projectCards(limit: 8),
             'ogImage' => DemoMedia::ogImage('hero/hero-01'),
             'formatSamples' => $this->formatSamples(),
             'seo' => SeoData::page('Styleguide')->noindex(follow: false)->toArray($request),
@@ -59,7 +59,7 @@ class StyleguideController extends Controller
      */
     public function forms(Request $request): Response
     {
-        $project = DemoProjectDetail::find('gemcon-lakeview') ?? abort(404);
+        $project = ProjectDetail::find('gemcon-lakeview')['project'] ?? abort(404);
 
         return Inertia::render('Site/StyleguideForms', [
             'project' => [

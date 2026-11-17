@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Site;
 
+use App\Enums\Lifecycle;
+use App\Enums\Segment;
 use App\Http\Controllers\Controller;
+use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\FacetPages;
+use App\Queries\Site\ProjectCards;
+use App\Queries\Site\ProjectSearch;
 use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoProjects;
-use App\Support\Demo\DemoProjectSearch;
 use App\Support\Search\ProjectFilters;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
@@ -21,11 +25,10 @@ use Inertia\Response;
  * SEO-TEC-021 and a page beyond the last is a 404 (SEO-TEC-005). Inertia
  * filter visits keep a single area on the listing; only direct requests
  * 301 it to its location page (owner, 5.1).
- * 13.3 swaps DemoProjectSearch for the Eloquent query (same shape).
  */
 class ProjectListingController extends Controller
 {
-    public function __construct(private readonly DemoProjectSearch $search) {}
+    public function __construct(private readonly ProjectSearch $search) {}
 
     public function index(Request $request): Response|RedirectResponse
     {
@@ -47,9 +50,9 @@ class ProjectListingController extends Controller
      */
     private function listing(Request $request, array $pathFacet): Response|RedirectResponse
     {
-        $filters = ProjectFilters::fromQuery($request->query() + $pathFacet, DemoProjectSearch::areaSlugs());
+        $filters = ProjectFilters::fromQuery($request->query() + $pathFacet, AreaDirectory::slugs());
 
-        if (! DemoProjectSearch::priceFilterEnabled()) {
+        if (! ProjectSearch::priceFilterEnabled()) {
             $filters = $filters->withoutPrice();
         }
 
@@ -88,7 +91,7 @@ class ProjectListingController extends Controller
             ],
             // FR-SRCH-006: every result as a marker, only in map view.
             'map' => $filters->view === 'map' ? $this->search->mapProjects($filters) : null,
-            'newest' => $this->search->newest(),
+            'newest' => ProjectCards::newest(),
             'copy' => DemoContent::projectListing()['copy'],
             'cta' => DemoContent::projectListingCta(),
             'seo' => $seo->toArray($request),
@@ -108,23 +111,24 @@ class ProjectListingController extends Controller
         $listingTitle = 'Projects';
 
         if ($landing !== null && $landing['kind'] !== 'area') {
-            $page = $copy['facets'][$landing['kind'].':'.$landing['value']];
+            $demo = $copy['facets'][$landing['kind'].':'.$landing['value']];
+            $stored = FacetPages::find($landing['kind'], $landing['value']);
             $label = $landing['kind'] === 'segment'
-                ? DemoProjects::SEGMENT_LABELS[$landing['value']]
-                : DemoProjects::LIFECYCLE_LABELS[$landing['value']];
+                ? Segment::from($landing['value'])->label()
+                : Lifecycle::from($landing['value'])->label();
 
             return [
-                'title' => $page['title'],
-                'intro' => $page['intro'],
-                'description' => $page['description'],
-                'faq' => $page['faq'],
+                'title' => $stored['title'] ?? $demo['title'],
+                'intro' => $stored === null ? $demo['intro'] : $stored['intro'],
+                'description' => $stored['meta_description'] ?? $demo['description'],
+                'faq' => $demo['faq'],
                 'breadcrumbs' => Breadcrumbs::to($label, [[$listingTitle, ProjectFilters::basePath()]]),
             ];
         }
 
         $nearest = match (true) {
-            $filters->segment !== null => $copy['facets']['segment:'.$filters->segment],
-            $filters->status !== null => $copy['facets']['status:'.$filters->status],
+            $filters->segment !== null => $this->facetCopy($copy, 'segment', $filters->segment),
+            $filters->status !== null => $this->facetCopy($copy, 'status', $filters->status),
             default => $copy['listing'],
         };
 
@@ -135,5 +139,19 @@ class ProjectListingController extends Controller
             'faq' => [],
             'breadcrumbs' => Breadcrumbs::to($listingTitle),
         ];
+    }
+
+    /**
+     * A facet's title and description: the editor's DM-FACET row, else the template copy.
+     *
+     * @param  array<string, mixed>  $copy
+     * @return array{title: string, description: string}
+     */
+    private function facetCopy(array $copy, string $kind, string $value): array
+    {
+        $stored = FacetPages::find($kind, $value);
+        $demo = $copy['facets']["{$kind}:{$value}"];
+
+        return ['title' => $stored['title'] ?? $demo['title'], 'description' => $stored['meta_description'] ?? $demo['description']];
     }
 }

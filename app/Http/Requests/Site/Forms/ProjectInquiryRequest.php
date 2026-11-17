@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Site\Forms;
 
-use App\Support\Demo\DemoProjects;
 use App\Support\Demo\DemoShortlist;
 use App\Support\Forms\FormOptions;
 use App\Support\Forms\FormType;
@@ -35,7 +34,7 @@ class ProjectInquiryRequest extends LeadFormRequest
         return [
             ...$projectRules,
             'projects' => ['array', 'min:1', 'max:'.DemoShortlist::SHORTLIST_MAX],
-            'projects.*' => ['string', 'distinct', Rule::in(array_column(DemoProjects::rows(), 'slug'))],
+            'projects.*' => ['string', 'distinct', self::publishedProject()],
             'timeline' => ['nullable', Rule::in(FormOptions::values('timeline'))],
             'purpose' => ['nullable', Rule::in(FormOptions::values('purpose'))],
             'contact_time' => ['nullable', Rule::in(FormOptions::values('contact_time'))],

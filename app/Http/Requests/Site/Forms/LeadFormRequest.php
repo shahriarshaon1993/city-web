@@ -2,15 +2,18 @@
 
 namespace App\Http\Requests\Site\Forms;
 
+use App\Enums\PublishStatus;
 use App\Http\Requests\Site\Concerns\ContactFieldRules;
-use App\Support\Demo\DemoProjectDetail;
-use App\Support\Demo\DemoProjects;
+use App\Models\Project;
+use App\Models\ProjectUnitType;
 use App\Support\Forms\FormOptions;
 use App\Support\Forms\FormType;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 /**
  * Shared parts of the seven lead forms (spec/leads.md "Lead types and
@@ -30,23 +33,33 @@ abstract class LeadFormRequest extends FormRequest
     }
 
     /**
+     * A project slug that is public right now: published and not in the Recycle bin.
+     */
+    protected static function publishedProject(): Exists
+    {
+        return Rule::exists('projects', 'slug')
+            ->where('publish_status', PublishStatus::Published->value)
+            ->where(fn (Builder $query): Builder => $query->where(fn (Builder $inner): Builder => $inner->whereNull('published_at')->orWhere('published_at', '<=', now())))
+            ->whereNull('deleted_at');
+    }
+
+    /**
      * The project the form was opened for (slug) and, optionally, one of its unit types.
      *
      * @return array<string, array<int, ValidationRule|Closure|string>>
      */
     protected function projectRules(bool $required, bool $unitType = false): array
     {
-        $slugs = array_column(DemoProjects::rows(), 'slug');
 
         return [
-            'project' => [$required ? 'required' : 'nullable', 'string', Rule::in($slugs)],
+            'project' => [$required ? 'required' : 'nullable', 'string', self::publishedProject()],
             ...($unitType ? ['unit_type' => [
                 'nullable',
                 'integer',
                 function (string $attribute, mixed $value, Closure $fail): void {
-                    $units = DemoProjectDetail::find((string) $this->input('project'))['unit_types'] ?? [];
+                    $project = Project::query()->published()->where('slug', (string) $this->input('project'))->value('id');
 
-                    if (! in_array((int) $value, array_column($units, 'id'), true)) {
+                    if ($project === null || ! ProjectUnitType::query()->where('project_id', $project)->whereKey((int) $value)->exists()) {
                         $fail('validation.in')->translate();
                     }
                 },

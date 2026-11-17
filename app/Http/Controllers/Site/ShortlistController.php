@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Support\Demo\DemoProjects;
+use App\Queries\Site\ShortlistProjects;
 use App\Support\Demo\DemoShortlist;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
@@ -22,13 +22,13 @@ class ShortlistController extends Controller
     public function index(Request $request): Response
     {
         $copy = DemoShortlist::copy();
-        $rows = DemoShortlist::rows(DemoShortlist::ids($request->query('ids'), DemoShortlist::SHORTLIST_MAX));
+        $projects = ShortlistProjects::cards(DemoShortlist::ids($request->query('ids'), DemoShortlist::SHORTLIST_MAX));
 
         return Inertia::render('Site/Shortlist', [
             'shortlist' => [
                 'requested' => $request->has('ids'),
-                'ids' => array_column($rows, 'id'),
-                'projects' => array_map(DemoProjects::card(...), $rows),
+                'ids' => array_column($projects, 'id'),
+                'projects' => $projects,
                 'breadcrumbs' => Breadcrumbs::to($copy['shortlist_title']),
             ],
             'copy' => $copy,
@@ -39,14 +39,14 @@ class ShortlistController extends Controller
     public function compare(Request $request): Response
     {
         $copy = DemoShortlist::copy();
-        $rows = DemoShortlist::rows(DemoShortlist::ids($request->query('ids'), DemoShortlist::COMPARE_MAX));
+        $projects = ShortlistProjects::cards(DemoShortlist::ids($request->query('ids'), DemoShortlist::COMPARE_MAX));
 
         return Inertia::render('Site/Compare', [
             'compare' => [
                 'requested' => $request->has('ids'),
-                'ids' => array_column($rows, 'id'),
-                'projects' => array_map(DemoProjects::card(...), $rows),
-                'groups' => $rows === [] ? [] : DemoShortlist::compare($rows),
+                'ids' => array_column($projects, 'id'),
+                'projects' => $projects,
+                'groups' => $projects === [] ? [] : ShortlistProjects::compare($projects),
                 'breadcrumbs' => Breadcrumbs::to($copy['compare_title']),
             ],
             'copy' => $copy,

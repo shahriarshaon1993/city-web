@@ -1,6 +1,6 @@
 // PG-04 props (ProjectDetailResource, DM-PROJ / DM-UNIT / DM-AMEN / DM-PROG /
-// DM-NEAR / DM-PDOC). Part A fills them from App\Support\Demo\DemoProjectDetail
-// and DemoProjectSections (DEC-29).
+// DM-NEAR / DM-PDOC), shaped by App\Http\Resources\Site\ProjectDetailResource
+// (App\Queries\Site\ProjectDetail loads and caches it).
 
 import type { CtaBandBlock } from '@/types/blocks';
 import type {

@@ -2,16 +2,17 @@
 
 namespace App\Support\Menus;
 
+use App\Models\Location;
+use App\Models\Project;
 use App\Support\Demo\DemoNews;
 use App\Support\Demo\DemoPages;
-use App\Support\Demo\DemoProjects;
 use Illuminate\Support\Carbon;
 
 /**
  * The entities a menu can link to, found by type and ID (CMS-NAV-004). Menus and the admin picker
  * only ever call this class, so the day an entity moves to its table only its method changes:
- * projects and areas in 13.3, pages in 16.1, articles and categories in 16.3. Until then the IDs
- * are those of the demo content (DEC-29), which stay stable on purpose (DemoProjects, DemoNews).
+ * projects and areas moved to their tables in 13.3, pages follow in 16.1, articles and categories in
+ * 16.3. Until then those IDs are those of the demo content (DEC-29), which stay stable on purpose.
  */
 final class LinkTargets
 {
@@ -63,37 +64,30 @@ final class LinkTargets
     /** @return list<LinkTarget> */
     private static function projects(): array
     {
-        $today = Carbon::now('Asia/Dhaka')->toDateString();
-
-        return array_map(
-            fn (array $row): LinkTarget => new LinkTarget(
+        return array_values(Project::query()->with('location')->orderByDesc('published_at')->orderByDesc('id')->get()
+            ->map(fn (Project $project): LinkTarget => new LinkTarget(
                 LinkType::Project,
-                $row['id'],
-                $row['name'],
-                '/projects/'.$row['slug'],
-                $row['published_at'] <= $today,
-                DemoProjects::area($row['area'])['name'].' · '.DemoProjects::LIFECYCLE_LABELS[$row['lifecycle']],
-            ),
-            DemoProjects::rows(),
-        );
+                $project->id,
+                $project->name,
+                '/projects/'.$project->slug,
+                $project->isPublished(),
+                $project->location->name.' · '.$project->lifecycle->label(),
+            ))->all());
     }
 
     /** @return list<LinkTarget> */
     private static function locations(): array
     {
-        return array_map(
-            fn (array $area, int $index): LinkTarget => new LinkTarget(
+        return array_values(Location::query()->areas()->with('parent')->orderBy('sort_order')->orderBy('name')->get()
+            ->map(fn (Location $area): LinkTarget => new LinkTarget(
                 LinkType::Location,
-                $index + 1,
-                $area['name'],
-                '/locations/'.$area['slug'],
+                $area->id,
+                $area->name,
+                '/locations/'.$area->slug,
                 // FR-LOC: an area with no published project still has its page (AC-LOC-01).
-                true,
-                $area['city'],
-            ),
-            DemoProjects::areas(),
-            array_keys(DemoProjects::areas()),
-        );
+                $area->isPublished(),
+                $area->parent->name ?? '',
+            ))->all());
     }
 
     /** @return list<LinkTarget> */

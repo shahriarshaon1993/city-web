@@ -2,8 +2,9 @@
 
 namespace App\Support\Menus;
 
+use App\Enums\Segment;
+use App\Queries\Site\AreaDirectory;
 use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoProjects;
 
 /**
  * CMS-NAV-003: the columns of a mega menu. A column is a hand-made link list or one of three that
@@ -87,13 +88,13 @@ final class MegaColumns
     {
         $items = [];
 
-        foreach (DemoProjects::SEGMENT_LABELS as $segment => $label) {
+        foreach (Segment::cases() as $segment) {
             $items[] = PublicMenus::item(
                 id: -100 - count($items),
-                label: $label,
-                url: '/projects/type/'.str_replace('_', '-', $segment),
-                description: DemoContent::SEGMENT_DESCRIPTIONS[$segment],
-                icon: self::SEGMENT_ICONS[$segment],
+                label: $segment->label(),
+                url: '/projects/type/'.str_replace('_', '-', $segment->value),
+                description: DemoContent::SEGMENT_DESCRIPTIONS[$segment->value],
+                icon: self::SEGMENT_ICONS[$segment->value],
             );
         }
 
@@ -105,7 +106,7 @@ final class MegaColumns
      */
     private static function locations(): array
     {
-        $order = array_column(DemoProjects::areas(), 'slug');
+        $order = AreaDirectory::slugs();
 
         return array_map(
             fn (array $area): array => PublicMenus::item(
@@ -114,7 +115,7 @@ final class MegaColumns
                 url: '/locations/'.$area['slug'],
                 count: $area['count'],
             ),
-            DemoProjects::topAreas(),
+            AreaDirectory::top(),
         );
     }
 }
