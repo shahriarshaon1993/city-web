@@ -108,7 +108,7 @@ final class PageContent
     /**
      * @param  list<array<string, mixed>>  $blocks
      */
-    private static function startsWithHero(array $blocks): bool
+    public static function startsWithHero(array $blocks): bool
     {
         $first = $blocks[0] ?? null;
 

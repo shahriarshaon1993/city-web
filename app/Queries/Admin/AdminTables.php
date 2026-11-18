@@ -20,6 +20,7 @@ final class AdminTables
         RedirectsTable::class,
         NotFoundTable::class,
         ProjectsTable::class,
+        PagesTable::class,
         AmenitiesTable::class,
         LeadsTable::class,
         SubscribersTable::class,

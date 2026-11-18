@@ -47,7 +47,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ✅     |
 | 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ✅     |
 | 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ✅     |
-| 16.2 | Page builder admin UI                                                      | 16.1           | ⬜     |
+| 16.2 | Page builder admin UI                                                      | 16.1           | ✅     |
 | 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ⬜     |
 | 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ⬜     |
 | 17.1 | Careers & applications                                                     | 16.4, 15.1     | ⬜     |
@@ -720,6 +720,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 16.1 · **Read:** spec/page-builder.md CMS-PB-002..005; spec/admin.md ADM-SCR-06; design/admin.md CMP-ADM-BUILDER, §12.5; spec/crud.md row Pages, CRUD-05, CRUD-06, VAL-07.
 **Build:** pages list (status tabs, duplicate custom pages, delete → bin, system pages locked with a tooltip); block list (drag + Alt+↑/↓), block form drawer per type, live preview iframe (1280/834/390, 600 ms refresh, hover highlight, click to select), add-block gallery, duplicate/hide/delete with 8 s undo, invalid blocks outlined with error count, 30-block cap.
 **Test:** reorder home blocks → preview updates within a second; undo a delete; a page whose first block has no H1 cannot be published.
+
+**Done notes (16.2):**
+- Admin: `Admin/PageController` (index, create, store, edit, update, autosave, preview, duplicate, destroy), `PagesTable` + `PageRowResource`, `SavePageRequest` / `PreviewPageRequest`, Actions `Pages/DuplicatePage` / `DeletePage`; `PageEditor::{blank, decorate, assets, options}`. See DEC-90.
+- Live preview: `Site/BuilderFrameController` (`/preview/builder`) + `pages/Site/BuilderPreview.vue` (`BlockRenderer editable` adds `data-block-id`); `BlockPreview.vue` debounces 600 ms (maxWait 2.5 s) and posts to `admin/pages/preview`; errors are keyed by block id (negative = unsaved).
+- UI: `components/admin/pages/` — `blocks.ts` (28 block definitions = the form fields), `BlockFields` (recursive, repeaters), `BlockList`, `BlockPanel`, `BlockDrawer`, `AddBlockDialog`/`BlockWire`, `useBlockOperations`, `context.ts`, `PageRail`. A new block form = one entry in `blocks.ts`.
+- `AdminEditor` gained `rail` (false hides the side rail) and a `#bar` slot; `LinkFields` gained `labelMax`; `SlugAvailability` gained the `page` source; `BlockSanitizer::withoutEditorState` strips client state.
+- Deviations: drawer is a modal Sheet below 1700 px; no redirect picker / 410 on page delete; wireframe thumbnails in the gallery. Check: `docs/checks/16.2-page-builder.php`.
+- Later: 16.3/16.4 replace the demo sources in `BlockData` (testimonials, FAQs, offices, news); their picker options in `PageEditor::options()` then read tables.
 
 ### 16.3 — News admin, rich text editor, RSS
 

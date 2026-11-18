@@ -3,6 +3,7 @@
 namespace App\Support\Slugs;
 
 use App\Models\Location;
+use App\Models\Page;
 use App\Models\Project;
 use App\Support\Pages\ReservedSlugs;
 use App\Support\RecycleBin\Trashable;
@@ -31,6 +32,7 @@ final class SlugAvailability
         return [
             'project' => [Project::class, 'slug'],
             'location' => [Location::class, 'slug'],
+            'page' => [Page::class, 'slug'],
         ];
     }
 
@@ -51,7 +53,7 @@ final class SlugAvailability
             return $this->answer($slug, false, __('Use lowercase letters, numbers and single hyphens, e.g. my-new-page.'));
         }
 
-        if ($source === self::SITE && ReservedSlugs::isReserved($slug)) {
+        if (in_array($source, [self::SITE, 'page'], true) && (ReservedSlugs::isReserved($slug) || in_array($slug, [Page::HOME, 'leadership'], true))) {
             return $this->answer($slug, false, __('“:slug” is reserved by the website. Choose another URL.', ['slug' => $slug]), suggestion: $slug.'-2');
         }
 

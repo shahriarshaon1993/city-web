@@ -26,11 +26,16 @@ import LinkTargetSelect from './LinkTargetSelect.vue';
 // CMS-NAV-002: the fields every link has — label, what it points at, new tab. Used for a menu
 // item and for each link of a mega-menu column. `errors` is the dialog's own client-side check
 // (VAL-03); the server answers with the same wording on Save.
-const props = defineProps<{
-    idPrefix: string;
-    options: MenuOptions;
-    errors: Partial<Record<'label' | 'target' | 'url' | 'anchor', string>>;
-}>();
+const props = withDefaults(
+    defineProps<{
+        idPrefix: string;
+        options: MenuOptions;
+        errors: Partial<Record<'label' | 'target' | 'url' | 'anchor', string>>;
+        /** A block link allows fewer characters than a menu label (CMS-PB). */
+        labelMax?: number;
+    }>(),
+    { labelMax: MENU_LIMITS.label },
+);
 
 const link = defineModel<MenuLink>({ required: true });
 
@@ -86,17 +91,17 @@ const unpublished = computed(
             <Input
                 :id="`${idPrefix}-label`"
                 v-model="link.label"
-                :maxlength="MENU_LIMITS.label"
+                :maxlength="labelMax"
                 autocomplete="off"
                 :aria-invalid="!!errors.label || undefined"
                 :aria-describedby="`${idPrefix}-label-help`"
             />
             <div class="flex items-start justify-between gap-3">
                 <FieldHelp :id="`${idPrefix}-label`">
-                    The words visitors see. Up to {{ MENU_LIMITS.label }}
+                    The words visitors see. Up to {{ labelMax }}
                     characters.
                 </FieldHelp>
-                <CharCounter :value="link.label" :max="MENU_LIMITS.label" />
+                <CharCounter :value="link.label" :max="labelMax" />
             </div>
             <InputError :message="errors.label" />
         </div>

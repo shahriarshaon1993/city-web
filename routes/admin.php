@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NotFoundController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -127,6 +128,20 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::post('{project}/duplicate', [ProjectController::class, 'duplicate'])->name('duplicate');
     });
 
+    // ADM-SCR-06 Pages and the page builder. The Policy checks each verb (builder pages `pages.*`, legal pages `legal.*`).
+    Route::middleware('admin.can:pages.view|legal.view')->prefix('pages')->name('pages.')->group(function () {
+        Route::get('/', [PageController::class, 'index'])->name('index');
+        Route::get('create', [PageController::class, 'create'])->name('create');
+        Route::post('/', [PageController::class, 'store'])->name('store');
+        // CMS-PB-002: blocks of an unsaved editor state, resolved like the public site (600 ms debounce on the client).
+        Route::post('preview', [PageController::class, 'preview'])->middleware('throttle:240,1')->name('preview');
+        Route::get('{page}/edit', [PageController::class, 'edit'])->name('edit');
+        Route::patch('{page}', [PageController::class, 'update'])->name('update');
+        Route::patch('{page}/autosave', [PageController::class, 'autosave'])->middleware('throttle:30,1')->name('autosave');
+        Route::post('{page}/duplicate', [PageController::class, 'duplicate'])->name('duplicate');
+        Route::delete('{page}', [PageController::class, 'destroy'])->name('destroy');
+    });
+
     // ADM-SCR-03 / 04 / 05 Locations, amenities and facet pages share the `catalog.*` permissions.
     Route::middleware('admin.can:catalog.view')->group(function () {
         Route::prefix('locations')->name('locations.')->group(function () {
@@ -156,7 +171,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // CMS-PUB workflow verbs for every publishable entity: publish, schedule, discard, revisions, preview.
     // The entity's own Policy decides each verb; the group only keeps out users with no content access at all.
-    Route::middleware('admin.can:projects.view|catalog.view')
+    Route::middleware('admin.can:projects.view|catalog.view|pages.view|legal.view')
         ->prefix('publishing/{type}/{id}')
         ->whereIn('type', Publishing::types())
         ->whereNumber('id')

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Site\BuilderFrameController;
 use App\Http\Controllers\Site\CareerController;
 use App\Http\Controllers\Site\ClientErrorController;
 use App\Http\Controllers\Site\ContactController;
@@ -97,6 +98,11 @@ Route::get('preview/{type}/{id}', [PreviewController::class, 'show'])
     ->whereNumber('id')
     ->middleware('signed')
     ->name('preview.show');
+
+// CMS-PB-002 (16.2): the public layout inside the page builder's preview iframe, for signed-in editors only.
+Route::get('preview/builder', BuilderFrameController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('preview.builder');
 
 // SEO-TEC-010 (12.3): dynamic, never a static file.
 Route::get('robots.txt', RobotsTxtController::class)->name('site.robots');

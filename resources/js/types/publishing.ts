@@ -2,7 +2,7 @@
 // and the JSON the revisions panel reads. Entity summaries (`ProjectSummary`, `AreaSummary`) extend it.
 export type PublishingStatus = 'draft' | 'scheduled' | 'published' | 'archived';
 
-export type PublishingType = 'project' | 'location';
+export type PublishingType = 'project' | 'location' | 'page';
 
 export type PendingRevision = {
     id: number;

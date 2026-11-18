@@ -11,6 +11,8 @@ import type { PageBlock, PageBlockType } from '@/types/blocks';
 // `page_header` photo is preloaded by the root view instead (SeoData::lcpFromBlocks).
 const props = defineProps<{
     blocks: PageBlock[];
+    /** The page builder's preview frame (CMS-PB-002): every block carries its id so the admin can select it. */
+    editable?: boolean;
 }>();
 
 const components: Record<PageBlockType, Component> = {
@@ -111,6 +113,7 @@ const visible = computed(() =>
             :key="block.id"
             :block="block"
             :first="index === 0"
+            :data-block-id="editable ? block.id : undefined"
         />
     </div>
 </template>

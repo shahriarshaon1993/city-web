@@ -7,6 +7,7 @@ import ErrorSummary from '@/components/forms/ErrorSummary.vue';
 import { Spinner } from '@/components/ui/spinner';
 import { useUnsavedGuard } from '@/composables/useUnsavedGuard';
 import { formatDateTime, timeAgo } from '@/lib/admin-format';
+import { cn } from '@/lib/utils';
 import { showToast } from '@/lib/notify';
 
 // CMP-ADM-FORM / CRUD-04 / UX-10: the layout of every full-page editor. Sections sit in the
@@ -32,10 +33,12 @@ const props = withDefaults(
         saveLabel?: string;
         /** Overrides the default reason for the disabled save button. */
         saveReason?: string | null;
+        /** False: no right rail; the page body gets the full width and the sticky bar shows at every width (the page builder). */
+        rail?: boolean;
         /** Maps an error key to the id of its field, for the summary links. */
         fieldId?: (key: string) => string;
     }>(),
-    { saveLabel: 'Save changes', lastSaved: null },
+    { saveLabel: 'Save changes', lastSaved: null, rail: true },
 );
 
 const emit = defineEmits<{ save: []; reveal: [id: string] }>();
@@ -132,7 +135,10 @@ watch(
     </AdminPageHeader>
 
     <div
-        class="gap-8 xl:grid xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start"
+        :class="
+            rail &&
+            'gap-8 xl:grid xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start'
+        "
     >
         <div class="flex min-w-0 flex-col gap-6">
             <ErrorSummary
@@ -145,7 +151,12 @@ watch(
 
             <!-- < 1280 px: sticky bottom bar -->
             <div
-                class="sticky bottom-0 z-20 -mx-4 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6 xl:hidden"
+                :class="
+                    cn(
+                        'sticky bottom-0 z-20 -mx-4 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6',
+                        rail && 'xl:hidden',
+                    )
+                "
             >
                 <p
                     class="min-w-0 truncate text-xs text-muted-foreground"
@@ -157,19 +168,23 @@ watch(
                     >
                     <template v-if="note"> · {{ note }}</template>
                 </p>
-                <ReasonButton
-                    type="button"
-                    :reason="form.processing ? 'Saving…' : reason"
-                    @click="save"
-                >
-                    <Spinner v-if="form.processing" />
-                    {{ saveLabel }}
-                </ReasonButton>
+                <div class="flex shrink-0 items-center gap-2">
+                    <slot name="bar" />
+                    <ReasonButton
+                        type="button"
+                        :reason="form.processing ? 'Saving…' : reason"
+                        @click="save"
+                    >
+                        <Spinner v-if="form.processing" />
+                        {{ saveLabel }}
+                    </ReasonButton>
+                </div>
             </div>
         </div>
 
         <!-- ≥ 1280 px: sticky action rail -->
         <aside
+            v-if="rail"
             class="sticky top-20 hidden max-h-[calc(100dvh-6rem)] flex-col gap-4 overflow-y-auto overscroll-contain rounded-xl border bg-card p-5 xl:flex"
             aria-label="Actions"
         >
