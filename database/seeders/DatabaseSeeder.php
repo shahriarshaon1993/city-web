@@ -23,14 +23,14 @@ class DatabaseSeeder extends Seeder
         $syncRoles->handle();
 
         // Pages first: the default menus link to them by id.
-        $this->call([PageSeeder::class, MenuSeeder::class, CatalogSeeder::class]);
+        $this->call([PageSeeder::class, MenuSeeder::class, CatalogSeeder::class, NewsCategorySeeder::class]);
 
         if (app()->isProduction()) {
             return;
         }
 
         // 13.1: the demo cities, areas and projects as real rows (removed with the demo content in 16.4).
-        $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class]);
+        $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class, DemoNewsSeeder::class]);
         // Again: pages whose blocks need projects (featured, progress) can be published now.
         $this->call(PageSeeder::class);
 

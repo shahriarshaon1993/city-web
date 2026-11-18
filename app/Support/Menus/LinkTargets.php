@@ -4,15 +4,15 @@ namespace App\Support\Menus;
 
 use App\Models\Location;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Project;
-use App\Support\Demo\DemoNews;
-use Illuminate\Support\Carbon;
 
 /**
  * The entities a menu can link to, found by type and ID (CMS-NAV-004). Menus and the admin picker
  * only ever call this class, so the day an entity moves to its table only its method changes:
  * projects and areas moved to their tables in 13.3, pages in 16.1, articles and categories in
- * 16.3. Until then those IDs are those of the demo content (DEC-29), which stay stable on purpose.
+ * 16.3.
  */
 final class LinkTargets
 {
@@ -107,29 +107,34 @@ final class LinkTargets
     /** @return list<LinkTarget> */
     private static function posts(): array
     {
-        $today = Carbon::now('Asia/Dhaka')->toDateString();
-
-        return array_map(
-            fn (array $post, int $index): LinkTarget => new LinkTarget(
+        return array_values(Post::query()->orderByDesc('published_at')->orderByDesc('id')->get()
+            ->map(fn (Post $post): LinkTarget => new LinkTarget(
                 LinkType::Post,
-                $index + 1,
-                $post['title'],
-                '/news/'.$post['slug'],
-                $post['published_at'] <= $today,
-                $post['published_at'] <= $today ? $post['published_at'] : 'Scheduled '.$post['published_at'],
-            ),
-            DemoNews::all(),
-            array_keys(DemoNews::all()),
-        );
+                $post->id,
+                $post->title,
+                $post->path(),
+                $post->isPublished(),
+                match (true) {
+                    $post->isPublished() => $post->published_at?->timezone('Asia/Dhaka')->format('d M Y') ?? 'Published',
+                    $post->published_at !== null => 'Scheduled '.$post->published_at->timezone('Asia/Dhaka')->format('d M Y'),
+                    default => 'Draft',
+                },
+            ))->all());
     }
 
     /** @return list<LinkTarget> */
     private static function categories(): array
     {
-        return array_map(
-            fn (array $category, int $index): LinkTarget => new LinkTarget(LinkType::Category, $index + 1, $category['name'], $category['url'], true, $category['count'].' articles'),
-            DemoNews::categories(),
-            array_keys(DemoNews::categories()),
-        );
+        return array_values(PostCategory::query()
+            ->withCount(['posts' => fn ($posts) => $posts->published()])
+            ->orderBy('sort_order')->orderBy('id')->get()
+            ->map(fn (PostCategory $category): LinkTarget => new LinkTarget(
+                LinkType::Category,
+                $category->id,
+                $category->name,
+                $category->path(),
+                true,
+                $category->getAttribute('posts_count').' articles',
+            ))->all());
     }
 }

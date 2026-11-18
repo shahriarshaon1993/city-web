@@ -4,6 +4,8 @@ namespace App\Rules;
 
 use App\Models\Location;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Project;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -15,7 +17,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 final class UniqueSlug implements ValidationRule
 {
     /**
-     * @param  class-string<Project|Location|Page>  $model
+     * @param  class-string<Project|Location|Page|Post|PostCategory>  $model
      */
     public function __construct(private readonly string $model, private readonly ?int $ignoreId = null, private readonly string $noun = 'item') {}
 

@@ -2,36 +2,21 @@
 
 namespace App\Support\Demo;
 
-use App\Models\Project;
-use App\Queries\Site\ProjectCards;
-use App\Support\Seo\SeoData;
 use Illuminate\Support\Carbon;
 
 /**
- * Part A news (FR-NEWS-001…007, DM-POST / DM-PCAT / DM-TAG): posts with
- * categories, tags, author, related projects and a body built from a small
- * block list, shaped like the later NewsCardResource / PostResource
- * (resources/js/types/news.ts). Placeholder copy for the client's review.
- * One post is dated in the future to prove AC-NEWS-01 (404 before its time).
- * Deleted with DemoContent in 16.4.
+ * Seed source of the demo news (13.x style, DEC-83): the placeholder posts, categories and tags the
+ * `NewsSeeder` writes into the real tables outside production. The public site and the admin read the
+ * tables only. One post is dated in the future to prove AC-NEWS-01 (404 before its time). Deleted
+ * with the other demo sources in 16.4.
  *
  * @phpstan-type Block array<int, mixed>
  * @phpstan-type Post array{slug: string, title: string, excerpt: string, category: string, tags: list<string>, published_at: string, cover: string, featured: bool, author: string, projects: list<string>, body: list<Block>}
- * @phpstan-type NewsCardData array<string, mixed>
  */
 final class DemoNews
 {
-    /** FR-NEWS / PG-12: nine posts per page. */
-    public const int PER_PAGE = 9;
-
-    /** FR-NEWS-004: reading speed. */
-    private const int WORDS_PER_MINUTE = 200;
-
-    /** SEO-ONP / PG-13: a tag page is indexable from this many published posts. */
-    public const int TAG_INDEX_MIN = 3;
-
     /** DM-PCAT defaults (FR-NEWS-002): slug => [name, description]. */
-    private const array CATEGORIES = [
+    public const array CATEGORIES = [
         'news' => ['News', 'Company announcements, handovers and milestones from Gemcon City Limited.'],
         'press-releases' => ['Press releases', 'Official statements and launch announcements for journalists and partners.'],
         'buying-guides' => ['Buying guides', 'Plain-language guides to approvals, payments and choosing the right home or plot in Bangladesh.'],
@@ -40,7 +25,7 @@ final class DemoNews
     ];
 
     /** DM-TAG: slug => name. */
-    private const array TAGS = [
+    public const array TAGS = [
         'nrb' => 'NRB',
         'buyer-guide' => 'Buyer guide',
         'construction-progress' => 'Construction progress',
@@ -53,18 +38,8 @@ final class DemoNews
         'uttara' => 'Uttara',
     ];
 
-    /** Authors: name => role (FR-NEWS-001: a team member or a user). */
-    private const array AUTHORS = [
-        'Farhana Rahman' => 'Managing Director',
-        'Tanvir Hossain' => 'Director, Projects',
-        'Imran Chowdhury' => 'Chief Engineer',
-        'Sadia Islam' => 'Head of Sales',
-        'Gemcon City editorial team' => 'Communications',
-    ];
-
     /**
-     * Every post in id order (the id is the position, as in `card()`), scheduled ones included: the
-     * menu editor lists them to flag links that are not public yet (CMS-NAV-004).
+     * Every demo post, scheduled one included.
      *
      * @return list<Post>
      */
@@ -233,290 +208,33 @@ final class DemoNews
     }
 
     /**
-     * Published posts (publish date reached), newest first, optionally
-     * without one slug (the featured post on PG-12).
+     * FR-NEWS-002: the default categories, in order.
      *
-     * @return list<Post>
-     */
-    public static function published(?string $without = null): array
-    {
-        $today = Carbon::now('Asia/Dhaka')->toDateString();
-
-        return array_values(array_filter(
-            self::posts(),
-            fn (array $post): bool => $post['published_at'] <= $today && $post['slug'] !== $without,
-        ));
-    }
-
-    /**
-     * AC-NEWS-01: null for an unknown slug and for a post scheduled in the future.
-     *
-     * @return Post|null
-     */
-    public static function find(string $slug): ?array
-    {
-        foreach (self::published() as $post) {
-            if ($post['slug'] === $slug) {
-                return $post;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * The newest published post with the featured flag.
-     *
-     * @return Post|null
-     */
-    public static function featured(): ?array
-    {
-        foreach (self::published() as $post) {
-            if ($post['featured']) {
-                return $post;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param  list<Post>  $posts
-     * @return list<Post>
-     */
-    public static function inCategory(array $posts, string $category): array
-    {
-        return array_values(array_filter($posts, fn (array $post): bool => $post['category'] === $category));
-    }
-
-    /**
-     * @param  list<Post>  $posts
-     * @return list<Post>
-     */
-    public static function withTag(array $posts, string $tag): array
-    {
-        return array_values(array_filter($posts, fn (array $post): bool => in_array($tag, $post['tags'], true)));
-    }
-
-    /**
-     * @return array{slug: string, name: string, description: string, url: string, count: int}|null
-     */
-    public static function category(string $slug): ?array
-    {
-        if (! isset(self::CATEGORIES[$slug])) {
-            return null;
-        }
-
-        return [
-            'slug' => $slug,
-            'name' => self::CATEGORIES[$slug][0],
-            'description' => self::CATEGORIES[$slug][1],
-            'url' => '/news/category/'.$slug,
-            'count' => count(self::inCategory(self::published(), $slug)),
-        ];
-    }
-
-    /**
-     * FR-NEWS-002 order.
-     *
-     * @return list<array{slug: string, name: string, description: string, url: string, count: int}>
+     * @return list<array{slug: string, name: string, description: string}>
      */
     public static function categories(): array
     {
         return array_map(
-            fn (string $slug): array => self::category($slug) ?? throw new \LogicException("Unknown category {$slug}."),
+            fn (string $slug, array $row): array => ['slug' => $slug, 'name' => $row[0], 'description' => $row[1]],
             array_keys(self::CATEGORIES),
+            array_values(self::CATEGORIES),
         );
     }
 
-    /**
-     * @return array{slug: string, name: string, url: string, count: int}|null
-     */
-    public static function tag(string $slug): ?array
+    /** The scheduled post's publish time (Asia/Dhaka, 09:00) or a past post's date at 09:00. */
+    public static function publishedAt(string $date): Carbon
     {
-        if (! isset(self::TAGS[$slug])) {
-            return null;
-        }
-
-        return [
-            'slug' => $slug,
-            'name' => self::TAGS[$slug],
-            'url' => '/news/tag/'.$slug,
-            'count' => count(self::withTag(self::published(), $slug)),
-        ];
+        return Carbon::parse($date.' 09:00', 'Asia/Dhaka');
     }
 
     /**
-     * NewsCardResource (types/news.ts); `id` follows the post's place in the list.
-     *
-     * @param  Post  $post
-     * @return NewsCardData
-     */
-    public static function card(array $post): array
-    {
-        $category = self::category($post['category']);
-        $ids = array_flip(array_column(self::posts(), 'slug'));
-
-        return [
-            'id' => $ids[$post['slug']] + 1,
-            'slug' => $post['slug'],
-            'url' => '/news/'.$post['slug'],
-            'title' => $post['title'],
-            'excerpt' => $post['excerpt'],
-            'cover' => DemoMedia::image($post['cover']),
-            'category' => ['name' => $category['name'] ?? '', 'slug' => $post['category'], 'url' => '/news/category/'.$post['category']],
-            'published_at' => $post['published_at'],
-            'read_minutes' => self::readMinutes($post),
-        ];
-    }
-
-    /**
-     * Home block and listing cards, newest published first.
-     *
-     * @return list<NewsCardData>
-     */
-    public static function cards(?string $category = null, ?int $limit = null): array
-    {
-        $posts = $category === null ? self::published() : self::inCategory(self::published(), $category);
-
-        return array_map(self::card(...), array_slice($posts, 0, $limit));
-    }
-
-    /**
-     * FR-NEWS-007: the three newest published posts of the same category,
-     * excluding itself; the newest overall fill any gap.
-     *
-     * @param  Post  $post
-     * @return list<NewsCardData>
-     */
-    public static function related(array $post, int $count = 3): array
-    {
-        $others = self::published($post['slug']);
-        $same = array_slice(self::inCategory($others, $post['category']), 0, $count);
-        $slugs = array_column($same, 'slug');
-
-        $fill = array_filter($others, fn (array $other): bool => ! in_array($other['slug'], $slugs, true));
-        $chosen = [...$same, ...array_slice(array_values($fill), 0, $count - count($same))];
-
-        return array_map(self::card(...), $chosen);
-    }
-
-    /**
-     * The PostResource body of PG-14.
-     *
-     * @param  Post  $post
-     * @return array<string, mixed>
-     */
-    public static function article(array $post): array
-    {
-        $tags = array_map(
-            fn (string $slug): array => ['name' => self::TAGS[$slug], 'slug' => $slug, 'url' => '/news/tag/'.$slug],
-            $post['tags'],
-        );
-
-        // Related projects are still named by slug in the demo posts (16.3 moves them to a relation).
-        $cards = array_column(ProjectCards::byIds(array_values(array_map(intval(...), Project::query()->published()->whereIn('slug', $post['projects'])->pluck('id')->all()))), null, 'slug');
-        $projects = array_values(array_filter(array_map(fn (string $slug): ?array => $cards[$slug] ?? null, $post['projects'])));
-
-        return [
-            ...self::card($post),
-            'body' => self::bodyHtml($post['body']),
-            'author' => ['name' => $post['author'], 'role' => self::AUTHORS[$post['author']] ?? ''],
-            'tags' => $tags,
-            'projects' => $projects,
-        ];
-    }
-
-    /**
-     * FR-NEWS-004: ceil(words / 200), at least one minute.
-     *
-     * @param  Post  $post
-     */
-    public static function readMinutes(array $post): int
-    {
-        $text = trim(strip_tags(self::bodyHtml($post['body'])));
-        $words = $text === '' ? 0 : count(preg_split('/\s+/u', $text) ?: []);
-
-        return max(1, (int) ceil($words / self::WORDS_PER_MINUTE));
-    }
-
-    /**
-     * Absolute 1200×630 OG image for a post (SEO-ONP-006).
-     *
-     * @param  Post  $post
-     */
-    public static function ogImage(array $post): ?string
-    {
-        return DemoMedia::ogImage($post['cover']);
-    }
-
-    /**
-     * CMP-SHARE-01: share-intent URLs on the three networks (no SDKs).
-     *
-     * @param  Post  $post
-     * @return array<string, mixed>
-     */
-    public static function share(array $post): array
-    {
-        $copy = self::copy();
-        $url = SeoData::absoluteUrl('/news/'.$post['slug']);
-        $encodedUrl = rawurlencode($url);
-
-        return [
-            'url' => $url,
-            'title' => $post['title'],
-            'heading' => $copy['share_heading'],
-            'copy_label' => $copy['share_copy_label'],
-            'copied_message' => $copy['share_copied'],
-            'failed_message' => $copy['share_failed'],
-            'links' => [
-                ['network' => 'facebook', 'label' => 'Facebook', 'href' => 'https://www.facebook.com/sharer/sharer.php?u='.$encodedUrl],
-                ['network' => 'linkedin', 'label' => 'LinkedIn', 'href' => 'https://www.linkedin.com/sharing/share-offsite/?url='.$encodedUrl],
-                ['network' => 'whatsapp', 'label' => 'WhatsApp', 'href' => 'https://wa.me/?text='.rawurlencode($post['title'].' '.$url)],
-            ],
-        ];
-    }
-
-    /**
-     * Labels and headings of PG-12…14 (CMS-000a: copy comes from props).
-     *
-     * @return array<string, string>
-     */
-    public static function copy(): array
-    {
-        return [
-            'index_title' => 'News and insights',
-            'index_intro' => 'Construction updates, buying guides and announcements from Gemcon City Limited.',
-            'index_description' => 'Construction progress, buying guides, events and announcements from Gemcon City Limited, a Bangladeshi real-estate developer.',
-            'all_label' => 'All',
-            'categories_label' => 'Categories',
-            'tag_title' => 'Tagged “{tag}”',
-            'tag_intro' => 'Articles tagged {tag}.',
-            'tag_description' => 'Gemcon City articles tagged {tag}.',
-            'empty_title' => 'No articles here yet',
-            'empty_body' => 'Nothing has been published in this section. Read all of our news instead.',
-            'empty_action' => 'All news',
-            'by_label' => 'By',
-            'projects_heading' => 'Projects in this article',
-            'tags_label' => 'Tagged',
-            'related_heading' => 'Keep reading',
-            'related_view_all' => 'All news',
-            'newsletter_heading' => 'Construction updates and buying guides, once a month',
-            'newsletter_text' => 'New launches, progress photos and plain-language guides. No spam, unsubscribe any time.',
-            'share_heading' => 'Share this article',
-            'share_copy_label' => 'Copy link',
-            'share_copied' => 'Link copied',
-            'share_failed' => 'Could not copy the link. Copy it from the address bar instead.',
-        ];
-    }
-
-    /**
-     * Body blocks as the sanitised HTML the rich-text editor will store
-     * (FR-NEWS-001: H2–H4, lists, quote, table, image with caption).
+     * The body blocks as the HTML the rich-text editor stores (FR-NEWS-001: H2–H4, lists, quote, table,
+     * library image with caption). `$image` turns a demo photo key into `[asset id, alt, src, width, height]`.
      *
      * @param  list<Block>  $blocks
+     * @param  callable(string): (array{0: int, 1: string, 2: string, 3: int, 4: int}|null)  $image
      */
-    public static function bodyHtml(array $blocks): string
+    public static function bodyHtml(array $blocks, callable $image): string
     {
         $html = '';
 
@@ -526,7 +244,7 @@ final class DemoNews
                 'ul', 'ol' => "<{$block[0]}>".implode('', array_map(fn (string $item): string => "<li>{$item}</li>", $block[1]))."</{$block[0]}>",
                 'quote' => "<blockquote><p>{$block[1]}</p></blockquote>",
                 'table' => self::tableHtml($block[1], $block[2]),
-                'figure' => self::figureHtml($block[1], $block[2]),
+                'figure' => self::figureHtml($image($block[1]), $block[2]),
                 default => '',
             };
         }
@@ -548,27 +266,19 @@ final class DemoNews
     }
 
     /**
-     * FR-NEWS-006: an image from the media library with its caption.
+     * FR-NEWS-006: an image from the media library with its caption; the alt text is the asset's, or
+     * the caption when the asset has none.
+     *
+     * @param  array{0: int, 1: string, 2: string, 3: int, 4: int}|null  $image
      */
-    private static function figureHtml(string $key, string $caption): string
+    private static function figureHtml(?array $image, string $caption): string
     {
-        $image = DemoMedia::image($key);
-
         if ($image === null) {
             return '';
         }
 
-        $sizes = '(min-width:1024px) 700px, 92vw';
-        $sources = '';
+        [$id, $alt, $src, $width, $height] = $image;
 
-        foreach (['avif' => 'image/avif', 'webp' => 'image/webp'] as $format => $type) {
-            if ($image['sources'][$format] !== null && $image['sources'][$format] !== '') {
-                $sources .= '<source type="'.$type.'" srcset="'.e($image['sources'][$format]).'" sizes="'.$sizes.'">';
-            }
-        }
-
-        $img = '<img src="'.e($image['fallback']).'" alt="'.e($image['alt']).'" width="'.$image['width'].'" height="'.$image['height'].'" loading="lazy" decoding="async">';
-
-        return '<figure><picture>'.$sources.$img.'</picture><figcaption>'.e($caption).'</figcaption></figure>';
+        return '<figure><img src="'.e($src).'" alt="'.e($alt !== '' ? $alt : $caption).'" width="'.$width.'" height="'.$height.'" data-asset-id="'.$id.'"><figcaption>'.e($caption).'</figcaption></figure>';
     }
 }

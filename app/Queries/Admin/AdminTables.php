@@ -24,6 +24,9 @@ final class AdminTables
         AmenitiesTable::class,
         LeadsTable::class,
         SubscribersTable::class,
+        PostsTable::class,
+        PostCategoriesTable::class,
+        TagsTable::class,
     ];
 
     /**

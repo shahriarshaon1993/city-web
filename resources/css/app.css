@@ -649,6 +649,58 @@
         text-decoration: underline;
         text-underline-offset: 3px;
     }
+    /* Article editor (16.3): library image with caption, table, rule and the YouTube embed. */
+    .rte-frame .rte-content figure {
+        margin-block: 1.25rem;
+    }
+    .rte-frame .rte-content figure img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+    }
+    .rte-frame .rte-content figcaption {
+        margin-top: 0.5rem;
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+    }
+    .rte-frame .rte-content table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 0.875rem;
+    }
+    .rte-frame .rte-content th,
+    .rte-frame .rte-content td {
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.6rem;
+        text-align: left;
+        vertical-align: top;
+    }
+    .rte-frame .rte-content th {
+        background: var(--muted);
+        font-weight: 600;
+    }
+    .rte-frame .rte-content td > p,
+    .rte-frame .rte-content th > p {
+        margin: 0;
+    }
+    .rte-frame .rte-content hr {
+        border: 0;
+        border-top: 1px solid var(--border);
+        margin-block: 1.5rem;
+    }
+    .rte-frame .rte-content div[data-youtube-video] iframe {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        height: auto;
+        border: 0;
+        border-radius: 0.75rem;
+    }
+    .rte-frame .rte-content .ProseMirror-selectednode {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+    }
 }
 
 @layer components {
@@ -746,6 +798,17 @@
     .rich-text > table,
     .rich-text li {
         break-inside: avoid;
+    }
+    /* FR-NEWS-001: a YouTube embed is a link until JS swaps in the player on click (no third-party
+       request before that, SEO-PERF-013). */
+    .rich-text .video-embed {
+        margin-block: 2.5rem;
+    }
+    .rich-text .video-embed a {
+        @apply flex aspect-video w-full items-center justify-center rounded-xl bg-surface-subtle text-body text-foreground no-underline;
+    }
+    .rich-text .video-embed iframe {
+        @apply aspect-video h-auto w-full rounded-xl border-0;
     }
 }
 

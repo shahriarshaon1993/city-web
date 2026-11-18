@@ -9,6 +9,7 @@ use App\Http\Controllers\Site\FormController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\LocationController;
 use App\Http\Controllers\Site\NewsController;
+use App\Http\Controllers\Site\NewsFeedController;
 use App\Http\Controllers\Site\NewsletterController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\PreviewController;
@@ -62,6 +63,8 @@ Route::get('locations/{area}/{segment}', [LocationController::class, 'segment'])
 
 // PG-12…14 (8.1). Category and tag archives are two segments, so a post slug never collides.
 Route::get('news', [NewsController::class, 'index'])->name('site.news.index');
+// FR-NEWS-008: the RSS feed (the dot keeps it out of the post-slug route below).
+Route::get('news/feed.xml', NewsFeedController::class)->name('site.news.feed');
 Route::get('news/category/{category}', [NewsController::class, 'category'])
     ->where('category', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('site.news.category');

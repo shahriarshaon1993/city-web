@@ -36,6 +36,7 @@ export type NewsCopy = {
     related_view_all: string;
     newsletter_heading: string;
     newsletter_text: string;
+    rss_title: string;
 };
 
 export type NewsArchive = {

@@ -9,13 +9,13 @@ use App\Models\Location;
 use App\Models\MediaAsset;
 use App\Models\Page;
 use App\Models\PageBlock;
+use App\Models\PostCategory;
 use App\Models\Project;
 use App\Support\Blocks\BlockData;
 use App\Support\Blocks\BlockType;
 use App\Support\Blocks\MediaPaths;
 use App\Support\Blocks\Schemas\FeatureCardsSchema;
 use App\Support\Blocks\Schemas\PartnersMarqueeSchema;
-use App\Support\Demo\DemoNews;
 use Illuminate\Http\Request;
 
 /**
@@ -166,7 +166,8 @@ final class PageEditor
             'testimonials' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['person_name'].($item['designation'] ? ', '.$item['designation'] : '')], BlockData::testimonials()),
             'faq_categories' => array_map(fn (string $slug): array => ['value' => $slug, 'label' => ucfirst(str_replace(['-', '_'], ' ', $slug))], BlockData::faqCategories()),
             'faqs' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['question']], BlockData::faqs(null)),
-            'news_categories' => array_map(fn (array $item): array => ['value' => $item['slug'], 'label' => $item['name']], DemoNews::categories()),
+            'news_categories' => PostCategory::query()->orderBy('sort_order')->get(['slug', 'name'])
+                ->map(fn (PostCategory $category): array => ['value' => $category->slug, 'label' => $category->name])->all(),
             'offices' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['name']], BlockData::offices()),
             'partner_categories' => array_map(fn (string $slug): array => ['value' => $slug, 'label' => ucfirst(str_replace('_', ' ', $slug))], PartnersMarqueeSchema::CATEGORIES),
             'block_icons' => FeatureCardsSchema::ICONS,

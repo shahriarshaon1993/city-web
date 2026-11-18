@@ -5,6 +5,7 @@ namespace App\Actions\Seo;
 use App\Models\FacetPage;
 use App\Models\Location;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Project;
 use App\Models\SeoMeta;
 
@@ -17,10 +18,10 @@ final class SaveSeoMeta
     private const array TEXT = ['meta_title', 'meta_description', 'canonical_url', 'og_title', 'og_description', 'focus_keyword'];
 
     /**
-     * @param  Project|Location|FacetPage|Page  $entity  a model using HasSeo
+     * @param  Project|Location|FacetPage|Page|Post  $entity  a model using HasSeo
      * @param  array<string, mixed>|null  $seo  validated `seo` input (SeoRules)
      */
-    public function handle(Project|Location|FacetPage|Page $entity, ?array $seo): void
+    public function handle(Project|Location|FacetPage|Page|Post $entity, ?array $seo): void
     {
         $values = self::values($seo);
 

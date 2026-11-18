@@ -4,7 +4,10 @@ namespace App\Support\Slugs;
 
 use App\Models\Location;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Project;
+use App\Models\Tag;
 use App\Support\Pages\ReservedSlugs;
 use App\Support\RecycleBin\Trashable;
 use Illuminate\Database\Eloquent\Model;
@@ -33,6 +36,9 @@ final class SlugAvailability
             'project' => [Project::class, 'slug'],
             'location' => [Location::class, 'slug'],
             'page' => [Page::class, 'slug'],
+            'post' => [Post::class, 'slug'],
+            'post_category' => [PostCategory::class, 'slug'],
+            'tag' => [Tag::class, 'slug'],
         ];
     }
 

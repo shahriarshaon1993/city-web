@@ -16,6 +16,8 @@ use App\Models\MediaFolder;
 use App\Models\Menu;
 use App\Models\NewsletterSubscriber;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\ProjectDocument;
 use App\Models\ProjectNearbyPlace;
@@ -24,6 +26,7 @@ use App\Models\ProjectUnitType;
 use App\Models\Redirect;
 use App\Models\SeoMeta;
 use App\Models\Setting;
+use App\Models\Tag;
 use App\Models\User;
 use App\Policies\RolePolicy;
 use App\Support\Auth\LoginThrottle;
@@ -111,6 +114,9 @@ class AppServiceProvider extends ServiceProvider
             'lead' => Lead::class,
             'newsletter_subscriber' => NewsletterSubscriber::class,
             'page' => Page::class,
+            'post' => Post::class,
+            'post_category' => PostCategory::class,
+            'tag' => Tag::class,
         ]);
     }
 

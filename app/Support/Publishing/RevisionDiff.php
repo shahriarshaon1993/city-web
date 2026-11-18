@@ -5,6 +5,7 @@ namespace App\Support\Publishing;
 use App\Models\Amenity;
 use App\Models\Location;
 use App\Models\MediaAsset;
+use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -23,7 +24,7 @@ final class RevisionDiff
     private const int MAX_CELLS = 4_000_000;
 
     /** @var array<string, array<int, string>> */
-    private array $names = ['media' => [], 'location' => [], 'amenity' => [], 'project' => [], 'user' => []];
+    private array $names = ['media' => [], 'location' => [], 'amenity' => [], 'project' => [], 'user' => [], 'post_category' => []];
 
     public function __construct(private readonly PublishingDriver $driver) {}
 
@@ -203,8 +204,9 @@ final class RevisionDiff
             str_ends_with($field, 'asset_id'), $field === 'photo_ids', $field === 'asset_id' => 'media',
             in_array($field, ['location_id', 'parent_id', 'nearby_ids'], true) => 'location',
             $field === 'amenity_ids' => 'amenity',
-            $field === 'similar_ids' => 'project',
-            $field === 'default_assignee_id' => 'user',
+            in_array($field, ['similar_ids', 'project_ids'], true) => 'project',
+            $field === 'category_id' => 'post_category',
+            in_array($field, ['default_assignee_id', 'author_user_id'], true) => 'user',
             default => null,
         };
     }
@@ -215,7 +217,7 @@ final class RevisionDiff
      */
     private function loadNames(array $before, array $after): void
     {
-        $ids = ['media' => [], 'location' => [], 'amenity' => [], 'project' => [], 'user' => []];
+        $ids = ['media' => [], 'location' => [], 'amenity' => [], 'project' => [], 'user' => [], 'post_category' => []];
 
         $walk = function (mixed $value, string $field) use (&$walk, &$ids): void {
             if (is_array($value)) {
@@ -244,6 +246,7 @@ final class RevisionDiff
             'amenity' => $load(Amenity::class, 'name', $ids['amenity']),
             'project' => $load(Project::class, 'name', $ids['project']),
             'user' => $load(User::class, 'name', $ids['user']),
+            'post_category' => $load(PostCategory::class, 'name', $ids['post_category']),
         ];
     }
 

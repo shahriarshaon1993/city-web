@@ -8,6 +8,8 @@ use App\Models\Location;
 use App\Models\MediaAsset;
 use App\Models\NewsletterSubscriber;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\Redirect;
 use App\Models\User;
@@ -32,6 +34,8 @@ final class BinTypes
         Lead::class,
         NewsletterSubscriber::class,
         Page::class,
+        Post::class,
+        PostCategory::class,
     ];
 
     /**

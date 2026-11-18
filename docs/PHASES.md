@@ -48,7 +48,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ✅     |
 | 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ✅     |
 | 16.2 | Page builder admin UI                                                      | 16.1           | ✅     |
-| 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ⬜     |
+| 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ✅     |
 | 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ⬜     |
 | 17.1 | Careers & applications                                                     | 16.4, 15.1     | ⬜     |
 | 17.2 | Site search (Scout database engine)                                        | 16.4           | ⬜     |
@@ -734,6 +734,15 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 16.1 · **Read:** spec/news.md (all); spec/admin.md ADM-SCR-08; design/admin.md CMP-ADM-RTE; spec/nfr-ops.md NFR-SEC-03; spec/crud.md rows Posts / Post categories / Tags.
 **Build:** owner approves `@tiptap/vue-3` 3.x (+ starter-kit, link, image, table, youtube) and `stevebauman/purify` 6. Posts (duplicate, delete → bin), categories (seeded; dialog; soft deletes; delete guard with "Move posts to…"), tags (rename, merge, hard delete with post count); Tiptap editor with the heading rules, library images inheriting alt, word count/read time; HTML purified on save; public news from the DB; RSS `/news/feed.xml`.
 **Test:** AC-NEWS-01/02; H4 directly after H2 is blocked; pasted `<script>` is removed; the RSS feed opens in a reader.
+
+**Done notes (16.3):**
+- Packages: `@tiptap/extension-image|table|youtube` 3.34.0 (exact), `stevebauman/purify` 6.3.2 (`config/purify.php` set `article`, `Support/Html/ArticleDefinition`). See DEC-91.
+- Models `Post` / `PostCategory` / `Tag` (morph `post`, `post_category`, `tag`; posts and categories are bin types), policies on `news.*`. Publishing driver `PostPublishing` (+ `PostHydrator`, `PostEditor::form`, `Support/News/PostChecklist`); Actions `app/Actions/Posts/*` and `app/Actions/News/*`.
+- `Support/News/PostBody` = purify on save, `problems()` (heading order, alt text), read time, `render()` (library `<picture>`, click-to-load YouTube). `NewsCopy` holds the page copy; `DemoNews` is now only a seed source.
+- Admin `/admin/news` (posts, categories, tags): `PostsTable`, `PostCategoriesTable`, `TagsTable`; `components/admin/news/` (`ArticleEditor`, `rte.ts`, `TagsInput`, dialogs); `pages/admin/news/*`.
+- Public: `Queries/Site/NewsQuery`, `Resources/Site/{NewsCard,Post}Resource`, `NewsController` (slug-history 301, preview), `NewsFeedController` (`/news/feed.xml`). `BlockData`, `LinkTargets`, `PageEditor::options` and `DemoSiteSearch` read the tables.
+- Seeders: `NewsCategorySeeder` (all environments), `DemoNewsSeeder` (non-production, 14 posts). Check: `docs/checks/16.3-news.php`.
+- Later: 16.4 adds team members (author picker + FK on `posts.author_team_member_id`); 17.2 search should read `posts`; 19.x sitemap/JSON-LD for articles.
 
 ### 16.4 — Testimonials, partners, FAQs, team, offices admin; remove demo content
 

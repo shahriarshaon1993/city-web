@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Inbox } from '@lucide/vue';
 import { computed } from 'vue';
 import Breadcrumbs from '@/components/site/Breadcrumbs.vue';
@@ -31,6 +31,17 @@ const isEmpty = computed(
 </script>
 
 <template>
+    <Head>
+        <!-- FR-NEWS-008: the RSS 2.0 feed of the 20 latest posts. -->
+        <link
+            head-key="rss"
+            rel="alternate"
+            type="application/rss+xml"
+            :title="copy.rss_title"
+            href="/news/feed.xml"
+        />
+    </Head>
+
     <div
         class="mx-auto w-full max-w-content px-4 pt-8 pb-(--section-md) sm:px-6 lg:px-8 lg:pt-12 xl:px-10"
     >

@@ -8,6 +8,7 @@ use App\Http\Resources\Media\MediaImageResource;
 use App\Models\Project;
 use App\Models\ProjectProgressUpdate;
 use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\NewsQuery;
 use App\Queries\Site\ProjectCards;
 use App\Support\Catalog\CatalogCache;
 use App\Support\Menus\PublicMenus;
@@ -375,7 +376,7 @@ final class DemoContent
      */
     public static function newsCards(?string $category = null, ?int $limit = null): array
     {
-        return DemoNews::cards($category, $limit);
+        return NewsQuery::cards($category, $limit);
     }
 
     /**

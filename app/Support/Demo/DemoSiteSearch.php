@@ -3,9 +3,12 @@
 namespace App\Support\Demo;
 
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Project;
 use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\NewsQuery;
 use App\Queries\Site\ProjectCards;
+use App\Support\News\PostBody;
 
 /**
  * Part A site search (PG-19, FR-SRCH-010 result grouping): every word of the
@@ -40,11 +43,11 @@ final class DemoSiteSearch
             'item' => ProjectCards::cards($project->newCollection([$project]))[0],
         ])->all()), $words);
 
-        $posts = self::rank(array_map(fn (array $post): array => [
-            'title' => $post['title'],
-            'text' => $post['excerpt'].' '.strip_tags(DemoNews::bodyHtml($post['body'])),
-            'item' => DemoNews::card($post),
-        ], DemoNews::published()), $words);
+        $posts = self::rank(array_values(NewsQuery::query()->get()->map(fn (Post $post): array => [
+            'title' => $post->title,
+            'text' => $post->excerpt.' '.PostBody::plainText($post->body),
+            'item' => NewsQuery::resolve([$post])[0],
+        ])->all()), $words);
 
         $pages = self::rank(self::pages(), $words);
 

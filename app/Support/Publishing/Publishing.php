@@ -19,6 +19,7 @@ final class Publishing
         'project' => ProjectPublishing::class,
         'location' => AreaPublishing::class,
         'page' => PagePublishing::class,
+        'post' => PostPublishing::class,
     ];
 
     /**

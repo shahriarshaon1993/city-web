@@ -18,6 +18,29 @@ import type { NewsArticlePageProps } from '@/types/news';
 // and the newsletter sign-up on white. The title is the only H1 and the body
 // starts at H2 (FR-NEWS-005). The cover is the LCP image.
 defineProps<NewsArticlePageProps>();
+
+// FR-NEWS-001: a YouTube embed in the body is a plain link (PostBody::render); pressing it swaps in the
+// player (youtube-nocookie), so nothing is requested from YouTube before then (SEO-PERF-013).
+// Without JavaScript the link opens the video on YouTube.
+function playVideo(event: MouseEvent): void {
+    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+        'a[data-youtube-id]',
+    );
+
+    if (!link) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const frame = document.createElement('iframe');
+    frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(link.dataset.youtubeId ?? '')}?autoplay=1`;
+    frame.title = link.textContent ?? 'Video';
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+    frame.allowFullscreen = true;
+    link.replaceWith(frame);
+    frame.focus();
+}
 </script>
 
 <template>
@@ -81,7 +104,11 @@ defineProps<NewsArticlePageProps>();
                 class="mx-auto mt-10 flex max-w-3xl flex-col gap-12 px-4 pb-(--section-md) sm:px-6 lg:mt-14 xl:px-0"
             >
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div class="rich-text max-w-[68ch]" v-html="article.body" />
+                <div
+                    class="rich-text max-w-[68ch]"
+                    @click="playVideo"
+                    v-html="article.body"
+                />
 
                 <section
                     v-if="article.projects.length > 0"

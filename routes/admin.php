@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\NotFoundController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PlaceholderController;
+use App\Http\Controllers\Admin\PostCategoryController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\PublishingController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\Admin\SlugController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\TableViewController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Support\Admin\AdminNavigation;
@@ -142,6 +145,30 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::delete('{page}', [PageController::class, 'destroy'])->name('destroy');
     });
 
+    // ADM-SCR-08 News: posts, categories and tags. The Policies check each verb (`news.view` reads, `news.manage` writes).
+    Route::middleware('admin.can:news.view')->prefix('news')->name('news.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index');
+        Route::get('create', [PostController::class, 'create'])->name('create');
+        Route::post('/', [PostController::class, 'store'])->name('store');
+
+        Route::get('categories', [PostCategoryController::class, 'index'])->name('categories.index');
+        Route::post('categories', [PostCategoryController::class, 'store'])->name('categories.store');
+        Route::patch('categories/order', [PostCategoryController::class, 'order'])->name('categories.order');
+        Route::patch('categories/{category}', [PostCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('categories/{category}', [PostCategoryController::class, 'destroy'])->name('categories.destroy');
+
+        Route::get('tags', [TagController::class, 'index'])->name('tags.index');
+        Route::patch('tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+        Route::post('tags/{tag}/merge', [TagController::class, 'merge'])->name('tags.merge');
+        Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
+
+        Route::get('{post}/edit', [PostController::class, 'edit'])->name('edit');
+        Route::patch('{post}', [PostController::class, 'update'])->name('update');
+        Route::patch('{post}/autosave', [PostController::class, 'autosave'])->middleware('throttle:30,1')->name('autosave');
+        Route::post('{post}/duplicate', [PostController::class, 'duplicate'])->name('duplicate');
+        Route::delete('{post}', [PostController::class, 'destroy'])->name('destroy');
+    });
+
     // ADM-SCR-03 / 04 / 05 Locations, amenities and facet pages share the `catalog.*` permissions.
     Route::middleware('admin.can:catalog.view')->group(function () {
         Route::prefix('locations')->name('locations.')->group(function () {
@@ -171,7 +198,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // CMS-PUB workflow verbs for every publishable entity: publish, schedule, discard, revisions, preview.
     // The entity's own Policy decides each verb; the group only keeps out users with no content access at all.
-    Route::middleware('admin.can:projects.view|catalog.view|pages.view|legal.view')
+    Route::middleware('admin.can:projects.view|catalog.view|pages.view|legal.view|news.view')
         ->prefix('publishing/{type}/{id}')
         ->whereIn('type', Publishing::types())
         ->whereNumber('id')

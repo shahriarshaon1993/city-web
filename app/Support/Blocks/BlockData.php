@@ -2,17 +2,18 @@
 
 namespace App\Support\Blocks;
 
+use App\Models\PostCategory;
 use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\NewsQuery;
 use App\Support\Demo\DemoContent;
 use App\Support\Demo\DemoFaqs;
-use App\Support\Demo\DemoNews;
 use App\Support\Demo\DemoTeam;
 
 /**
  * Where block schemas read the content of entities that are not page data: testimonials, partners,
- * posts, team members, FAQs and offices. Projects and areas already come from their tables; the
- * rest still come from the demo content until their admin arrives (16.3 posts, 16.4 the others),
- * so only this class changes when each moves to its table (ARC-002).
+ * posts, team members, FAQs and offices. Projects, areas and posts already come from their tables;
+ * the rest still come from the demo content until their admin arrives (16.4), so only this class
+ * changes when each moves to its table (ARC-002).
  */
 final class BlockData
 {
@@ -37,7 +38,7 @@ final class BlockData
      */
     public static function news(?string $category, int $limit): array
     {
-        return DemoNews::cards($category, $limit);
+        return NewsQuery::cards($category, $limit);
     }
 
     /**
@@ -45,7 +46,7 @@ final class BlockData
      */
     public static function newsCategories(): array
     {
-        return array_column(DemoNews::categories(), 'slug');
+        return array_values(PostCategory::query()->orderBy('sort_order')->pluck('slug')->all());
     }
 
     /**
