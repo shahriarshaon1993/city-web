@@ -3,111 +3,99 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Support\Demo\DemoPages;
-use App\Support\Pages\LegalToc;
-use App\Support\Seo\Breadcrumbs;
-use App\Support\Seo\SeoData;
+use App\Models\Page;
+use App\Queries\Site\PageContent;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Content pages: the builder pages PG-07…11 and the custom pages PG-25
- * (`Site/Page`, an ordered block list rendered by BlockRenderer) and the legal
- * pages PG-23/24 (`Site/Legal`). ARC-001: thin; the content comes from
- * DemoPages until the page tables of 16.1.
+ * Content pages from the `pages` table (16.1): the system builder pages PG-01, 07–11 (`Site/Home`,
+ * `Site/Page`, an ordered block list rendered by BlockRenderer), the legal pages PG-23/24
+ * (`Site/Legal`) and the custom pages PG-25. ARC-001: thin; the shaping lives in `PageContent`.
  */
 class PageController extends Controller
 {
+    public function home(Request $request): Response
+    {
+        return $this->system($request, Page::HOME);
+    }
+
     public function about(Request $request): Response
     {
-        return $this->builder($request, 'about');
+        return $this->system($request, 'about');
     }
 
     public function leadership(Request $request): Response
     {
-        return $this->builder($request, 'leadership');
+        return $this->system($request, 'leadership');
     }
 
     public function services(Request $request): Response
     {
-        return $this->builder($request, 'services');
+        return $this->system($request, 'services');
     }
 
     public function landowner(Request $request): Response
     {
-        return $this->builder($request, 'landowner');
+        return $this->system($request, 'landowner');
     }
 
     public function nrb(Request $request): Response
     {
-        return $this->builder($request, 'nrb');
-    }
-
-    /**
-     * PG-25: any other slug. The route constraint keeps reserved slugs out
-     * (ReservedSlugs); an unknown slug is a 404.
-     */
-    public function show(Request $request, string $slug): Response
-    {
-        return $this->builder($request, $slug);
+        return $this->system($request, 'nrb');
     }
 
     public function privacy(Request $request): Response
     {
-        return $this->legal($request, 'privacy-policy');
+        return $this->system($request, 'privacy-policy');
     }
 
     public function terms(Request $request): Response
     {
-        return $this->legal($request, 'terms');
-    }
-
-    private function builder(Request $request, string $key): Response
-    {
-        $page = DemoPages::builder($key) ?? abort(404);
-        $blocks = $page['blocks'];
-
-        $seo = SeoData::page($page['title'], $page['description'])->lcpFromBlocks($blocks);
-
-        if (! $page['index']) {
-            $seo->noindex();
-        }
-
-        return Inertia::render('Site/Page', [
-            'blocks' => $blocks,
-            // CMP-HEAD-01: the header starts transparent over a hero or a photo page header.
-            'starts_with_hero' => $this->startsWithHero($blocks),
-            'seo' => $seo->toArray($request),
-        ]);
-    }
-
-    private function legal(Request $request, string $key): Response
-    {
-        $page = DemoPages::legal($key) ?? abort(404);
-        $article = LegalToc::build($page['body']);
-
-        return Inertia::render('Site/Legal', [
-            'title' => $page['title'],
-            'updated_at' => $page['updated_at'],
-            'body' => $article['body'],
-            'toc' => $article['toc'],
-            'breadcrumbs' => Breadcrumbs::to($page['title']),
-            'seo' => SeoData::page($page['title'], $page['description'])->toArray($request),
-        ]);
+        return $this->system($request, 'terms');
     }
 
     /**
-     * @param  list<array<string, mixed>>  $blocks
+     * PG-25: any other slug. The route constraint keeps reserved slugs out (ReservedSlugs); a system
+     * page is served only at its own address. A page that was renamed answers 301 to its new address
+     * (SEO-TEC-003), anything else is a 404.
      */
-    private function startsWithHero(array $blocks): bool
+    public function show(Request $request, string $slug): Response|RedirectResponse
     {
-        $first = $blocks[0] ?? null;
+        $page = PageContent::find($slug);
 
-        return match ($first['type'] ?? null) {
-            'hero' => true,
-            'page_header' => ($first['data']['image'] ?? null) !== null,
-            default => false,
-        };
+        if ($page === null || $page->is_system) {
+            $moved = Page::findBySlugHistory($slug);
+
+            abort_unless($moved !== null && $moved->isPublished() && ! $moved->is_system, 404);
+
+            return redirect($moved->path(), 301);
+        }
+
+        return $this->render($request, $page);
+    }
+
+    /**
+     * CMS-PUB-005: the same template from a hydrated copy (pending revision or saved version).
+     */
+    public function preview(Request $request, Page $copy): Response
+    {
+        return $this->render($request, $copy);
+    }
+
+    private function system(Request $request, string $slug): Response
+    {
+        return $this->render($request, PageContent::find($slug) ?? abort(404));
+    }
+
+    private function render(Request $request, Page $page): Response
+    {
+        if ($page->isLegal()) {
+            return Inertia::render('Site/Legal', PageContent::legalProps($request, $page));
+        }
+
+        return Inertia::render($page->slug === Page::HOME ? 'Site/Home' : 'Site/Page', PageContent::builderProps($request, $page));
     }
 }

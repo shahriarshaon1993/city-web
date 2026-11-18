@@ -1,0 +1,23 @@
+{
+    "title": "Privacy policy",
+    "slug": "privacy-policy",
+    "template": "legal",
+    "system": true,
+    "description": "How Gemcon City Limited collects, uses and protects the personal information you share through this website.",
+    "index": true,
+    "reviewed": "2026-11-01",
+    "blocks": [
+        {
+            "type": "rich_text",
+            "data": {
+                "body": "<p><em>Draft text for the client’s review. Replace it with the wording approved by your legal adviser before launch.</em></p><p>Gemcon City Limited (“we”, “us”) respects your privacy. This policy explains what personal information we collect through this website, why we collect it and the choices you have.</p><h2>Who we are</h2><p>Gemcon City Limited is a real estate developer registered in Bangladesh. We are responsible for the personal information collected through this website. You can reach us using the details on the <a href=\"/contact\">contact page</a>.</p><h2>Information we collect</h2><p>We collect only what we need to respond to you:</p><ul><li>Details you give us in an enquiry, site-visit request, brochure request or application: your name, phone number, email address, the project you are interested in and your message.</li><li>Documents you upload, such as a CV or plot papers.</li><li>Technical information such as your browser, device type and the pages you visit, collected through cookies if you allow them.</li></ul><h2>How we use your information</h2><p>We use it to answer your enquiry, arrange visits, send the documents you ask for, assess job applications and improve this website. We contact you about other projects only if you have agreed to it, and you can stop at any time.</p><h2>Cookies and analytics</h2><p>Essential cookies keep the site working. Analytics and marketing cookies are set only after you accept them in the cookie banner, and you can change your choice at any time from the link in the footer.</p><h2>Who we share it with</h2><p>We do not sell personal information. We share it only with service providers who help us run the website and our sales operations, under agreements that require them to protect it, and where the law requires it.</p><h2>How long we keep it</h2><p>Enquiries are kept for as long as needed to follow up and for a limited period afterwards. Job applications are deleted within twelve months unless you ask us to keep them for future roles.</p><h2>Your rights</h2><p>You may ask to see the information we hold about you, correct it, or ask us to erase it. Write to us using the contact details below and we will reply within a reasonable time.</p><h2>Security</h2><p>We use access controls, encrypted connections and regular backups to protect your information. No online service is completely secure, so please avoid sending sensitive documents by email.</p><h2>Contact</h2><p>For any question about this policy, contact us through the <a href=\"/contact\">contact page</a>.</p>",
+                "width": "narrow"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        }
+    ]
+}

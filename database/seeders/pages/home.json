@@ -1,0 +1,274 @@
+{
+    "title": "Home",
+    "slug": "home",
+    "template": "builder",
+    "system": true,
+    "description": null,
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "hero",
+            "data": {
+                "mode": "single",
+                "media_type": "image",
+                "image": {
+                    "demo": "hero/hero-01"
+                },
+                "mobile_image": {
+                    "demo": "hero/hero-01-mobile"
+                },
+                "video_mp4": null,
+                "video_webm": null,
+                "slides": [],
+                "autoplay": false,
+                "eyebrow": "Gemcon City Limited",
+                "headline": "Homes and workplaces built to last",
+                "subheadline": "Apartments, commercial spaces and land projects in Dhaka with clear titles, honest timelines and after-sales care.",
+                "primary_cta": {
+                    "label": "Explore projects",
+                    "link_type": "url",
+                    "url": "/projects",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "Book a site visit",
+                    "link_type": "url",
+                    "url": "/contact",
+                    "new_tab": false
+                },
+                "overlay_opacity": 55,
+                "overlay_style": "solid",
+                "text_align": "left",
+                "show_search": true,
+                "height": "full"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "none",
+            "animate": true
+        },
+        {
+            "type": "intro_statement",
+            "data": {
+                "eyebrow": "About Gemcon City",
+                "heading": "We build the homes we would want to live in.",
+                "body": "<p>For two decades Gemcon City has delivered apartments, workplaces and plots across Dhaka with clear titles, RAJUK-approved designs and handovers on the dates we promise.</p><p>Every project is engineered for the long run, and our after-sales team stays with you long after the keys change hands.</p>",
+                "cta": {
+                    "label": "Our story",
+                    "link_type": "url",
+                    "url": "/about",
+                    "new_tab": false
+                },
+                "image": {
+                    "demo": "interiors/interiors-01"
+                }
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "featured_projects",
+            "data": {
+                "heading": "Featured projects",
+                "source": "featured",
+                "manual_ids": [],
+                "segment": null,
+                "status": null,
+                "limit": 6,
+                "layout": "carousel"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "segment_tiles",
+            "data": {
+                "heading": "Find the right fit",
+                "tiles": [
+                    {
+                        "segment": "residential",
+                        "image": {
+                            "demo": "projects/projects-01"
+                        },
+                        "label": "Residential",
+                        "description": "Apartments for families"
+                    },
+                    {
+                        "segment": "commercial",
+                        "image": {
+                            "demo": "projects/projects-03"
+                        },
+                        "label": "Commercial",
+                        "description": "Offices and retail spaces"
+                    },
+                    {
+                        "segment": "mixed_use",
+                        "image": {
+                            "demo": "projects/projects-06"
+                        },
+                        "label": "Mixed-use",
+                        "description": "Homes above shops and offices"
+                    },
+                    {
+                        "segment": "land",
+                        "image": {
+                            "demo": "projects/projects-05"
+                        },
+                        "label": "Land",
+                        "description": "Plots with clear titles"
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "stats_counters",
+            "data": {
+                "heading": "Built on a track record",
+                "items": [
+                    {
+                        "value": 20,
+                        "suffix": "+",
+                        "label": "Years of experience",
+                        "decimals": 0
+                    },
+                    {
+                        "value": 48,
+                        "suffix": null,
+                        "label": "Projects handed over",
+                        "decimals": 0
+                    },
+                    {
+                        "value": 3.2,
+                        "suffix": "M sft",
+                        "label": "Space delivered",
+                        "decimals": 1
+                    },
+                    {
+                        "value": 2500,
+                        "suffix": "+",
+                        "label": "Families at home",
+                        "decimals": 0
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "dark",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "project_grid",
+            "data": {
+                "heading": "Ongoing projects",
+                "segment": null,
+                "status": "ongoing",
+                "area_id": null,
+                "limit": 6,
+                "show_view_all": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "progress_highlight",
+            "data": {
+                "heading": "Construction progress",
+                "project_ids": [
+                    3,
+                    9,
+                    12
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "testimonials",
+            "data": {
+                "heading": "In our buyers’ words",
+                "source": "all",
+                "ids": [],
+                "layout": "carousel",
+                "limit": 6
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "partners_marquee",
+            "data": {
+                "heading": "Banks and partners we work with",
+                "category": null,
+                "speed": "normal",
+                "direction": "left"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "sm",
+            "animate": true
+        },
+        {
+            "type": "latest_news",
+            "data": {
+                "heading": "Latest news",
+                "category": null,
+                "limit": 3
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "cta_band",
+            "data": {
+                "heading": "Own land in Dhaka? Let’s build on it together.",
+                "text": "Our joint-venture model gives landowners a fair share of the finished building, clear agreements and updates at every stage.",
+                "primary_cta": {
+                    "label": "Talk to our land team",
+                    "link_type": "url",
+                    "url": "/landowner",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "Call the hotline",
+                    "link_type": "url",
+                    "url": "tel:+8809600000000",
+                    "new_tab": false
+                },
+                "style": "gradient",
+                "image": null
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "dark",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

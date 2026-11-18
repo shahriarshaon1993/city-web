@@ -1,0 +1,198 @@
+{
+    "title": "Non-resident Bangladeshis",
+    "slug": "nrb",
+    "template": "builder",
+    "system": true,
+    "description": "Buy a home in Bangladesh from abroad with Gemcon City Limited: video site visits, monthly progress photos and a clear remote buying process for NRBs.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "hero",
+            "data": {
+                "mode": "single",
+                "media_type": "image",
+                "image": {
+                    "demo": "hero/hero-02"
+                },
+                "mobile_image": {
+                    "demo": "hero/hero-02-mobile"
+                },
+                "video_mp4": null,
+                "video_webm": null,
+                "slides": [],
+                "autoplay": false,
+                "eyebrow": "For non-resident Bangladeshis",
+                "headline": "Buy a home in Bangladesh from wherever you live",
+                "subheadline": "Video site visits, monthly progress reports and a legal process that works across time zones.",
+                "primary_cta": {
+                    "label": "Talk to the NRB desk",
+                    "link_type": "url",
+                    "url": "#enquire",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "How buying works",
+                    "link_type": "url",
+                    "url": "#how-it-works",
+                    "new_tab": false
+                },
+                "overlay_opacity": 55,
+                "overlay_style": "solid",
+                "text_align": "left",
+                "show_search": false,
+                "height": "medium"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "none",
+            "animate": true
+        },
+        {
+            "type": "feature_cards",
+            "data": {
+                "heading": "Why NRBs buy with us",
+                "columns": 3,
+                "tilt": false,
+                "items": [
+                    {
+                        "icon": "phone",
+                        "image": null,
+                        "title": "A dedicated NRB desk",
+                        "text": "One advisor answers your questions by phone, WhatsApp or email in your time zone.",
+                        "link": null
+                    },
+                    {
+                        "icon": "compass",
+                        "image": null,
+                        "title": "Video site visits",
+                        "text": "An engineer walks the plot or the building with you on a live call and answers questions as you go.",
+                        "link": null
+                    },
+                    {
+                        "icon": "scale",
+                        "image": null,
+                        "title": "Clear legal steps",
+                        "text": "Agreements are explained in plain language, and power of attorney is handled through your embassy or a local lawyer.",
+                        "link": null
+                    },
+                    {
+                        "icon": "hard-hat",
+                        "image": null,
+                        "title": "Monthly progress reports",
+                        "text": "Photos and engineer’s notes arrive every month, so you can follow the build from abroad.",
+                        "link": null
+                    },
+                    {
+                        "icon": "banknote",
+                        "image": null,
+                        "title": "Payments from abroad",
+                        "text": "Pay through banking channels in foreign currency, with receipts issued for every instalment.",
+                        "link": null
+                    },
+                    {
+                        "icon": "key-round",
+                        "image": null,
+                        "title": "Handover without the trip",
+                        "text": "Authorise a family member to take the keys, or let our after-sales team manage the unit until you arrive.",
+                        "link": null
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "process_steps",
+            "data": {
+                "heading": "Buying remotely, step by step",
+                "steps": [
+                    {
+                        "title": "Tell us what you need",
+                        "text": "Share your budget, preferred area and timeline with the NRB desk."
+                    },
+                    {
+                        "title": "Take a video visit",
+                        "text": "Join a live walk-through of the site or the show apartment, with an engineer on the call."
+                    },
+                    {
+                        "title": "Reserve your unit",
+                        "text": "Pay the booking amount through banking channels and receive a receipt and the payment schedule."
+                    },
+                    {
+                        "title": "Sign the agreement",
+                        "text": "Sign through a power of attorney or in person, with our legal team available to explain each clause."
+                    },
+                    {
+                        "title": "Follow the build",
+                        "text": "Monthly progress reports and photos keep you informed until handover."
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": "how-it-works",
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "rich_text",
+            "data": {
+                "body": "<h2>Payments and legal notes</h2><p>Rules for buying property from abroad change from time to time. Check the current position with your bank and a Bangladeshi lawyer; our team can explain the documents involved.</p><ul><li>Payments are made through authorised banking channels, in foreign currency or taka as the rules allow.</li><li>A power of attorney signed abroad is attested by the Bangladesh embassy or consulate.</li><li>Your passport and a recent photograph are needed for the agreement and registration.</li></ul><p>This page is general information, not legal advice.</p>",
+                "width": "narrow"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "testimonials",
+            "data": {
+                "heading": "NRB buyers in their own words",
+                "source": "nrb",
+                "ids": [],
+                "layout": "carousel",
+                "limit": 3
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "faq",
+            "data": {
+                "heading": "NRB questions",
+                "source": "category",
+                "category": "page_nrb",
+                "ids": []
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "form",
+            "data": {
+                "heading": "Talk to the NRB desk",
+                "intro": "Tell us where you live and what you are looking for. An advisor will reply within one working day in your time zone.",
+                "form_type": "nrb",
+                "side": "<p>Prefer a call? Message the hotline on WhatsApp and we will arrange a time that works for you.</p>"
+            },
+            "is_visible": true,
+            "anchor_id": "enquire",
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

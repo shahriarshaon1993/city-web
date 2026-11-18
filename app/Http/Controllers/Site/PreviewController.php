@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Models\Contracts\PublishableEntity;
 use App\Models\Location;
+use App\Models\Page;
 use App\Models\Project;
 use App\Models\Revision;
 use App\Queries\Site\AreaPage;
@@ -43,6 +44,7 @@ class PreviewController extends Controller
         $page = match (true) {
             $copy instanceof Project => app(ProjectController::class)->preview($request, ProjectDetail::preview($copy)),
             $copy instanceof Location && $entity instanceof Location => app(LocationController::class)->preview($request, AreaPage::preview($copy), $entity->slug),
+            $copy instanceof Page => app(PageController::class)->preview($request, $copy),
             default => abort(404),
         };
 

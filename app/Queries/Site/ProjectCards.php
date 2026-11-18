@@ -44,18 +44,19 @@ final class ProjectCards
     }
 
     /**
-     * The `project_grid` preset: newest first within a segment and/or lifecycle.
+     * The `project_grid` preset: newest first within a segment, lifecycle and/or area.
      *
      * @return list<array<string, mixed>>
      */
-    public static function filtered(?Segment $segment = null, ?Lifecycle $lifecycle = null, ?int $limit = null): array
+    public static function filtered(?Segment $segment = null, ?Lifecycle $lifecycle = null, ?int $limit = null, ?int $areaId = null): array
     {
-        $key = 'projects:grid:'.($segment->value ?? '-').':'.($lifecycle->value ?? '-').":{$limit}";
+        $key = 'projects:grid:'.($segment->value ?? '-').':'.($lifecycle->value ?? '-').":{$limit}".($areaId === null ? '' : ":area{$areaId}");
 
         return CatalogCache::remember($key, CatalogCache::LISTING_TTL, fn (): array => self::cards(
             self::query()
                 ->when($segment !== null, fn (Builder $query) => $query->where('segment', $segment->value))
                 ->when($lifecycle !== null, fn (Builder $query) => $query->where('lifecycle', $lifecycle->value))
+                ->when($areaId !== null, fn (Builder $query) => $query->where('location_id', $areaId))
                 ->orderByDesc('published_at')->orderByDesc('id')
                 ->when($limit !== null, fn (Builder $query) => $query->limit($limit))->get(),
         ));

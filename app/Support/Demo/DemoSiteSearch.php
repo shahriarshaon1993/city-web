@@ -2,6 +2,7 @@
 
 namespace App\Support\Demo;
 
+use App\Models\Page;
 use App\Models\Project;
 use App\Queries\Site\AreaDirectory;
 use App\Queries\Site\ProjectCards;
@@ -22,17 +23,6 @@ final class DemoSiteSearch
     public const int MAX_LENGTH = 100;
 
     public const int PER_GROUP = 10;
-
-    /** Builder and custom pages of DemoPages, with their URLs. */
-    private const array PAGES = [
-        'about' => '/about',
-        'leadership' => '/about/leadership',
-        'services' => '/services',
-        'landowner' => '/landowner',
-        'nrb' => '/nrb',
-        'sustainability' => '/sustainability',
-        'buyer-guide' => '/buyer-guide',
-    ];
 
     /**
      * Grouped results (Projects, News, Pages); empty groups are left out.
@@ -151,7 +141,8 @@ final class DemoSiteSearch
     }
 
     /**
-     * Pages are searched by title and meta description (FR-SRCH-010).
+     * Pages are searched by title and meta description (FR-SRCH-010): the published pages of the
+     * `pages` table, except the home page.
      *
      * @return list<array{title: string, text: string, item: array<string, mixed>}>
      */
@@ -159,29 +150,17 @@ final class DemoSiteSearch
     {
         $pages = [];
 
-        foreach (self::PAGES as $key => $url) {
-            $page = DemoPages::builder($key);
-
-            if ($page !== null) {
-                $pages[] = ['title' => $page['title'], 'description' => $page['description'], 'url' => $url];
-            }
-        }
-
-        foreach (DemoPages::LEGAL as $key) {
-            $page = DemoPages::legal($key);
-
-            if ($page !== null) {
-                $pages[] = ['title' => $page['title'], 'description' => $page['description'], 'url' => '/'.$key];
-            }
+        foreach (Page::query()->published()->where('slug', '!=', Page::HOME)->where('slug', '!=', 'careers')->with('seoMeta')->orderBy('id')->get() as $page) {
+            $pages[] = ['title' => $page->title, 'description' => (string) $page->seoMeta?->meta_description, 'url' => $page->path()];
         }
 
         $careers = DemoCareers::copy();
         $pages[] = ['title' => $careers['title'], 'description' => $careers['description'], 'url' => '/careers'];
 
-        return array_values(array_map(fn (array $page): array => [
+        return array_map(fn (array $page): array => [
             'title' => $page['title'],
             'text' => $page['description'],
             'item' => $page,
-        ], $pages));
+        ], $pages);
     }
 }

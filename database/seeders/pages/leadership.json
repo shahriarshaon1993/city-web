@@ -1,0 +1,61 @@
+{
+    "title": "Leadership",
+    "slug": "leadership",
+    "template": "builder",
+    "system": true,
+    "description": "Meet the chairman, directors, managers and team behind Gemcon City Limited.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "page_header",
+            "data": {
+                "title": "The people behind Gemcon City",
+                "intro": "A board that signs every handover certificate, and a team that answers the phone after it.",
+                "image": null,
+                "breadcrumb": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "team_grid",
+            "data": {
+                "heading": "Leadership",
+                "group": "leadership"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "team_grid",
+            "data": {
+                "heading": "Management",
+                "group": "management"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "team_grid",
+            "data": {
+                "heading": "Our team",
+                "group": "team"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

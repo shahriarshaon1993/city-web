@@ -15,6 +15,7 @@ use App\Models\MediaAsset;
 use App\Models\MediaFolder;
 use App\Models\Menu;
 use App\Models\NewsletterSubscriber;
+use App\Models\Page;
 use App\Models\Project;
 use App\Models\ProjectDocument;
 use App\Models\ProjectNearbyPlace;
@@ -109,6 +110,7 @@ class AppServiceProvider extends ServiceProvider
             'facet_page' => FacetPage::class,
             'lead' => Lead::class,
             'newsletter_subscriber' => NewsletterSubscriber::class,
+            'page' => Page::class,
         ]);
     }
 

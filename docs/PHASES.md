@@ -46,7 +46,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 15.1 | Lead storage, spam protection, duplicates, assignment                      | 14.1           | ✅     |
 | 15.2 | Leads admin: table, board, detail drawer, subscribers                      | 15.1           | ✅     |
 | 15.3 | Notifications, autoresponder, webhook                                      | 15.2           | ✅     |
-| 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ⬜     |
+| 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ✅     |
 | 16.2 | Page builder admin UI                                                      | 16.1           | ⬜     |
 | 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ⬜     |
 | 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ⬜     |
@@ -706,6 +706,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 14.1, 12.2 · **Read:** spec/page-builder.md (all); spec/pages.md reserved slugs, PG-25; spec/cms.md §8.6 (reuse); design/layouts.md seeded-blocks table; spec/crud.md row Pages.
 **Build:** pages (soft deletes, `is_system` guard) + page_blocks; one `BlockSchema` per block type (28) with Laravel rules; invalid blocks saved as draft-only; seeders create the system pages in the 6.3 order; public builder pages render from the DB through the same `BlockRenderer`; media inside block data recorded as usages; demo pages removed.
 **Test:** every builder page looks the same as in Part A; a block with invalid data in tinker → publish refused; reserved slug refused.
+
+**Done notes (16.1):**
+- Models `Page` / `PageBlock` (`pages`, `page_blocks`), morph `page`, bin type, `PagePolicy` (`pages.*` for builder, `legal.*` for legal template). Publishing driver `PagePublishing` (+ `PageHydrator`, `PageEditor::form`, `PageChecklist`); Action `Pages/SavePage` (+ `SyncPageMediaUsages`). See DEC-89.
+- Blocks: `app/Support/Blocks/` — `BlockType` (28), one `Schemas/*Schema` each (rules, `media()` paths, `html()` paths, `checks()`, `resolve()`), `BlockValidator`, `BlockResolver`, `BlockContext`, `BlockRules`, `MediaPaths`, `BlockSanitizer`. Stored data = editor shape (asset ids, manual ids, limits); `resolve` returns the unchanged `types/blocks.ts` props. `BlockData` is the single seam still reading demo testimonials/partners/news/team/FAQs/offices/search options: 16.3/16.4 change only it.
+- Payload format rules (reserved slugs, 30 blocks, anchors, SEO) = `Support/Pages/PageRules` for 16.2's Form Request. Stored links use the menu item shape and `MenuLinks`.
+- Public: `Queries/Site/PageContent`, `PageController` (home, system pages, legal, custom catch-all with slug-history 301, `preview()`); `HomeController` extends it; careers intro blocks come from the `careers` page. `LinkTargets` and `DemoSiteSearch` read `pages`; `DemoPages` deleted.
+- Seeding: `PageSeeder` (+ `database/seeders/pages/*.json`, photos as `{"demo": key}` → `ImportDemoMedia`); runs before `MenuSeeder` and again after the demo catalogue. Ids 1–9 keep the old demo order. Without demo photos / projects a page stays Draft. Check: `docs/checks/16.1-pages.php`.
+- Later: 16.2 builds the admin on these Actions; 16.3/16.4 move `BlockData` sources to tables; 17.2 search should read `pages` + `page_blocks`. `ProjectCards::filtered` gained an `$areaId` argument.
 
 ### 16.2 — Page builder admin UI
 

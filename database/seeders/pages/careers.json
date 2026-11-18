@@ -1,0 +1,79 @@
+{
+    "title": "Careers at Gemcon City",
+    "slug": "careers",
+    "template": "builder",
+    "system": true,
+    "description": "Open roles at Gemcon City Limited in sales, engineering, architecture, finance and marketing. Apply online with your CV.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "page_header",
+            "data": {
+                "title": "Careers at Gemcon City",
+                "intro": "Engineers, architects, sales advisors and finance people who like to finish what they start. Join the team that builds homes Dhaka families keep for generations.",
+                "image": null,
+                "breadcrumb": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "none",
+            "animate": true
+        },
+        {
+            "type": "image_text",
+            "data": {
+                "heading": "Work you can point at",
+                "body": "<p>Every project we take on ends with a building that families move into. Our teams see their work go from drawings to keys, often within two years, and stay with it after handover.</p><p>We keep teams small, give people real responsibility early and promote from within: most of our project managers started as site engineers.</p>",
+                "image": {
+                    "demo": "progress/progress-02"
+                },
+                "image_side": "right",
+                "cta": null,
+                "reveal": "mask"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "feature_cards",
+            "data": {
+                "heading": "What we offer",
+                "columns": 3,
+                "tilt": false,
+                "items": [
+                    {
+                        "icon": "banknote",
+                        "image": null,
+                        "title": "Fair, on-time pay",
+                        "text": "Salaries paid on the first working day, two festival bonuses and a provident fund after confirmation.",
+                        "link": null
+                    },
+                    {
+                        "icon": "shield-check",
+                        "image": null,
+                        "title": "Health cover",
+                        "text": "Medical cover for you, your spouse and your children from your first month.",
+                        "link": null
+                    },
+                    {
+                        "icon": "layers",
+                        "image": null,
+                        "title": "Room to grow",
+                        "text": "A training budget for every team, and promotions from within before we hire from outside.",
+                        "link": null
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

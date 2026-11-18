@@ -1,0 +1,23 @@
+{
+    "title": "Terms of use",
+    "slug": "terms",
+    "template": "legal",
+    "system": true,
+    "description": "The terms that apply when you use the Gemcon City Limited website and its enquiry forms.",
+    "index": true,
+    "reviewed": "2026-11-01",
+    "blocks": [
+        {
+            "type": "rich_text",
+            "data": {
+                "body": "<p><em>Draft text for the client’s review. Replace it with the wording approved by your legal adviser before launch.</em></p><p>These terms apply when you use the Gemcon City Limited website. By using it you agree to them.</p><h2>Using this website</h2><p>You may browse the site, use the enquiry forms and download the documents we publish for personal, non-commercial use. You must not misuse the site, attempt to disrupt it or submit information that is false or belongs to someone else.</p><h2>Project information and prices</h2><p>Descriptions, areas, images, floor plans, amenities and handover dates on this website are indicative and may change as designs and approvals are finalised. Images and illustrations are for illustration only. Prices shown are starting prices, can change without notice and are not an offer capable of acceptance.</p><h2>Bookings and agreements</h2><p>A booking becomes binding only when you sign an allotment or sale agreement with Gemcon City Limited. The agreement, not this website, sets out the price, payment schedule, handover date and your rights.</p><h2>Enquiries and communications</h2><p>When you send an enquiry you agree that we may contact you by phone, WhatsApp or email about it. How we handle your information is described in our <a href=\"/privacy-policy\">privacy policy</a>.</p><h2>Intellectual property</h2><p>The text, images, logos, drawings and designs on this site belong to Gemcon City Limited or its licensors. You may not copy or reuse them for commercial purposes without our written permission.</p><h2>Links to other websites</h2><p>This site may link to websites we do not control. We are not responsible for their content or practices.</p><h2>Limits of liability</h2><p>We take care to keep the website accurate and available, but we do not promise that it is free of errors or interruptions. To the extent the law allows, we are not liable for losses arising from your use of the website.</p><h2>Changes to these terms</h2><p>We may update these terms from time to time. The date at the top of this page shows when they last changed.</p><h2>Governing law</h2><p>These terms are governed by the laws of Bangladesh, and the courts of Dhaka have jurisdiction over any dispute.</p>",
+                "width": "narrow"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        }
+    ]
+}

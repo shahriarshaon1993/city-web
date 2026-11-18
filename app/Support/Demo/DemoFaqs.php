@@ -55,6 +55,88 @@ final class DemoFaqs
     ];
 
     /**
+     * Questions that belong to one builder page (a `faq` block's `category`, 16.1), not to PG-18:
+     * category → [question, answer]. They keep the wording the page had in Part A.
+     *
+     * @var array<string, list<array{0: string, 1: string}>>
+     */
+    private const array PAGE_ITEMS = [
+        'page_services' => [
+            ['Do you only sell new apartments?',
+                '<p>No. We also sell commercial floors and plots, and a few ready apartments from completed projects are usually available. Browse <a href="/projects/status/ready">ready projects</a> to see what is open today.</p>'],
+            ['Can you help me arrange a home loan?',
+                '<p>Our sales advisors work with several partner banks and can explain the documents each one asks for. The loan itself is agreed between you and the bank.</p>'],
+            ['What does after-sales care include?',
+                '<p>A snagging walk-through, utility and meter transfers, and warranty cover for structure, waterproofing and fittings through the first year.</p>'],
+            ['Do you work with landowners outside Dhaka?',
+                '<p>We consider plots in Dhaka and in Chattogram. Share your plot details through the <a href="/landowner">landowner page</a> and the land team will tell you whether it fits.</p>'],
+        ],
+        'page_landowner' => [
+            ['How big does my plot need to be?',
+                '<p>Plots of five katha and above are usually suitable, depending on the road width and the approved floor-area ratio. Smaller plots can sometimes be combined with neighbouring ones.</p>'],
+            ['What share of the building do I receive?',
+                '<p>The share depends on the plot, its location and the approved design. We propose a figure after the site and title review, and you can negotiate it with your lawyer.</p>'],
+            ['How long does a project take?',
+                '<p>Approvals usually take three to four months and construction fourteen to eighteen months for a mid-rise building. The schedule is written into the agreement.</p>'],
+            ['Can I see projects built on landowners’ plots?',
+                '<p>Yes. Our sales team can arrange visits to handed-over projects and introductions to landowners who have agreed to speak with you.</p>'],
+            ['What happens if the project is delayed?',
+                '<p>The agreement sets out the compensation for each month of delay within our control, so the risk does not sit with you.</p>'],
+        ],
+        'page_nrb' => [
+            ['Can I buy without visiting Bangladesh?',
+                '<p>Yes. Many of our NRB buyers complete the whole process remotely, using video visits, a power of attorney and bank transfers. You are welcome to visit whenever it suits you.</p>'],
+            ['How do I pay from abroad?',
+                '<p>Through authorised banking channels. The NRB desk will share the account details and the receipt process, and explain how your bank should describe the transfer.</p>'],
+            ['Who can sign on my behalf?',
+                '<p>A relative or lawyer you name in a power of attorney attested by the Bangladesh embassy or consulate in your country.</p>'],
+            ['Can someone else collect the keys?',
+                '<p>Yes, an authorised family member can take the keys at handover, or our after-sales team can look after the unit until you arrive.</p>'],
+        ],
+        'page_buyer_guide' => [
+            ['Is the booking amount refundable?',
+                '<p>It depends on the terms in your booking letter. Ask for the cooling-off period and refund conditions in writing before you pay.</p>'],
+            ['How do I check an approval number?',
+                '<p>Ask the developer for the approval letter and compare its number with the one on the project page and the RAJUK records.</p>'],
+        ],
+    ];
+
+    /**
+     * Categories a `faq` block can use: the FR-SOC-003 ones and the page-only ones.
+     *
+     * @return list<string>
+     */
+    public static function blockCategories(): array
+    {
+        return [...array_keys(self::CATEGORIES), ...array_keys(self::PAGE_ITEMS)];
+    }
+
+    /**
+     * The rows a `faq` block shows: every question of a category, or the given ids in order.
+     *
+     * @param  list<int>  $ids
+     * @return list<array{id: int, question: string, answer: string, category: string}>
+     */
+    public static function forBlock(?string $category, array $ids = []): array
+    {
+        $pages = [];
+
+        foreach (array_keys(self::PAGE_ITEMS) as $position => $key) {
+            foreach (self::PAGE_ITEMS[$key] as $index => [$question, $answer]) {
+                $pages[] = ['id' => ($position + 1) * 100 + $index + 1, 'question' => $question, 'answer' => $answer, 'category' => $key];
+            }
+        }
+
+        $all = [...self::items(), ...$pages];
+
+        if ($category !== null && $category !== '') {
+            return array_values(array_filter($all, fn (array $faq): bool => $faq['category'] === $category));
+        }
+
+        return array_values(array_filter(array_map(fn (int $id): ?array => array_find($all, fn (array $faq): bool => $faq['id'] === $id), $ids)));
+    }
+
+    /**
      * FaqResource rows (types/faq.ts), in category order.
      *
      * @return list<array{id: int, question: string, answer: string, category: string}>

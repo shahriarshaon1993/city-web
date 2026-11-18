@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Actions\Careers\SubmitJobApplication;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\JobApplicationRequest;
+use App\Queries\Site\PageContent;
 use App\Support\Demo\DemoCareers;
 use App\Support\Seo\SeoData;
 use Illuminate\Http\RedirectResponse;
@@ -47,7 +48,7 @@ class CareerController extends Controller
         // Local preview of the "no openings" state with the CV drop (FR-CAR-004, owner 8.2).
         $open = app()->isLocal() && $request->query('preview') === 'empty' ? [] : DemoCareers::open();
         $roles = array_values(array_filter($open, fn (array $job): bool => $this->matches($job, $active)));
-        $blocks = DemoCareers::introBlocks();
+        $blocks = PageContent::blocksOf(PageContent::find('careers'));
 
         $seo = SeoData::page($copy['title'], $copy['description'])->lcpFromBlocks($blocks);
 

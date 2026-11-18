@@ -1,0 +1,291 @@
+{
+    "title": "About us",
+    "slug": "about",
+    "template": "builder",
+    "system": true,
+    "description": "Gemcon City Limited is a Bangladeshi real estate developer, part of Gemcon Group, building apartments, commercial spaces and land projects with clear titles.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "page_header",
+            "data": {
+                "title": "Homes and workplaces built to hold their value",
+                "intro": "Gemcon City Limited has developed apartments, offices and plots in Dhaka and beyond for two decades, with clear titles, approved designs and handovers on the dates we promise.",
+                "image": {
+                    "demo": "hero/hero-02"
+                },
+                "breadcrumb": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "none",
+            "animate": true
+        },
+        {
+            "type": "intro_statement",
+            "data": {
+                "eyebrow": "Our story",
+                "heading": "We started with one building and a promise to finish it properly.",
+                "body": "<p>Gemcon City began in 2004 with twelve apartments in Dhanmondi. The buyers were neighbours and friends, so every delay and every shortcut would have been noticed. That discipline became the way we work.</p><p>Today we build for thousands of families and businesses, and we still publish approvals, progress and handover dates so that anyone can check our word.</p>",
+                "cta": {
+                    "label": "Meet our leadership",
+                    "link_type": "url",
+                    "url": "/about/leadership",
+                    "new_tab": false
+                },
+                "image": {
+                    "demo": "projects/projects-04"
+                }
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "tabbed_pillars",
+            "data": {
+                "heading": "Mission, vision and values",
+                "tabs": [
+                    {
+                        "label": "Mission",
+                        "title": "Build what we promise, and show our work",
+                        "text": "We deliver homes and workplaces that match their brochures: the area, the finishes and the date. Approvals, progress photos and inspection stages are published so buyers never have to chase us for the facts.",
+                        "image": {
+                            "demo": "interiors/interiors-01"
+                        }
+                    },
+                    {
+                        "label": "Vision",
+                        "title": "The most trusted name in Bangladeshi property",
+                        "text": "We want a Gemcon City address to be the safest way to buy property in the country, for families in Dhaka and for Bangladeshis living abroad.",
+                        "image": {
+                            "demo": "locations/locations-03"
+                        }
+                    },
+                    {
+                        "label": "Values",
+                        "title": "Integrity, craft and care",
+                        "text": "We put prices and terms in writing, specify materials for decades of use, and stay with each building long after handover. These three habits decide every choice we make.",
+                        "image": {
+                            "demo": "interiors/interiors-03"
+                        }
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "timeline",
+            "data": {
+                "heading": "Two decades of building",
+                "items": [
+                    {
+                        "year": 2004,
+                        "title": "Founded in Dhaka",
+                        "text": "Gemcon City delivers its first residential building of twelve apartments in Dhanmondi.",
+                        "image": {
+                            "demo": "projects/projects-04"
+                        }
+                    },
+                    {
+                        "year": 2010,
+                        "title": "First commercial tower",
+                        "text": "A fourteen-storey office building opens in Motijheel with RAJUK approval.",
+                        "image": null
+                    },
+                    {
+                        "year": 2016,
+                        "title": "Landowner programme",
+                        "text": "The joint-venture model launches, with registered agreements and a fixed share for landowners.",
+                        "image": {
+                            "demo": "projects/projects-02"
+                        }
+                    },
+                    {
+                        "year": 2021,
+                        "title": "Progress reporting",
+                        "text": "Monthly construction updates with photos become standard for every ongoing project.",
+                        "image": null
+                    },
+                    {
+                        "year": 2025,
+                        "title": "Fifty projects handed over",
+                        "text": "More than two thousand families now live in Gemcon City buildings.",
+                        "image": {
+                            "demo": "projects/projects-07"
+                        }
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "stats_counters",
+            "data": {
+                "heading": "Built on a track record",
+                "items": [
+                    {
+                        "value": 20,
+                        "suffix": "+",
+                        "label": "Years of experience",
+                        "decimals": 0
+                    },
+                    {
+                        "value": 48,
+                        "suffix": null,
+                        "label": "Projects handed over",
+                        "decimals": 0
+                    },
+                    {
+                        "value": 3.2,
+                        "suffix": "M sft",
+                        "label": "Space delivered",
+                        "decimals": 1
+                    },
+                    {
+                        "value": 2500,
+                        "suffix": "+",
+                        "label": "Families at home",
+                        "decimals": 0
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "dark",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "image_text",
+            "data": {
+                "heading": "Part of Gemcon Group",
+                "body": "<p>Gemcon City Limited is the real estate arm of Gemcon Group, a Bangladeshi business group with interests in construction materials, engineering and trading.</p><p>The Group’s supply chain and engineering teams give our projects steady access to tested materials and experienced site managers.</p>",
+                "image": {
+                    "demo": "progress/progress-01"
+                },
+                "image_side": "right",
+                "cta": null,
+                "reveal": "mask"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "awards",
+            "data": {
+                "heading": "Recognition and certifications",
+                "items": [
+                    {
+                        "image": {
+                            "demo": "partners/partners-01"
+                        },
+                        "title": "Best Residential Developer",
+                        "issuer": "Bangladesh Property Awards",
+                        "year": 2025
+                    },
+                    {
+                        "image": {
+                            "demo": "partners/partners-02"
+                        },
+                        "title": "ISO 9001 certified",
+                        "issuer": "Quality management",
+                        "year": 2024
+                    },
+                    {
+                        "image": {
+                            "demo": "partners/partners-03"
+                        },
+                        "title": "Safety Excellence",
+                        "issuer": "Building Safety Council",
+                        "year": 2024
+                    },
+                    {
+                        "image": {
+                            "demo": "partners/partners-04"
+                        },
+                        "title": "Green Building Pioneer",
+                        "issuer": "Sustainable Dhaka Forum",
+                        "year": 2023
+                    },
+                    {
+                        "image": {
+                            "demo": "partners/partners-05"
+                        },
+                        "title": "Customer Trust Award",
+                        "issuer": "Real Estate Association",
+                        "year": 2022
+                    },
+                    {
+                        "image": {
+                            "demo": "partners/partners-06"
+                        },
+                        "title": "Member",
+                        "issuer": "REHAB",
+                        "year": null
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "partners_marquee",
+            "data": {
+                "heading": "Banks and partners we work with",
+                "category": null,
+                "speed": "normal",
+                "direction": "left"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "sm",
+            "animate": true
+        },
+        {
+            "type": "cta_band",
+            "data": {
+                "heading": "See the work for yourself.",
+                "text": "Visit a project with our sales team, or call the hotline and we will arrange a time that suits you.",
+                "primary_cta": {
+                    "label": "Explore projects",
+                    "link_type": "url",
+                    "url": "/projects",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "Contact us",
+                    "link_type": "url",
+                    "url": "/contact",
+                    "new_tab": false
+                },
+                "style": "gradient",
+                "image": null
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "dark",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

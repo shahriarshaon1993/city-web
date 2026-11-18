@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
     {
         $syncRoles->handle();
 
-        $this->call([MenuSeeder::class, CatalogSeeder::class]);
+        // Pages first: the default menus link to them by id.
+        $this->call([PageSeeder::class, MenuSeeder::class, CatalogSeeder::class]);
 
         if (app()->isProduction()) {
             return;
@@ -30,6 +31,8 @@ class DatabaseSeeder extends Seeder
 
         // 13.1: the demo cities, areas and projects as real rows (removed with the demo content in 16.4).
         $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class]);
+        // Again: pages whose blocks need projects (featured, progress) can be published now.
+        $this->call(PageSeeder::class);
 
         foreach (SystemRole::cases() as $role) {
             $user = User::query()->firstOrNew(['email' => Str::slug($role->value).'@gemcon.test']);

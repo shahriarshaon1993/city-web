@@ -356,42 +356,6 @@ final class DemoCareers
     }
 
     /**
-     * PG-15 builder intro (LAY-CAREERS): page_header → image_text (culture)
-     * → feature_cards (benefits). The open-roles list follows from the template.
-     *
-     * @return list<array<string, mixed>>
-     */
-    public static function introBlocks(): array
-    {
-        return [
-            DemoBlocks::block(1, 'page_header', [
-                'title' => self::copy()['title'],
-                'intro' => 'Engineers, architects, sales advisors and finance people who like to finish what they start. Join the team that builds homes Dhaka families keep for generations.',
-                'image' => null,
-                'breadcrumbs' => Breadcrumbs::to(self::copy()['title']),
-            ], spacing: 'none'),
-            DemoBlocks::block(2, 'image_text', [
-                'heading' => 'Work you can point at',
-                'body' => '<p>Every project we take on ends with a building that families move into. Our teams see their work go from drawings to keys, often within two years, and stay with it after handover.</p><p>We keep teams small, give people real responsibility early and promote from within: most of our project managers started as site engineers.</p>',
-                'image' => DemoMedia::image('progress/progress-02'),
-                'image_side' => 'right',
-                'cta' => null,
-                'reveal' => 'mask',
-            ], spacing: 'lg'),
-            DemoBlocks::block(3, 'feature_cards', [
-                'heading' => 'What we offer',
-                'columns' => 3,
-                'tilt' => false,
-                'items' => [
-                    ['icon' => 'banknote', 'image' => null, 'title' => 'Fair, on-time pay', 'text' => 'Salaries paid on the first working day, two festival bonuses and a provident fund after confirmation.', 'link' => null],
-                    ['icon' => 'shield-check', 'image' => null, 'title' => 'Health cover', 'text' => 'Medical cover for you, your spouse and your children from your first month.', 'link' => null],
-                    ['icon' => 'layers', 'image' => null, 'title' => 'Room to grow', 'text' => 'A training budget for every team, and promotions from within before we hire from outside.', 'link' => null],
-                ],
-            ], background: 'muted', spacing: 'lg'),
-        ];
-    }
-
-    /**
      * Labels and copy of PG-15/16 (CMS-000a: copy comes from props).
      *
      * @return array<string, string>

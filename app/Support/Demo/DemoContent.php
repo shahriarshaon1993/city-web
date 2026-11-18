@@ -455,18 +455,22 @@ final class DemoContent
     }
 
     /**
-     * CMP-PROG-01 summaries: the latest progress update of each ongoing project, most recently
-     * reported first (3 at most).
+     * CMP-PROG-01 summaries: the latest progress update of each project, most recently reported
+     * first. Without `$projectIds`: the ongoing projects, 3 at most; with them: exactly those
+     * projects (published, with an update), in the given order.
      *
+     * @param  list<int>|null  $projectIds
      * @return list<array<string, mixed>>
      */
-    private static function progressSummaries(): array
+    public static function progressSummaries(?array $projectIds = null): array
     {
-        return CatalogCache::remember('projects:progress-summaries', CatalogCache::LISTING_TTL, function (): array {
+        $key = 'projects:progress-summaries'.($projectIds === null ? '' : ':'.implode('-', $projectIds));
+
+        return CatalogCache::remember($key, CatalogCache::LISTING_TTL, function () use ($projectIds): array {
             $updates = [];
 
             $projects = Project::query()->published()
-                ->where('lifecycle', Lifecycle::Ongoing->value)
+                ->when($projectIds === null, fn ($query) => $query->where('lifecycle', Lifecycle::Ongoing->value), fn ($query) => $query->whereIn('id', $projectIds))
                 ->with([...ProjectCards::WITH, 'progressUpdates.photos.media'])
                 ->get();
 
@@ -478,7 +482,12 @@ final class DemoContent
                 }
             }
 
-            usort($updates, fn (array $a, array $b): int => $b[1]->reported_on <=> $a[1]->reported_on);
+            if ($projectIds === null) {
+                usort($updates, fn (array $a, array $b): int => $b[1]->reported_on <=> $a[1]->reported_on);
+                $updates = array_slice($updates, 0, 3);
+            } else {
+                usort($updates, fn (array $a, array $b): int => array_search($a[0]->id, $projectIds, true) <=> array_search($b[0]->id, $projectIds, true));
+            }
 
             return array_map(fn (array $pair): array => [
                 'project' => [
@@ -493,7 +502,7 @@ final class DemoContent
                 'reported_on' => $pair[1]->reported_on->toDateString(),
                 'note' => $pair[1]->note,
                 'photo' => ($photo = $pair[1]->photos->first()) === null ? null : MediaImageResource::make($photo)->resolve(),
-            ], array_slice($updates, 0, 3));
+            ], $updates);
         });
     }
 

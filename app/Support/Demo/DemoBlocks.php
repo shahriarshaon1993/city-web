@@ -11,8 +11,7 @@ use App\Support\Seo\Breadcrumbs;
  * feature_cards, process_steps, timeline, tabbed_pillars, quote,
  * parallax_band) and 6.2 (team_grid, faq, gallery, video, awards,
  * locations_grid, offices, form) in the DM-BLOCK shape of resources/js/types/blocks.ts.
- * Placeholder copy; the builder pages of 6.3 (DemoPages) reuse the envelope and
- * the shared timeline and award items. Deleted with
+ * Placeholder copy; the careers and FAQ pages reuse the envelope. Deleted with
  * DemoContent in 16.4.
  */
 final class DemoBlocks

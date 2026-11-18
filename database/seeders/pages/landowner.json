@@ -1,0 +1,199 @@
+{
+    "title": "Landowners",
+    "slug": "landowner",
+    "template": "builder",
+    "system": true,
+    "description": "Partner with Gemcon City Limited on your land through a registered joint-venture agreement with a fixed share of the finished building.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "hero",
+            "data": {
+                "mode": "single",
+                "media_type": "image",
+                "image": {
+                    "demo": "hero/hero-03"
+                },
+                "mobile_image": {
+                    "demo": "hero/hero-03-mobile"
+                },
+                "video_mp4": null,
+                "video_webm": null,
+                "slides": [],
+                "autoplay": false,
+                "eyebrow": "For landowners",
+                "headline": "Turn your land into a building you share in",
+                "subheadline": "A registered joint-venture agreement, a fixed share of the finished building and updates at every stage.",
+                "primary_cta": {
+                    "label": "Share your plot details",
+                    "link_type": "url",
+                    "url": "#enquire",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "How it works",
+                    "link_type": "url",
+                    "url": "#how-it-works",
+                    "new_tab": false
+                },
+                "overlay_opacity": 55,
+                "overlay_style": "solid",
+                "text_align": "left",
+                "show_search": false,
+                "height": "medium"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "none",
+            "animate": true
+        },
+        {
+            "type": "feature_cards",
+            "data": {
+                "heading": "Why landowners choose us",
+                "columns": 3,
+                "tilt": false,
+                "items": [
+                    {
+                        "icon": "file-check",
+                        "image": null,
+                        "title": "A registered agreement",
+                        "text": "Your share is written into a registered contract before any work begins.",
+                        "link": null
+                    },
+                    {
+                        "icon": "banknote",
+                        "image": null,
+                        "title": "No cost to you",
+                        "text": "We fund design, approvals and construction. You contribute the land.",
+                        "link": null
+                    },
+                    {
+                        "icon": "shield-check",
+                        "image": null,
+                        "title": "Your title stays safe",
+                        "text": "Legal reviews on both sides, and a clear process for handing over your share.",
+                        "link": null
+                    },
+                    {
+                        "icon": "ruler",
+                        "image": null,
+                        "title": "A design that fits the plot",
+                        "text": "Our architects maximise the approved floor area while keeping light and access for the neighbours.",
+                        "link": null
+                    },
+                    {
+                        "icon": "hard-hat",
+                        "image": null,
+                        "title": "Visible progress",
+                        "text": "Monthly photos and engineer’s notes show exactly how the building is coming along.",
+                        "link": null
+                    },
+                    {
+                        "icon": "key-round",
+                        "image": null,
+                        "title": "On-time handover",
+                        "text": "Your share of apartments or floors is handed over on the agreed date.",
+                        "link": null
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "process_steps",
+            "data": {
+                "heading": "From first call to your share of the building",
+                "steps": [
+                    {
+                        "title": "Share your plot details",
+                        "text": "Tell us the location, size and ownership of the land. Our land team replies within three working days."
+                    },
+                    {
+                        "title": "Site and title review",
+                        "text": "Engineers visit the plot and our legal team reviews the deeds, mutation and tax records."
+                    },
+                    {
+                        "title": "Agree the terms",
+                        "text": "We propose your share of the finished building and the handover schedule, and you take the draft to your own lawyer."
+                    },
+                    {
+                        "title": "Sign and register",
+                        "text": "The joint-venture agreement is signed and registered, and the project is submitted for approval."
+                    },
+                    {
+                        "title": "Build and hand over",
+                        "text": "We build the project, update you monthly and hand over your share on the agreed date."
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": "how-it-works",
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "rich_text",
+            "data": {
+                "body": "<h2>Terms at a glance</h2><p>Every joint venture is negotiated for the plot, but these principles apply to all of them:</p><ul><li>The landowner’s share is a fixed number of apartments or floors, named in the agreement.</li><li>Gemcon City bears the cost of design, approvals, construction and marketing.</li><li>A handover date is part of the agreement, with compensation for delays within our control.</li><li>The land is not mortgaged or sold without the landowner’s written consent.</li></ul><p>Figures and shares on this page are examples for discussion, not an offer. Final terms are set in the registered agreement.</p>",
+                "width": "narrow"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "project_grid",
+            "data": {
+                "heading": "Handed over on the agreed date",
+                "segment": null,
+                "status": "handed_over",
+                "area_id": null,
+                "limit": 3,
+                "show_view_all": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "faq",
+            "data": {
+                "heading": "Landowner questions",
+                "source": "category",
+                "category": "page_landowner",
+                "ids": []
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "form",
+            "data": {
+                "heading": "Share your plot details",
+                "intro": "Tell us where your land is and how to reach you. The land team will review it and call you back within three working days.",
+                "form_type": "landowner",
+                "side": "<p>You can also call the land team on the hotline during office hours. Your details are used only to respond to your enquiry.</p>"
+            },
+            "is_visible": true,
+            "anchor_id": "enquire",
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

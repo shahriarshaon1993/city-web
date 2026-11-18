@@ -3,15 +3,15 @@
 namespace App\Support\Menus;
 
 use App\Models\Location;
+use App\Models\Page;
 use App\Models\Project;
 use App\Support\Demo\DemoNews;
-use App\Support\Demo\DemoPages;
 use Illuminate\Support\Carbon;
 
 /**
  * The entities a menu can link to, found by type and ID (CMS-NAV-004). Menus and the admin picker
  * only ever call this class, so the day an entity moves to its table only its method changes:
- * projects and areas moved to their tables in 13.3, pages follow in 16.1, articles and categories in
+ * projects and areas moved to their tables in 13.3, pages in 16.1, articles and categories in
  * 16.3. Until then those IDs are those of the demo content (DEC-29), which stay stable on purpose.
  */
 final class LinkTargets
@@ -93,27 +93,15 @@ final class LinkTargets
     /** @return list<LinkTarget> */
     private static function pages(): array
     {
-        $keys = [...DemoPages::BUILDER, 'sustainability', 'buyer-guide', ...DemoPages::LEGAL];
-        $targets = [];
-
-        foreach ($keys as $index => $key) {
-            $page = in_array($key, DemoPages::LEGAL, true) ? DemoPages::legal($key) : DemoPages::builder($key);
-
-            if ($page === null) {
-                continue;
-            }
-
-            $targets[] = new LinkTarget(
+        return array_values(Page::query()->orderBy('id')->get()
+            ->map(fn (Page $page): LinkTarget => new LinkTarget(
                 LinkType::Page,
-                $index + 1,
-                $page['title'],
-                $key === 'leadership' ? '/about/leadership' : '/'.$key,
-                true,
-                in_array($key, DemoPages::LEGAL, true) ? 'Legal page' : 'Page',
-            );
-        }
-
-        return $targets;
+                $page->id,
+                $page->title,
+                $page->path(),
+                $page->isPublished(),
+                $page->isLegal() ? 'Legal page' : 'Page',
+            ))->all());
     }
 
     /** @return list<LinkTarget> */

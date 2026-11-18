@@ -1,0 +1,51 @@
+{
+    "title": "Buyer’s guide",
+    "slug": "buyer-guide",
+    "template": "builder",
+    "system": false,
+    "description": "A checklist of the documents and questions to cover before you buy an apartment, commercial space or plot in Bangladesh.",
+    "index": false,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "page_header",
+            "data": {
+                "title": "Before you buy: a short checklist",
+                "intro": "The documents and questions that protect you, whoever you buy from.",
+                "image": null,
+                "breadcrumb": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "rich_text",
+            "data": {
+                "body": "<h2>Documents to ask for</h2><ol><li>The deed and the mutation (<em>khatian</em>) records for the land.</li><li>The RAJUK approval letter and the approved drawings.</li><li>The allotment agreement, including the payment schedule and handover date.</li></ol><h2>Questions to ask</h2><p>Who holds the title, what happens if the project is delayed, and what is included in the price? A reliable developer answers all three in writing.</p>",
+                "width": "narrow"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "faq",
+            "data": {
+                "heading": "Quick answers",
+                "source": "category",
+                "category": "page_buyer_guide",
+                "ids": []
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

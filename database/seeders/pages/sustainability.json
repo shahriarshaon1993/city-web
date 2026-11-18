@@ -1,0 +1,119 @@
+{
+    "title": "Sustainability",
+    "slug": "sustainability",
+    "template": "builder",
+    "system": false,
+    "description": "How Gemcon City Limited designs for daylight, ventilation, green cover and lower running costs in every project.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "page_header",
+            "data": {
+                "title": "Building lightly on the city",
+                "intro": "Daylight, cross-ventilation and green cover cost less to include at the start than to retrofit later.",
+                "image": {
+                    "demo": "locations/locations-04"
+                },
+                "breadcrumb": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "none",
+            "animate": true
+        },
+        {
+            "type": "rich_text",
+            "data": {
+                "body": "<p>A building uses resources for decades after it is finished. We make the choices that reduce that use during design, when they are cheapest, and publish them on each project page.</p><h2>Our approach</h2><p>Every project is reviewed against a short checklist covering orientation, shading, ventilation, water and waste. Where a project falls short, the review explains why and what was done instead.</p>",
+                "width": "narrow"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "feature_cards",
+            "data": {
+                "heading": "What we design for",
+                "columns": 3,
+                "tilt": false,
+                "items": [
+                    {
+                        "icon": "sun",
+                        "image": null,
+                        "title": "Daylight and air",
+                        "text": "Living rooms face the open side of the plot and every unit is tested for cross-ventilation.",
+                        "link": null
+                    },
+                    {
+                        "icon": "trees",
+                        "image": null,
+                        "title": "Green cover",
+                        "text": "Trees, planters and rooftop gardens are part of the approved design, not an afterthought.",
+                        "link": null
+                    },
+                    {
+                        "icon": "leaf",
+                        "image": null,
+                        "title": "Lower running costs",
+                        "text": "Efficient lighting, water recycling for gardens and shaded façades reduce bills for owners.",
+                        "link": null
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "image_text",
+            "data": {
+                "heading": "Measured on site, not only on paper",
+                "body": "<p>Our engineers record water and energy use in the first year of occupancy for selected projects, and the results feed back into the next design.</p>",
+                "image": {
+                    "demo": "progress/progress-02"
+                },
+                "image_side": "left",
+                "cta": null,
+                "reveal": "mask"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "cta_band",
+            "data": {
+                "heading": "Visit a project and see the details.",
+                "text": "Book a site visit and ask our engineers how each building is designed.",
+                "primary_cta": {
+                    "label": "Browse projects",
+                    "link_type": "url",
+                    "url": "/projects",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "Contact us",
+                    "link_type": "url",
+                    "url": "/contact",
+                    "new_tab": false
+                },
+                "style": "gradient",
+                "image": null
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "dark",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}

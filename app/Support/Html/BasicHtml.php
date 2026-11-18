@@ -11,7 +11,10 @@ final class BasicHtml
 {
     private const string ALLOWED_TAGS = '<p><br><h2><h3><h4><ul><ol><li><strong><b><em><i><a><blockquote>';
 
-    public static function clean(?string $input): ?string
+    /** Page-builder rich text and legal pages also keep a rule and a plain table (CMP-BLK-RICH). */
+    private const string RICH_TAGS = '<hr><table><thead><tbody><tr><th><td>';
+
+    public static function clean(?string $input, bool $rich = false): ?string
     {
         $input = trim((string) $input);
 
@@ -28,7 +31,7 @@ final class BasicHtml
             ));
         }
 
-        $html = strip_tags($input, self::ALLOWED_TAGS);
+        $html = strip_tags($input, self::ALLOWED_TAGS.($rich ? self::RICH_TAGS : ''));
         $html = (string) preg_replace_callback('/<(\/?)([a-z0-9]+)([^>]*)>/i', function (array $match): string {
             [, $closing, $tag, $attributes] = $match;
             $tag = strtolower($tag);

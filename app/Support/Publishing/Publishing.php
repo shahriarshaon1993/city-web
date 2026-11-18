@@ -18,6 +18,7 @@ final class Publishing
     private const array DRIVERS = [
         'project' => ProjectPublishing::class,
         'location' => AreaPublishing::class,
+        'page' => PagePublishing::class,
     ];
 
     /**

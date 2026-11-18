@@ -1,0 +1,214 @@
+{
+    "title": "Services",
+    "slug": "services",
+    "template": "builder",
+    "system": true,
+    "description": "Apartments, commercial spaces, plots, joint ventures and after-sales care from Gemcon City Limited, from first visit to handover and beyond.",
+    "index": true,
+    "reviewed": null,
+    "blocks": [
+        {
+            "type": "page_header",
+            "data": {
+                "title": "Everything between a plot of land and your front door",
+                "intro": "We develop, sell and look after homes, workplaces and land, and we partner with landowners who want a building on their plot.",
+                "image": null,
+                "breadcrumb": true
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "md",
+            "animate": true
+        },
+        {
+            "type": "feature_cards",
+            "data": {
+                "heading": "What we offer",
+                "columns": 3,
+                "tilt": false,
+                "items": [
+                    {
+                        "icon": "building-2",
+                        "image": null,
+                        "title": "Residential",
+                        "text": "Apartments for families, from compact two-bedroom homes to four-bedroom residences, designed around daylight and cross-ventilation.",
+                        "link": {
+                            "label": "Residential projects",
+                            "link_type": "url",
+                            "url": "/projects/type/residential",
+                            "new_tab": false
+                        }
+                    },
+                    {
+                        "icon": "landmark",
+                        "image": null,
+                        "title": "Commercial",
+                        "text": "Offices and retail floors in business districts, with flexible layouts, backup power and professional building management.",
+                        "link": {
+                            "label": "Commercial projects",
+                            "link_type": "url",
+                            "url": "/projects/type/commercial",
+                            "new_tab": false
+                        }
+                    },
+                    {
+                        "icon": "map-pin",
+                        "image": null,
+                        "title": "Land and plots",
+                        "text": "Plots with clear titles in planned blocks, with the deed history and mutation records shared before you book.",
+                        "link": {
+                            "label": "Land projects",
+                            "link_type": "url",
+                            "url": "/projects/type/land",
+                            "new_tab": false
+                        }
+                    },
+                    {
+                        "icon": "handshake",
+                        "image": null,
+                        "title": "Joint ventures",
+                        "text": "We build on your land under a registered agreement that fixes your share of the finished building in writing.",
+                        "link": {
+                            "label": "For landowners",
+                            "link_type": "url",
+                            "url": "/landowner",
+                            "new_tab": false
+                        }
+                    },
+                    {
+                        "icon": "users",
+                        "image": null,
+                        "title": "After-sales care",
+                        "text": "A dedicated team handles snagging, utility transfers and warranty claims through the first year of ownership.",
+                        "link": {
+                            "label": "Talk to us",
+                            "link_type": "url",
+                            "url": "/contact",
+                            "new_tab": false
+                        }
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "process_steps",
+            "data": {
+                "heading": "How a project runs with us",
+                "steps": [
+                    {
+                        "title": "Land and approvals",
+                        "text": "We verify the title, survey the site and obtain RAJUK approval before a project is announced."
+                    },
+                    {
+                        "title": "Design and launch",
+                        "text": "Architects and engineers finalise plans, and the approved design, prices and schedule are published."
+                    },
+                    {
+                        "title": "Booking and agreement",
+                        "text": "You reserve a unit, review the allotment agreement with our legal team and sign it."
+                    },
+                    {
+                        "title": "Construction and updates",
+                        "text": "You receive monthly progress photos and engineer’s notes while the building rises."
+                    },
+                    {
+                        "title": "Handover and care",
+                        "text": "We complete snagging, transfer utilities and stay on call for the first year."
+                    }
+                ]
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "image_text",
+            "data": {
+                "heading": "Planned around the people who live in them",
+                "body": "<p>Every layout is tested for light, air and storage before it is approved. We would rather lose a saleable square foot than build a room that cannot be ventilated.</p>",
+                "image": {
+                    "demo": "interiors/interiors-02"
+                },
+                "image_side": "right",
+                "cta": {
+                    "label": "See our projects",
+                    "link_type": "url",
+                    "url": "/projects",
+                    "new_tab": false
+                },
+                "reveal": "mask"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "image_text",
+            "data": {
+                "heading": "Looked after once the keys change hands",
+                "body": "<p>Handover is the start of a longer relationship. Our after-sales team walks you through the unit, transfers the utilities and advises your owners’ association on maintenance and sinking funds.</p>",
+                "image": {
+                    "demo": "interiors/interiors-04"
+                },
+                "image_side": "left",
+                "cta": null,
+                "reveal": "none"
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "muted",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "faq",
+            "data": {
+                "heading": "Questions about our services",
+                "source": "category",
+                "category": "page_services",
+                "ids": []
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "default",
+            "spacing": "lg",
+            "animate": true
+        },
+        {
+            "type": "cta_band",
+            "data": {
+                "heading": "Not sure where to start?",
+                "text": "Tell us what you need and a sales advisor will suggest projects that fit your budget and timeline.",
+                "primary_cta": {
+                    "label": "Talk to our team",
+                    "link_type": "url",
+                    "url": "/contact",
+                    "new_tab": false
+                },
+                "secondary_cta": {
+                    "label": "Browse projects",
+                    "link_type": "url",
+                    "url": "/projects",
+                    "new_tab": false
+                },
+                "style": "gradient",
+                "image": null
+            },
+            "is_visible": true,
+            "anchor_id": null,
+            "background": "dark",
+            "spacing": "lg",
+            "animate": true
+        }
+    ]
+}
