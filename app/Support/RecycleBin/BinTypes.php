@@ -3,15 +3,20 @@
 namespace App\Support\RecycleBin;
 
 use App\Models\Amenity;
+use App\Models\Faq;
 use App\Models\Lead;
 use App\Models\Location;
 use App\Models\MediaAsset;
 use App\Models\NewsletterSubscriber;
+use App\Models\Office;
 use App\Models\Page;
+use App\Models\Partner;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\Redirect;
+use App\Models\TeamMember;
+use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,6 +41,11 @@ final class BinTypes
         Page::class,
         Post::class,
         PostCategory::class,
+        Testimonial::class,
+        Partner::class,
+        Faq::class,
+        TeamMember::class,
+        Office::class,
     ];
 
     /**

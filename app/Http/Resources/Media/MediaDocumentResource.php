@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * A PDF in the `MediaDocument` shape of `DemoMedia::document()`: `{url, bytes}`.
+ * A PDF in the `MediaDocument` shape of resources/js/types/site.ts: `{url, bytes}`.
  *
  * @property MediaAsset $resource
  */

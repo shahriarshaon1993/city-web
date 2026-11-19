@@ -49,7 +49,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 16.1 | Pages & blocks: schema, block schemas, public render from DB               | 14.1, 12.2     | ✅     |
 | 16.2 | Page builder admin UI                                                      | 16.1           | ✅     |
 | 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ✅     |
-| 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ⬜     |
+| 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ✅     |
 | 17.1 | Careers & applications                                                     | 16.4, 15.1     | ⬜     |
 | 17.2 | Site search (Scout database engine)                                        | 16.4           | ⬜     |
 | 17.3 | Import / export wizard, personal-data export & erase                       | 15.2, 16.4, 17.1 | ⬜     |
@@ -749,6 +749,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 16.2, 16.3 · **Read:** spec/social.md (all); spec/admin.md ADM-SCR-09; design/admin.md CMP-ADM-SORTLIST; spec/crud.md rows Testimonials / Partners / FAQs / Team members / Offices; DECISIONS DEC-29, DEC-31, DEC-33.
 **Build:** CRUD with drag order and publish toggles for testimonials, partners, FAQs (attach to projects/locations, `show_on`), team members, offices — all soft-deleted into the Recycle bin, offices guarded by job posts; editor type per the entity matrix; public blocks read the DB; `DemoContent`, `DemoProjectSearch`, `DemoMedia` and `demo:images` deleted.
 **Test:** reorder partners → marquee order follows; unpublish a testimonial → it disappears; `grep -r Demo app/` finds nothing; every public page still renders.
+
+**Done notes (16.4):**
+- Migration `create_social_tables` (testimonials, partners, faqs + `faqables` pivot, team_members, offices; all soft-deleted, bin types, morph aliases, FK `posts.author_team_member_id`). Models + Policies (`social.view|manage`); Actions `app/Actions/Social/*` (`Save*`, `ReorderSocialItems` with Undo, `SetSocialPublished`); `SocialTable` base + five tables in `AdminTables`; `Concerns/ManagesSocialItems`.
+- Admin: `/admin/{testimonials,partners,faqs,team,offices}` — full-page editors except Partner (dialog); `useSocialList`, `SocialOrderDialog` (FAQ per topic, team per group); `RichTextField` got a `limited` prop. See DEC-92, DEC-93.
+- Public reads: `Queries/Site/{SocialContent,FaqContent,ProgressSummaries,ProjectSearchOptions}`, `Support/Site/{FooterData,FaqPageCopy}`, `Support/Shortlist/ShortlistCopy`, `BlockData` rewritten; FAQs attach to projects, locations and facet pages (`show_on`).
+- Deleted: `DemoContent/Blocks/Faqs/CatalogFaqs/Team/Media`, `Actions/Demo`, `demo:images`, `/styleguide/hero|blocks`. Seed sources moved to `database/seeders/Data` (+ `SocialSeeder`, `FaqSeeder`, which also repairs old `page_*` faq blocks).
+- Deviation: `DemoCareers` and `DemoSiteSearch` (+ 3 callers) remain until 17.1 / 17.2 delete them, so `grep -r Demo app/` is not yet empty.
+- Later: 17.1 adds `job_posts` — the office delete guard (`Office::jobPostCount`) goes live then. No built-in default OG image any more: set one in Settings → SEO.
 
 ## Phase 17 — Careers, search, import/export
 

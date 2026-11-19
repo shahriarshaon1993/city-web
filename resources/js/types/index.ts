@@ -13,3 +13,4 @@ export * from './leads';
 export * from './notifications';
 export * from './pages';
 export * from './admin-news';
+export * from './admin-social';

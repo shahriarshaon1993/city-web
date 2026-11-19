@@ -1,12 +1,12 @@
 // Public props contract (ARC-002, DEC-29): shaped like the Part B API
-// Resources; Part A fills them from App\Support\Demo\DemoContent.
+// Resources; the server fills them from the database.
 
 import type { BookingValue, LifecycleValue } from '@/components/ui/badge';
 import type { FormsShared } from '@/types/forms';
 
 /**
  * One image with its conversions (CMS-MED-004/005, HERO-011). Output by
- * App\Support\Demo\DemoMedia now and by the media resource in 11.1 (DEC-31).
+ * App\Http\Resources\Media\MediaImageResource (DEC-31).
  */
 export type MediaImage = {
     /** Already `''` when decorative (HERO-014). */
@@ -265,8 +265,9 @@ export type Office = {
     phones: string[];
     email: string | null;
     hours: { days: string[]; opens: string; closes: string }[];
-    latitude: number;
-    longitude: number;
+    /** Null when the editor left the map point empty. */
+    latitude: number | null;
+    longitude: number | null;
     is_head_office: boolean;
 };
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacetPageController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FeaturedProjectController;
 use App\Http\Controllers\Admin\LeadAttachmentController;
 use App\Http\Controllers\Admin\LeadController;
@@ -13,7 +14,9 @@ use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NotFoundController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\OfficeController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
@@ -30,6 +33,8 @@ use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\TableViewController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\TeamMemberController;
+use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Support\Admin\AdminNavigation;
@@ -167,6 +172,43 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::patch('{post}/autosave', [PostController::class, 'autosave'])->middleware('throttle:30,1')->name('autosave');
         Route::post('{post}/duplicate', [PostController::class, 'duplicate'])->name('duplicate');
         Route::delete('{post}', [PostController::class, 'destroy'])->name('destroy');
+    });
+
+    // ADM-SCR-09 Testimonials, partners, FAQs, team and offices share `social.view` / `social.manage` (the Policies check each verb).
+    Route::middleware('admin.can:social.view')->group(function () {
+        foreach ([
+            'testimonials' => [TestimonialController::class, 'testimonial', true],
+            'faqs' => [FaqController::class, 'faq', true],
+            'team' => [TeamMemberController::class, 'member', true],
+            'offices' => [OfficeController::class, 'office', false],
+        ] as $path => [$controller, $parameter, $hasSwitch]) {
+            Route::prefix($path)->name("{$path}.")->group(function () use ($controller, $parameter, $hasSwitch) {
+                Route::get('/', [$controller, 'index'])->name('index');
+                Route::get('create', [$controller, 'create'])->name('create');
+                Route::post('/', [$controller, 'store'])->name('store');
+                Route::post('bulk', [$controller, 'bulk'])->name('bulk');
+                Route::patch('order', [$controller, 'order'])->name('order');
+                Route::get("{{$parameter}}/edit", [$controller, 'edit'])->whereNumber($parameter)->name('edit');
+                Route::patch("{{$parameter}}", [$controller, 'update'])->whereNumber($parameter)->name('update');
+
+                if ($hasSwitch) {
+                    Route::patch("{{$parameter}}/published", [$controller, 'published'])->whereNumber($parameter)->name('published');
+                }
+
+                Route::delete("{{$parameter}}", [$controller, 'destroy'])->whereNumber($parameter)->name('destroy');
+            });
+        }
+
+        // Partners are edited in a dialog: no create / edit pages.
+        Route::prefix('partners')->name('partners.')->group(function () {
+            Route::get('/', [PartnerController::class, 'index'])->name('index');
+            Route::post('/', [PartnerController::class, 'store'])->name('store');
+            Route::post('bulk', [PartnerController::class, 'bulk'])->name('bulk');
+            Route::patch('order', [PartnerController::class, 'order'])->name('order');
+            Route::patch('{partner}', [PartnerController::class, 'update'])->whereNumber('partner')->name('update');
+            Route::patch('{partner}/published', [PartnerController::class, 'published'])->whereNumber('partner')->name('published');
+            Route::delete('{partner}', [PartnerController::class, 'destroy'])->whereNumber('partner')->name('destroy');
+        });
     });
 
     // ADM-SCR-03 / 04 / 05 Locations, amenities and facet pages share the `catalog.*` permissions.

@@ -3,6 +3,8 @@
 namespace App\Support\Catalog;
 
 use App\Enums\ProgressStage;
+use App\Support\Blocks\BlockEnvelope;
+use App\Support\Settings\Settings;
 
 /**
  * Template copy of the project and location pages (PG-04, PG-05/06): section headings, tab labels,
@@ -94,5 +96,54 @@ final class CatalogCopy
             'newest_heading' => 'Newest projects',
             'no_projects' => 'No projects yet',
         ];
+    }
+
+    /** Mega menu `auto:segments` descriptions, reused by the segment tiles. */
+    public const array SEGMENT_DESCRIPTIONS = [
+        'residential' => 'Apartments for families',
+        'commercial' => 'Offices and retail spaces',
+        'mixed_use' => 'Homes above shops and offices',
+        'land' => 'Plots with clear titles',
+    ];
+
+    /**
+     * PG-02 / PG-03 copy: the listing's own title and description and the section copy. The facet
+     * landing pages (DM-FACET) carry their own text in the admin.
+     *
+     * @return array{listing: array{title: string, intro: string|null, description: string}, copy: array<string, string>}
+     */
+    public static function listing(): array
+    {
+        return [
+            'listing' => [
+                'title' => 'Projects in Bangladesh',
+                'intro' => null,
+                'description' => 'Browse every Gemcon City project: apartments, commercial spaces and land in Dhaka and Chattogram. Filter by area, size, bedrooms, price and status.',
+            ],
+            'copy' => [
+                'empty_title' => 'No projects match these filters',
+                'empty_body' => 'Try fewer filters or a wider size or price range. Here are our newest projects in the meantime.',
+                'newest_heading' => 'Newest projects',
+                'locations_heading' => 'Explore by area',
+                'faq_heading' => 'Frequently asked questions',
+            ],
+        ];
+    }
+
+    /**
+     * The closing CTA band of the project and location pages (PG-02 "CTA band", CMP-BLK-CTA).
+     *
+     * @return array<string, mixed>
+     */
+    public static function listingCta(): array
+    {
+        return BlockEnvelope::make(900, 'cta_band', [
+            'heading' => 'Not sure which project fits?',
+            'text' => 'Tell us your budget, preferred area and timeline, and our sales team will shortlist projects for you.',
+            'primary_cta' => ['label' => 'Talk to our team', 'url' => '/contact', 'new_tab' => false],
+            'secondary_cta' => ['label' => 'Call the hotline', 'url' => 'tel:'.Settings::get('contact', 'hotline'), 'new_tab' => false],
+            'style' => 'gradient',
+            'image' => null,
+        ], background: 'dark', spacing: 'lg');
     }
 }

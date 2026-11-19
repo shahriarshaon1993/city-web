@@ -7,9 +7,9 @@ use App\Enums\Lifecycle;
 use App\Enums\Segment;
 use App\Models\Amenity;
 use App\Models\FacetPage;
-use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoProjectDetail;
-use App\Support\Demo\DemoProjects;
+use Database\Seeders\Data\DemoProjectDetail;
+use Database\Seeders\Data\DemoProjects;
+use Database\Seeders\Data\FacetSeedData;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -43,7 +43,7 @@ class CatalogSeeder extends Seeder
 
     private function facetPages(): void
     {
-        $facets = DemoContent::projectListing()['facets'];
+        $facets = FacetSeedData::all();
         $order = 0;
 
         $values = [

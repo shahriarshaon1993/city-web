@@ -2,6 +2,7 @@
 
 namespace App\Support\Demo;
 
+use App\Queries\Site\SocialContent;
 use App\Support\Seo\Breadcrumbs;
 use Carbon\CarbonImmutable;
 
@@ -11,7 +12,7 @@ use Carbon\CarbonImmutable;
  * and the page copy. Deadlines are relative to today so the demo never
  * expires: one role closed a few days ago ("Applications closed"), one more
  * than 30 days ago (410, FR-CAR-003) and one draft (404). 17.1 swaps this
- * for the JobPost model; deleted with DemoContent in 16.4.
+ * for the JobPost model; deleted in 17.1.
  *
  * @phpstan-type Job array{slug: string, title: string, department: string, office: int|null, type: string, experience: string|null, salary: string|null, deadline_days: int, status: string, summary: string, description: string, responsibilities: list<string>, requirements: list<string>, benefits: list<string>}
  */
@@ -274,12 +275,11 @@ final class DemoCareers
     {
         $options = [];
 
-        foreach (DemoContent::offices() as $office) {
-            $id = (int) $office['id'];
+        // Until 17.1 moves jobs to a table, the sample jobs name offices 1 and 2; the label follows the office rows.
+        $names = array_column(SocialContent::offices(), 'name', 'id');
 
-            if (isset(self::OFFICE_SLUGS[$id])) {
-                $options[self::OFFICE_SLUGS[$id]] = (string) $office['name'];
-            }
+        foreach (self::OFFICE_SLUGS as $id => $slug) {
+            $options[$slug] = (string) ($names[$id] ?? ucfirst(str_replace('-', ' ', $slug)));
         }
 
         return [...$options, self::SITES_SLUG => self::SITES_LABEL];

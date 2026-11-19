@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
-use App\Support\Demo\DemoBlocks;
-use App\Support\Demo\DemoContent;
+use App\Queries\Site\SocialContent;
+use App\Support\Blocks\BlockEnvelope;
 use App\Support\Forms\FormOptions;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
@@ -34,15 +34,15 @@ class ContactController extends Controller
             : ($row !== null || in_array($request->query('type'), ['site_visit', 'brochure_download'], true) ? 'sales' : null);
 
         return Inertia::render('Site/Contact', [
-            'header' => DemoBlocks::block(1, 'page_header', [
+            'header' => BlockEnvelope::make(1, 'page_header', [
                 'title' => $copy['title'],
                 'intro' => $copy['intro'],
                 'image' => null,
                 'breadcrumbs' => Breadcrumbs::to($copy['title']),
             ]),
-            'offices' => DemoBlocks::block(2, 'offices', [
+            'offices' => BlockEnvelope::make(2, 'offices', [
                 'heading' => $copy['offices_heading'],
-                'offices' => DemoContent::offices(),
+                'offices' => SocialContent::offices(),
             ], background: 'muted', spacing: 'lg'),
             'copy' => [
                 'form_heading' => $copy['form_heading'],

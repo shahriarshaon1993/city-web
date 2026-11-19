@@ -145,11 +145,6 @@ Route::post('internal/client-errors', ClientErrorController::class)
 // Phase 0.2/0.3 UI kit reference; never registered outside local.
 if (app()->isLocal()) {
     Route::get('styleguide', StyleguideController::class)->name('styleguide');
-    Route::get('styleguide/hero/{variant}', [StyleguideController::class, 'hero'])
-        ->whereIn('variant', ['image', 'video', 'slider', 'centered'])
-        ->name('styleguide.hero');
-
-    Route::get('styleguide/blocks', [StyleguideController::class, 'blocks'])->name('styleguide.blocks');
     Route::get('styleguide/forms', [StyleguideController::class, 'forms'])->name('styleguide.forms');
 
     // Phase 1.2 error page previews (PG-26), including 500 while APP_DEBUG is on.

@@ -93,9 +93,9 @@ Legend — Editor: **Page** full-page editor · **Dialog** · **Inline**. Delete
 | Posts | Page | Full CMS-PUB | Bin | Yes | — | 16.3 |
 | Post categories | Dialog | — | Bin + Guard ("Move posts to…") | — | Yes | 16.3 |
 | Tags | Inline (rename, merge) | — | Hard (detach) | — | — | 16.3 |
-| Testimonials | Dialog | Published toggle | Bin | — | Yes | 16.4 |
+| Testimonials | Page (DEC-93: 7 fields) | Published toggle | Bin | — | Yes | 16.4 |
 | Partners | Dialog | Published toggle | Bin | — | Yes | 16.4 |
-| FAQs | Dialog (large) | Published toggle | Bin | — | Yes | 16.4 |
+| FAQs | Page (DEC-93: rich answer + attachments) | Published toggle | Bin | — | Yes (per topic) | 16.4 |
 | Team members | Page | Published toggle | Bin | — | Yes | 16.4 |
 | Offices | Page | — | Bin + Guard (job posts) | — | Yes | 16.4 |
 | Job posts | Page | Draft / open / closed | Bin | Yes | — | 17.1 |

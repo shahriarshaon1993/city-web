@@ -5,7 +5,7 @@ namespace App\Http\Resources\Site;
 use App\Http\Resources\Media\MediaImageResource;
 use App\Models\Location;
 use App\Queries\Site\AreaDirectory;
-use App\Support\Demo\DemoCatalogFaqs;
+use App\Queries\Site\FaqContent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -32,7 +32,7 @@ class LocationResource extends JsonResource
             'url' => '/locations/'.$area->slug,
             'hero' => $area->hero === null ? null : MediaImageResource::make($area->hero)->resolve($request),
             'facts' => $area->facts ?? [],
-            'faq' => DemoCatalogFaqs::area($area->slug),
+            'faq' => FaqContent::forArea($area),
             'nearby' => $this->nearby($area),
         ];
     }

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Actions\Demo\ImportDemoMedia;
 use App\Actions\Posts\SavePost;
 use App\Actions\Publishing\PublishEntity;
 use App\Enums\PublishStatus;
@@ -10,7 +9,8 @@ use App\Http\Resources\Media\MediaImageResource;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Project;
-use App\Support\Demo\DemoNews;
+use Database\Seeders\Data\DemoNews;
+use Database\Seeders\Support\ImportSeedMedia;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +25,7 @@ use Illuminate\Validation\ValidationException;
  */
 class DemoNewsSeeder extends Seeder
 {
-    public function run(SavePost $savePost, PublishEntity $publish, ImportDemoMedia $importMedia): void
+    public function run(SavePost $savePost, PublishEntity $publish, ImportSeedMedia $importMedia): void
     {
         if (app()->isProduction() || Post::withTrashed()->exists()) {
             return;

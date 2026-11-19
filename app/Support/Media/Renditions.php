@@ -4,7 +4,7 @@ namespace App\Support\Media;
 
 /**
  * The conversions of one image as `GenerateConversions` wrote them (custom property `renditions`
- * of the spatie media row): paths on the media disk, in the shape of the `DemoMedia` manifest.
+ * of the spatie media row): paths on the media disk, as the `MediaImage` props are built from.
  *
  * @phpstan-type Rendition array{path: string, width: int}
  */

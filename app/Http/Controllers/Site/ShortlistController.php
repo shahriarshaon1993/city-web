@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Queries\Site\ShortlistProjects;
-use App\Support\Demo\DemoShortlist;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
+use App\Support\Shortlist\ShortlistCopy;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,8 +21,8 @@ class ShortlistController extends Controller
 {
     public function index(Request $request): Response
     {
-        $copy = DemoShortlist::copy();
-        $projects = ShortlistProjects::cards(DemoShortlist::ids($request->query('ids'), DemoShortlist::SHORTLIST_MAX));
+        $copy = ShortlistCopy::copy();
+        $projects = ShortlistProjects::cards(ShortlistCopy::ids($request->query('ids'), ShortlistCopy::SHORTLIST_MAX));
 
         return Inertia::render('Site/Shortlist', [
             'shortlist' => [
@@ -38,8 +38,8 @@ class ShortlistController extends Controller
 
     public function compare(Request $request): Response
     {
-        $copy = DemoShortlist::copy();
-        $projects = ShortlistProjects::cards(DemoShortlist::ids($request->query('ids'), DemoShortlist::COMPARE_MAX));
+        $copy = ShortlistCopy::copy();
+        $projects = ShortlistProjects::cards(ShortlistCopy::ids($request->query('ids'), ShortlistCopy::COMPARE_MAX));
 
         return Inertia::render('Site/Compare', [
             'compare' => [

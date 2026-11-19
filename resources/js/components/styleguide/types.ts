@@ -1,6 +1,6 @@
 import type { MediaImage } from '@/types/site';
 
-/** StyleguideController `images` prop (demo:images output). */
+/** StyleguideController `images` prop (the first images of the media library). */
 export type StyleguideImages = {
     hero: MediaImage | null;
     hero_mobile: MediaImage | null;

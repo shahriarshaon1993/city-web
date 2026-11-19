@@ -9,7 +9,6 @@ use App\Queries\Site\AreaPage;
 use App\Queries\Site\ProjectCards;
 use App\Queries\Site\ProjectSearch;
 use App\Support\Catalog\CatalogCopy;
-use App\Support\Demo\DemoContent;
 use App\Support\Search\ProjectFilters;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\LocationMeta;
@@ -71,7 +70,7 @@ class LocationController extends Controller
                 'cities' => $directory,
                 'no_projects' => $copy['no_projects'],
             ],
-            'cta' => DemoContent::projectListingCta(),
+            'cta' => CatalogCopy::listingCta(),
             'seo' => $seo->toArray($request),
         ]);
     }
@@ -238,7 +237,7 @@ class LocationController extends Controller
                 'facts_heading', 'projects_heading', 'map_heading', 'nearby_heading', 'faq_heading',
                 'empty_title', 'empty_body', 'newest_heading',
             ]))),
-            'cta' => DemoContent::projectListingCta(),
+            'cta' => CatalogCopy::listingCta(),
             'starts_with_hero' => true,
             'seo' => $seo->toArray($request),
         ]);

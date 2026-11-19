@@ -3,8 +3,8 @@
 namespace App\Queries\Site;
 
 use App\Support\Catalog\CatalogCopy;
-use App\Support\Demo\DemoShortlist;
 use App\Support\Format;
+use App\Support\Shortlist\ShortlistCopy;
 
 /**
  * PG-20 / PG-21 (FR-SHORT-002/003): turns the browser's stored project IDs into cards and the
@@ -85,7 +85,7 @@ final class ShortlistProjects
 
         return [
             ['key' => 'facts', 'heading' => null, 'rows' => $facts],
-            ['key' => 'amenities', 'heading' => DemoShortlist::copy()['compare_amenities'], 'rows' => $amenityRows],
+            ['key' => 'amenities', 'heading' => ShortlistCopy::copy()['compare_amenities'], 'rows' => $amenityRows],
         ];
     }
 

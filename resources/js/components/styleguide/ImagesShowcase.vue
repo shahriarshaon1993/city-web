@@ -48,7 +48,7 @@ const tiles = computed<
             v-if="!images.hero"
             class="rounded-xl border"
             title="No demo images yet"
-            body="Run php artisan demo:images --placeholders, then reload."
+            body="Add images to the media library, then reload."
         />
         <template v-else>
             <figure class="flex flex-col gap-2">

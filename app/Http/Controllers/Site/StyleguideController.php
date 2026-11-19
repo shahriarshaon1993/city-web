@@ -3,53 +3,45 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Media\MediaImageResource;
+use App\Models\MediaAsset;
+use App\Queries\Site\ProjectCards;
 use App\Queries\Site\ProjectDetail;
-use App\Support\Demo\DemoBlocks;
-use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoMedia;
 use App\Support\Format;
+use App\Support\Media\MediaKind;
 use App\Support\Seo\SeoData;
+use App\Support\Settings\SharedSettings;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Local-only UI kit reference (0.2, 0.3, project cards 2.2), hero previews (2.1) and content blocks (6.1). Registered only when app()->isLocal().
+ * Local-only UI kit reference (0.2, 0.3, project cards 2.2) and the lead forms (7.1). Registered only when app()->isLocal(). The hero and content blocks are previewed in the page builder.
  */
 class StyleguideController extends Controller
 {
     public function __invoke(Request $request): Response
     {
+        // The sample photos are the first library images; a library without images shows the placeholders.
+        $images = MediaAsset::query()->where('kind', MediaKind::Image->value)->with('media')->orderBy('id')->limit(8)->get()
+            ->map(fn (MediaAsset $asset): array => MediaImageResource::make($asset)->resolve())->all();
+        $pick = fn (int $position): ?array => $images[$position] ?? $images[0] ?? null;
+
         return Inertia::render('Site/Styleguide', [
             'images' => [
-                'hero' => DemoMedia::image('hero/hero-01'),
-                'hero_mobile' => DemoMedia::image('hero/hero-01-mobile'),
-                'project' => DemoMedia::image('projects/projects-01'),
-                'news' => DemoMedia::image('news/news-01'),
-                'location' => DemoMedia::image('locations/locations-01'),
-                'portrait' => DemoMedia::image('team/team-01'),
-                'interior' => DemoMedia::image('interiors/interiors-01'),
-                'thumbs' => array_map(DemoMedia::image(...), ['projects/projects-02', 'projects/projects-03', 'interiors/interiors-02', 'progress/progress-01']),
+                'hero' => $pick(0),
+                'hero_mobile' => $pick(0),
+                'project' => $pick(1),
+                'news' => $pick(2),
+                'location' => $pick(3),
+                'portrait' => $pick(4),
+                'interior' => $pick(5),
+                'thumbs' => [$pick(1), $pick(2), $pick(5), $pick(6)],
             ],
-            'projects' => DemoContent::projectCards(limit: 8),
-            'ogImage' => DemoMedia::ogImage('hero/hero-01'),
+            'projects' => ProjectCards::filtered(null, null, 8),
+            'ogImage' => SharedSettings::defaultOgImage(),
             'formatSamples' => $this->formatSamples(),
             'seo' => SeoData::page('Styleguide')->noindex(follow: false)->toArray($request),
-        ]);
-    }
-
-    /**
-     * Phase 2.1 hero previews: the home page with another hero variant
-     * (image, video, slider, centered).
-     */
-    public function hero(Request $request, string $variant): Response
-    {
-        $blocks = DemoContent::homeBlocks($variant);
-
-        return Inertia::render('Site/Home', [
-            'blocks' => $blocks,
-            'starts_with_hero' => true,
-            'seo' => SeoData::page('Hero: '.$variant)->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
         ]);
     }
 
@@ -71,22 +63,6 @@ class StyleguideController extends Controller
                 ),
             ],
             'seo' => SeoData::page('Lead forms')->noindex(follow: false)->toArray($request),
-        ]);
-    }
-
-    /**
-     * Phase 6.1 content blocks, with `?header=plain` for the header without a
-     * photo.
-     */
-    public function blocks(Request $request): Response
-    {
-        $plain = $request->query('header') === 'plain';
-        $blocks = DemoBlocks::styleguide($plain ? 'plain' : 'image');
-
-        return Inertia::render('Site/StyleguideBlocks', [
-            'blocks' => $blocks,
-            'starts_with_hero' => ! $plain,
-            'seo' => SeoData::page('Content blocks')->noindex(follow: false)->lcpFromBlocks($blocks)->toArray($request),
         ]);
     }
 

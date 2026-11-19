@@ -119,7 +119,10 @@ const nameTag = computed(() => (props.block.data.heading ? 'h3' : 'h2'));
                         </div>
                     </dl>
                 </div>
-                <div class="lg:col-span-7">
+                <div
+                    v-if="office.latitude !== null && office.longitude !== null"
+                    class="lg:col-span-7"
+                >
                     <MapFacade
                         :lat="office.latitude"
                         :lng="office.longitude"

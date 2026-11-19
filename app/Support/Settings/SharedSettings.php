@@ -3,12 +3,10 @@
 namespace App\Support\Settings;
 
 use App\Models\MediaAsset;
-use App\Support\Demo\DemoMedia;
 
 /**
  * The public shared props that come from Settings (ARC-003): `site`, `ui.motion`, `ui.cookies`,
- * `ui.analytics`, the error-page copy and the brand images. Part A built these from DemoContent
- * (DEC-29); the shapes are unchanged, only the source is now the database with registry defaults.
+ * `ui.analytics`, the error-page copy and the brand images, all from the database with registry defaults.
  */
 final class SharedSettings
 {
@@ -170,13 +168,13 @@ final class SharedSettings
 
     /**
      * The share image of pages without their own (SEO-ONP): the chosen library image's 1200×630
-     * crop, else the demo photo.
+     * crop, else none (set one in Settings → SEO).
      */
     public static function defaultOgImage(): ?string
     {
         $asset = self::brandAsset('default_og_image');
 
-        return $asset?->ogUrl() ?? $asset?->url() ?? DemoMedia::ogImage('hero/hero-01');
+        return $asset?->ogUrl() ?? $asset?->url();
     }
 
     private static function brandUrl(string $key): string

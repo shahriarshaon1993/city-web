@@ -4,7 +4,8 @@ namespace App\Support\Menus;
 
 use App\Enums\Segment;
 use App\Queries\Site\AreaDirectory;
-use App\Support\Demo\DemoContent;
+use App\Queries\Site\ProjectCards;
+use App\Support\Catalog\CatalogCopy;
 
 /**
  * CMS-NAV-003: the columns of a mega menu. A column is a hand-made link list or one of three that
@@ -43,7 +44,7 @@ final class MegaColumns
                 'links' => ['kind' => 'links', 'heading' => $heading, 'items' => self::links($column['items'] ?? [])],
                 'segments' => ['kind' => 'segments', 'heading' => $heading, 'items' => self::segments()],
                 'locations' => ['kind' => 'locations', 'heading' => $heading, 'items' => self::locations()],
-                'featured_projects' => ['kind' => 'featured_projects', 'heading' => $heading, 'projects' => array_slice(DemoContent::projectCards(featuredOnly: true), 0, 3)],
+                'featured_projects' => ['kind' => 'featured_projects', 'heading' => $heading, 'projects' => ProjectCards::featured(3)],
                 default => null,
             };
 
@@ -93,7 +94,7 @@ final class MegaColumns
                 id: -100 - count($items),
                 label: $segment->label(),
                 url: '/projects/type/'.str_replace('_', '-', $segment->value),
-                description: DemoContent::SEGMENT_DESCRIPTIONS[$segment->value],
+                description: CatalogCopy::SEGMENT_DESCRIPTIONS[$segment->value],
                 icon: self::SEGMENT_ICONS[$segment->value],
             );
         }

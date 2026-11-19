@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Queries\Site\ProjectDetail;
 use App\Support\Catalog\CatalogCopy;
-use App\Support\Demo\DemoContent;
 use App\Support\Seo\ProjectMeta;
 use App\Support\Seo\SeoData;
 use App\Support\Seo\SeoOverrides;
@@ -67,7 +66,7 @@ class ProjectController extends Controller
         return Inertia::render('Site/Project', [
             'project' => $project,
             'copy' => CatalogCopy::project(),
-            'cta' => DemoContent::projectListingCta(),
+            'cta' => CatalogCopy::listingCta(),
             'seo' => $seo->toArray($request),
         ]);
     }

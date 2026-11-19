@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Actions\Demo\ImportDemoMedia;
 use App\Actions\Locations\SyncLocationMediaUsages;
 use App\Enums\LocationType;
 use App\Enums\PublishStatus;
 use App\Models\Location;
-use App\Support\Demo\DemoLocations;
-use App\Support\Demo\DemoProjects;
+use Database\Seeders\Data\DemoLocations;
+use Database\Seeders\Data\DemoProjects;
+use Database\Seeders\Support\ImportSeedMedia;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
  */
 class DemoLocationSeeder extends Seeder
 {
-    public function run(ImportDemoMedia $importMedia, SyncLocationMediaUsages $syncUsages): void
+    public function run(ImportSeedMedia $importMedia, SyncLocationMediaUsages $syncUsages): void
     {
         $published = ['publish_status' => PublishStatus::Published, 'published_at' => '2025-01-01 00:00:00'];
         $cities = [];

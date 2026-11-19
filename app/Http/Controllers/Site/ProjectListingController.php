@@ -9,7 +9,7 @@ use App\Queries\Site\AreaDirectory;
 use App\Queries\Site\FacetPages;
 use App\Queries\Site\ProjectCards;
 use App\Queries\Site\ProjectSearch;
-use App\Support\Demo\DemoContent;
+use App\Support\Catalog\CatalogCopy;
 use App\Support\Search\ProjectFilters;
 use App\Support\Seo\Breadcrumbs;
 use App\Support\Seo\SeoData;
@@ -92,8 +92,8 @@ class ProjectListingController extends Controller
             // FR-SRCH-006: every result as a marker, only in map view.
             'map' => $filters->view === 'map' ? $this->search->mapProjects($filters) : null,
             'newest' => ProjectCards::newest(),
-            'copy' => DemoContent::projectListing()['copy'],
-            'cta' => DemoContent::projectListingCta(),
+            'copy' => CatalogCopy::listing()['copy'],
+            'cta' => CatalogCopy::listingCta(),
             'seo' => $seo->toArray($request),
         ]);
     }
@@ -106,22 +106,21 @@ class ProjectListingController extends Controller
      */
     private function header(ProjectFilters $filters): array
     {
-        $copy = DemoContent::projectListing();
+        $copy = CatalogCopy::listing();
         $landing = $filters->landing();
         $listingTitle = 'Projects';
 
         if ($landing !== null && $landing['kind'] !== 'area') {
-            $demo = $copy['facets'][$landing['kind'].':'.$landing['value']];
             $stored = FacetPages::find($landing['kind'], $landing['value']);
             $label = $landing['kind'] === 'segment'
                 ? Segment::from($landing['value'])->label()
                 : Lifecycle::from($landing['value'])->label();
 
             return [
-                'title' => $stored['title'] ?? $demo['title'],
-                'intro' => $stored === null ? $demo['intro'] : $stored['intro'],
-                'description' => $stored['meta_description'] ?? $demo['description'],
-                'faq' => $demo['faq'],
+                'title' => $stored['title'] ?? $label.' projects in Bangladesh',
+                'intro' => $stored['intro'] ?? null,
+                'description' => $stored['meta_description'] ?? $copy['listing']['description'],
+                'faq' => $stored['faq'] ?? [],
                 'breadcrumbs' => Breadcrumbs::to($label, [[$listingTitle, ProjectFilters::basePath()]]),
             ];
         }
@@ -150,8 +149,8 @@ class ProjectListingController extends Controller
     private function facetCopy(array $copy, string $kind, string $value): array
     {
         $stored = FacetPages::find($kind, $value);
-        $demo = $copy['facets']["{$kind}:{$value}"];
+        $label = $kind === 'segment' ? Segment::from($value)->label() : Lifecycle::from($value)->label();
 
-        return ['title' => $stored['title'] ?? $demo['title'], 'description' => $stored['meta_description'] ?? $demo['description']];
+        return ['title' => $stored['title'] ?? $label.' projects in Bangladesh', 'description' => $stored['meta_description'] ?? $copy['listing']['description']];
     }
 }

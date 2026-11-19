@@ -11,7 +11,7 @@ use App\Models\ProjectDocument;
 use App\Models\ProjectNearbyPlace;
 use App\Models\ProjectProgressUpdate;
 use App\Models\ProjectUnitType;
-use App\Support\Demo\DemoCatalogFaqs;
+use App\Queries\Site\FaqContent;
 use App\Support\Format;
 use App\Support\Media\AssetMap;
 use App\Support\Search\ProjectFilters;
@@ -104,7 +104,7 @@ class ProjectDetailResource extends ProjectCardResource
             ])->all(),
             'design_team' => $this->designTeam($project),
             'documents' => $project->documents->map(fn (ProjectDocument $document): array => $this->document($document))->all(),
-            'faq' => DemoCatalogFaqs::project($project->segment->value, $project->id),
+            'faq' => FaqContent::forProject($project),
             'similar' => $this->similar,
         ];
     }

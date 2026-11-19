@@ -32,6 +32,8 @@ const props = defineProps<{
     minWords?: number;
     /** Visible height of the writing area, in lines of text. */
     rows?: number;
+    /** Paragraphs, bold, links and lists only (FR-SOC-003 FAQ answers): no headings, italic or quote. */
+    limited?: boolean;
 }>();
 
 const model = defineModel<string>({ default: '' });
@@ -56,7 +58,9 @@ const editor = useEditor({
     content: model.value,
     extensions: [
         StarterKit.configure({
-            heading: { levels: [2, 3, 4] },
+            heading: props.limited ? false : { levels: [2, 3, 4] },
+            blockquote: props.limited ? false : undefined,
+            italic: props.limited ? false : undefined,
             link: {
                 openOnClick: false,
                 autolink: true,
@@ -198,7 +202,15 @@ const tools = computed<Tool[][]>(() => {
     });
 
     return [
-        [heading(2, Heading2), heading(3, Heading3), heading(4, Heading4)],
+        ...(props.limited
+            ? []
+            : [
+                  [
+                      heading(2, Heading2),
+                      heading(3, Heading3),
+                      heading(4, Heading4),
+                  ],
+              ]),
         [
             {
                 key: 'bold',
@@ -207,13 +219,17 @@ const tools = computed<Tool[][]>(() => {
                 active: () => e.isActive('bold'),
                 run: () => e.chain().focus().toggleBold().run(),
             },
-            {
-                key: 'italic',
-                label: 'Italic',
-                icon: Italic,
-                active: () => e.isActive('italic'),
-                run: () => e.chain().focus().toggleItalic().run(),
-            },
+            ...(props.limited
+                ? []
+                : [
+                      {
+                          key: 'italic',
+                          label: 'Italic',
+                          icon: Italic,
+                          active: () => e.isActive('italic'),
+                          run: () => e.chain().focus().toggleItalic().run(),
+                      },
+                  ]),
             {
                 key: 'link',
                 label: 'Link',
@@ -237,13 +253,17 @@ const tools = computed<Tool[][]>(() => {
                 active: () => e.isActive('orderedList'),
                 run: () => e.chain().focus().toggleOrderedList().run(),
             },
-            {
-                key: 'quote',
-                label: 'Quote',
-                icon: Quote,
-                active: () => e.isActive('blockquote'),
-                run: () => e.chain().focus().toggleBlockquote().run(),
-            },
+            ...(props.limited
+                ? []
+                : [
+                      {
+                          key: 'quote',
+                          label: 'Quote',
+                          icon: Quote,
+                          active: () => e.isActive('blockquote'),
+                          run: () => e.chain().focus().toggleBlockquote().run(),
+                      },
+                  ]),
         ],
         [
             {

@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * An image or SVG library item in the `MediaImage` prop shape of resources/js/types/site.ts —
- * exactly what `DemoMedia::image()` returns (DEC-31), so `ResponsiveImage` and every page stay
- * unchanged when real media replaces the demo images.
+ * the shape `ResponsiveImage` and every page expect (DEC-31).
  *
  * - `sources.avif` is null when GD had no AVIF; `sources.jpeg` is a srcset only for hero-sized
  *   photos (more than one JPEG), otherwise null and `fallback` alone is the `<img src>`.

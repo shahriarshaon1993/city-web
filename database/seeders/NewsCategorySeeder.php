@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\PostCategory;
-use App\Support\Demo\DemoNews;
+use Database\Seeders\Data\DemoNews;
 use Illuminate\Database\Seeder;
 
 /**

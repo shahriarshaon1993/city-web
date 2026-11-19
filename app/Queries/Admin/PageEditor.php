@@ -2,6 +2,7 @@
 
 namespace App\Queries\Admin;
 
+use App\Enums\FaqCategory;
 use App\Enums\Lifecycle;
 use App\Enums\Segment;
 use App\Http\Resources\Admin\MediaAssetResource;
@@ -145,8 +146,7 @@ final class PageEditor
     }
 
     /**
-     * The option lists of the block forms (selects, pickers). Testimonials, FAQs and offices still come
-     * from the demo content until 16.4 moves them to tables (BlockData is the only seam).
+     * The option lists of the block forms (selects, pickers); BlockData is the only seam to the content tables.
      *
      * @return array<string, mixed>
      */
@@ -164,11 +164,11 @@ final class PageEditor
             'cities' => Location::query()->cities()->orderBy('name')->get(['slug', 'name'])
                 ->map(fn (Location $city): array => ['value' => $city->slug, 'label' => $city->name])->all(),
             'testimonials' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['person_name'].($item['designation'] ? ', '.$item['designation'] : '')], BlockData::testimonials()),
-            'faq_categories' => array_map(fn (string $slug): array => ['value' => $slug, 'label' => ucfirst(str_replace(['-', '_'], ' ', $slug))], BlockData::faqCategories()),
-            'faqs' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['question']], BlockData::faqs(null)),
+            'faq_categories' => array_map(fn (FaqCategory $category): array => ['value' => $category->value, 'label' => $category->label()], FaqCategory::cases()),
+            'faqs' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['question']], BlockData::allFaqs()),
             'news_categories' => PostCategory::query()->orderBy('sort_order')->get(['slug', 'name'])
                 ->map(fn (PostCategory $category): array => ['value' => $category->slug, 'label' => $category->name])->all(),
-            'offices' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['name']], BlockData::offices()),
+            'offices' => array_map(fn (array $item): array => ['value' => $item['id'], 'label' => $item['name']], BlockData::officeChoices()),
             'partner_categories' => array_map(fn (string $slug): array => ['value' => $slug, 'label' => ucfirst(str_replace('_', ' ', $slug))], PartnersMarqueeSchema::CATEGORIES),
             'block_icons' => FeatureCardsSchema::ICONS,
             ...MenuEditor::options(),

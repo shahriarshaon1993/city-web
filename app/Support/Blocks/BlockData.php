@@ -2,18 +2,20 @@
 
 namespace App\Support\Blocks;
 
+use App\Models\Office;
 use App\Models\PostCategory;
 use App\Queries\Site\AreaDirectory;
+use App\Queries\Site\FaqContent;
 use App\Queries\Site\NewsQuery;
-use App\Support\Demo\DemoContent;
-use App\Support\Demo\DemoFaqs;
-use App\Support\Demo\DemoTeam;
+use App\Queries\Site\ProgressSummaries;
+use App\Queries\Site\ProjectSearchOptions;
+use App\Queries\Site\SocialContent;
+use App\Support\Catalog\CatalogCopy;
 
 /**
  * Where block schemas read the content of entities that are not page data: testimonials, partners,
- * posts, team members, FAQs and offices. Projects, areas and posts already come from their tables;
- * the rest still come from the demo content until their admin arrives (16.4), so only this class
- * changes when each moves to its table (ARC-002).
+ * posts, team members, FAQs, offices, progress and the search options. Every one comes from its table
+ * (ARC-002), so this class is the single seam between the blocks and the data.
  */
 final class BlockData
 {
@@ -22,7 +24,7 @@ final class BlockData
      */
     public static function testimonials(): array
     {
-        return DemoContent::testimonials();
+        return SocialContent::testimonials();
     }
 
     /**
@@ -30,7 +32,7 @@ final class BlockData
      */
     public static function partners(): array
     {
-        return DemoContent::partners();
+        return SocialContent::partners();
     }
 
     /**
@@ -54,7 +56,7 @@ final class BlockData
      */
     public static function team(string $group): array
     {
-        return DemoTeam::members($group);
+        return SocialContent::team($group);
     }
 
     /**
@@ -65,7 +67,17 @@ final class BlockData
      */
     public static function faqs(?string $category, array $ids = []): array
     {
-        return DemoFaqs::forBlock($category, $ids);
+        return FaqContent::forBlock($category, $ids);
+    }
+
+    /**
+     * Every published question, for the block form's picker.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function allFaqs(): array
+    {
+        return FaqContent::all();
     }
 
     /**
@@ -73,7 +85,7 @@ final class BlockData
      */
     public static function faqCategories(): array
     {
-        return DemoFaqs::blockCategories();
+        return FaqContent::blockCategories();
     }
 
     /**
@@ -81,7 +93,18 @@ final class BlockData
      */
     public static function offices(): array
     {
-        return DemoContent::offices();
+        return SocialContent::offices();
+    }
+
+    /**
+     * Every office, for the block form's picker (an office has no published switch).
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public static function officeChoices(): array
+    {
+        return array_values(Office::query()->orderByDesc('is_head_office')->orderBy('sort_order')->orderBy('id')->get(['id', 'name'])
+            ->map(fn (Office $office): array => ['id' => $office->id, 'name' => $office->name])->all());
     }
 
     /**
@@ -89,7 +112,7 @@ final class BlockData
      */
     public static function progressStages(): array
     {
-        return DemoContent::progressStages();
+        return CatalogCopy::progressStages();
     }
 
     /**
@@ -98,7 +121,7 @@ final class BlockData
      */
     public static function progressSummaries(array $projectIds): array
     {
-        return DemoContent::progressSummaries($projectIds);
+        return ProgressSummaries::latest($projectIds);
     }
 
     /**
@@ -108,7 +131,7 @@ final class BlockData
      */
     public static function projectSearch(): array
     {
-        return DemoContent::projectSearch();
+        return ProjectSearchOptions::all();
     }
 
     /**

@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 final class FacetPages
 {
     /**
-     * @return array{title: string, intro: string|null, meta_title: string|null, meta_description: string|null}|null
+     * @return array{title: string, intro: string|null, meta_title: string|null, meta_description: string|null, faq: list<array<string, mixed>>}|null
      */
     public static function find(string $kind, string $value): ?array
     {
@@ -32,6 +32,7 @@ final class FacetPages
                 'intro' => $intro === '' ? null : $intro,
                 'meta_title' => $page->seoMeta?->meta_title,
                 'meta_description' => $page->seoMeta?->meta_description === null ? null : Str::limit($page->seoMeta->meta_description, 170, ''),
+                'faq' => FaqContent::forFacet($page),
             ];
         });
     }

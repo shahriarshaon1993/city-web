@@ -9,13 +9,16 @@ use App\Listeners\NotifyAboutLead;
 use App\Listeners\RecordAuthEvents;
 use App\Models\Amenity;
 use App\Models\FacetPage;
+use App\Models\Faq;
 use App\Models\Lead;
 use App\Models\Location;
 use App\Models\MediaAsset;
 use App\Models\MediaFolder;
 use App\Models\Menu;
 use App\Models\NewsletterSubscriber;
+use App\Models\Office;
 use App\Models\Page;
+use App\Models\Partner;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Project;
@@ -27,6 +30,8 @@ use App\Models\Redirect;
 use App\Models\SeoMeta;
 use App\Models\Setting;
 use App\Models\Tag;
+use App\Models\TeamMember;
+use App\Models\Testimonial;
 use App\Models\User;
 use App\Policies\RolePolicy;
 use App\Support\Auth\LoginThrottle;
@@ -117,6 +122,11 @@ class AppServiceProvider extends ServiceProvider
             'post' => Post::class,
             'post_category' => PostCategory::class,
             'tag' => Tag::class,
+            'testimonial' => Testimonial::class,
+            'partner' => Partner::class,
+            'faq' => Faq::class,
+            'team_member' => TeamMember::class,
+            'office' => Office::class,
         ]);
     }
 
@@ -129,7 +139,7 @@ class AppServiceProvider extends ServiceProvider
         $models = [
             Project::class, ProjectUnitType::class, ProjectProgressUpdate::class, ProjectNearbyPlace::class,
             ProjectDocument::class, Location::class, Amenity::class, FacetPage::class, SeoMeta::class,
-            MediaAsset::class, Media::class,
+            MediaAsset::class, Media::class, Faq::class,
         ];
 
         foreach ($models as $model) {

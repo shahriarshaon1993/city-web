@@ -15,7 +15,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 /**
  * CMS-MED-005 / HERO-011 / CMS-MED-006: writes the conversions of one image next to its original
  * (`media/{id}/{hash}-w{width}.{avif|webp|jpg}`, `{hash}-og.jpg`), decoding the source once with
- * PHP GD, and stores the result as the `renditions` custom property in the shape of `DemoMedia`
+ * PHP GD, and stores the result as the `renditions` custom property in the `MediaImage` shape of resources/js/types/site.ts
  * (DEC-31), so the media resource and the demo manifest feed `ResponsiveImage` identically.
  *
  * - widths 400 / 800 / 1280 / 1920 / 2560 (a width above the source is skipped), AVIF (when GD has

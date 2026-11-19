@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Actions\Demo\ImportDemoMedia;
 use App\Actions\Media\SyncMediaUsages;
 use App\Actions\Projects\SyncProjectMediaUsages;
 use App\Enums\PublishStatus;
@@ -10,9 +9,10 @@ use App\Enums\VideoType;
 use App\Models\Amenity;
 use App\Models\Location;
 use App\Models\Project;
-use App\Support\Demo\DemoMedia;
-use App\Support\Demo\DemoProjectDetail;
-use App\Support\Demo\DemoProjects;
+use Database\Seeders\Data\DemoProjectDetail;
+use Database\Seeders\Data\DemoProjects;
+use Database\Seeders\Data\SeedMedia;
+use Database\Seeders\Support\ImportSeedMedia;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  * FAQs stay in the demo content until the FAQ module (16.4); the YouTube placeholder video is stored,
  * the optional uploaded demo film is not.
  *
- * @phpstan-import-type MediaImage from DemoMedia
+ * @phpstan-import-type MediaImage from SeedMedia
  */
 class DemoProjectSeeder extends Seeder
 {
@@ -35,7 +35,7 @@ class DemoProjectSeeder extends Seeder
     private const array DOCUMENT_FILES = ['brochure' => 'brochure', 'price_list' => 'price-list', 'specification' => 'specification', 'other' => 'plot-layout'];
 
     public function __construct(
-        private readonly ImportDemoMedia $importMedia,
+        private readonly ImportSeedMedia $importMedia,
         private readonly SyncMediaUsages $syncUsages,
         private readonly SyncProjectMediaUsages $syncProjectUsages,
     ) {}
@@ -204,7 +204,7 @@ class DemoProjectSeeder extends Seeder
      */
     private function assetId(?array $image): ?int
     {
-        $key = $image === null ? null : DemoMedia::keyOf($image);
+        $key = $image === null ? null : SeedMedia::keyOf($image);
 
         return $key === null ? null : $this->importMedia->handle($key)?->id;
     }

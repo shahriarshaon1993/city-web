@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * The hero background video in the `MediaVideo` shape (HERO-020, `DemoMedia::video()`): MP4
+ * The hero background video in the `MediaVideo` shape (HERO-020, types/site.ts): MP4
  * required, WebM optional. Built from the two library items: `new MediaVideoResource(['mp4' => $a, 'webm' => $b])`.
  *
  * @property array{mp4: MediaAsset, webm?: MediaAsset|null} $resource

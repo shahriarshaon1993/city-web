@@ -22,6 +22,12 @@ class DatabaseSeeder extends Seeder
     {
         $syncRoles->handle();
 
+        // The placeholder offices, quotes, logos, team and FAQs come first: the system pages' blocks use them
+        // (a page whose blocks are incomplete stays a draft). Production starts without them (16.4).
+        if (! app()->isProduction()) {
+            $this->call([SocialSeeder::class, FaqSeeder::class]);
+        }
+
         // Pages first: the default menus link to them by id.
         $this->call([PageSeeder::class, MenuSeeder::class, CatalogSeeder::class, NewsCategorySeeder::class]);
 
@@ -29,8 +35,10 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        // 13.1: the demo cities, areas and projects as real rows (removed with the demo content in 16.4).
+        // 13.1: the demo cities, areas and projects as real rows.
         $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class, DemoNewsSeeder::class]);
+        // The questions that belong to single areas, project segments and listing pages.
+        app(FaqSeeder::class)->attach();
         // Again: pages whose blocks need projects (featured, progress) can be published now.
         $this->call(PageSeeder::class);
 

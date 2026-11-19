@@ -3,7 +3,7 @@
 namespace App\Support\Errors;
 
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Support\Demo\DemoContent;
+use App\Queries\Site\ProjectCards;
 use App\Support\Seo\SeoData;
 use App\Support\Settings\SharedSettings;
 use Illuminate\Http\Request;
@@ -103,7 +103,7 @@ final class ErrorPage
             'search' => $status === 404 ? ['action' => '/search', 'name' => 'q', 'min_length' => 2] : null,
             'popular' => $status === 404 ? [
                 'heading' => $copy['popular_heading'],
-                'projects' => array_slice(DemoContent::projectCards(featuredOnly: true), 0, 3),
+                'projects' => ProjectCards::featured(3),
             ] : null,
             'minimal' => $minimal,
             'seo' => SeoData::page($copy['title'])->noindex()->toArray($request),

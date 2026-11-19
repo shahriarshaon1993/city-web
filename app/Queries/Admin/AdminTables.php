@@ -27,6 +27,11 @@ final class AdminTables
         PostsTable::class,
         PostCategoriesTable::class,
         TagsTable::class,
+        TestimonialsTable::class,
+        PartnersTable::class,
+        FaqsTable::class,
+        TeamTable::class,
+        OfficesTable::class,
     ];
 
     /**
