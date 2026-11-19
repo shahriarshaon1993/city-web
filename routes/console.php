@@ -33,3 +33,9 @@ Schedule::command('leads:notify-follow-ups')->dailyAt('09:00')->timezone('Asia/D
 
 // FR-LEAD-012: the webhook delivery log is kept for 30 days.
 Schedule::command('webhooks:prune')->dailyAt('03:45');
+
+// FR-CAR-003 / ARC-012: an open job whose deadline has passed closes at 00:05 Asia/Dhaka.
+Schedule::command('careers:close-expired')->dailyAt('00:05')->timezone('Asia/Dhaka');
+
+// NFR-PRIV-04: applications not updated for 12 months go, with their CVs.
+Schedule::command('applications:purge')->dailyAt('03:20');

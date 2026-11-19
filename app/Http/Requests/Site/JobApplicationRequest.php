@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Site;
 
 use App\Http\Requests\Site\Concerns\ContactFieldRules;
-use App\Support\Demo\DemoCareers;
+use App\Support\Careers\JobDates;
 use App\Support\Forms\FormOptions;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 /**
  * FR-CAR-002 apply form (PG-16) and the general CV drop of PG-15 (FR-CAR-004,
  * no `job`). The CV is checked by content and extension (PDF/DOC/DOCX, 5 MB,
- * AC-CAR-01); it goes to the private disk from 17.1 on.
+ * AC-CAR-01); it goes to the private disk (`SubmitJobApplication`).
  */
 class JobApplicationRequest extends FormRequest
 {
@@ -46,7 +46,7 @@ class JobApplicationRequest extends FormRequest
     {
         return [
             // FR-CAR-003: only open roles take applications.
-            'job' => ['nullable', 'string', Rule::in(array_column(DemoCareers::open(), 'slug'))],
+            'job' => ['nullable', 'string', Rule::exists('job_posts', 'slug')->where(fn ($query) => $query->whereNull('deleted_at')->where('status', 'open')->where('deadline', '>=', JobDates::today()->toDateString()))],
             ...$this->personRules(email: true),
             'current_position' => ['nullable', 'string', 'max:120'],
             'years_experience' => ['nullable', 'integer', 'min:0', 'max:'.FormOptions::YEARS_EXPERIENCE_MAX],
@@ -76,5 +76,13 @@ class JobApplicationRequest extends FormRequest
             ...$this->consentRules(),
             ...$this->trackingRules(),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return ['job.exists' => 'This role is no longer taking applications.'];
     }
 }

@@ -1,5 +1,5 @@
-// Careers contract (8.2): App\Http\Controllers\Site\CareerController with
-// App\Support\Demo\DemoCareers now, the JobPost resources in 17.1.
+// Careers contract: App\Http\Controllers\Site\CareerController with the
+// App\Http\Resources\Site\{JobRow,JobPost}Resource (17.1).
 
 import type { PageBlock } from '@/types/blocks';
 import type { Breadcrumb } from '@/types/site';

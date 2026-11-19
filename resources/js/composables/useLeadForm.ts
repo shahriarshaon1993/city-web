@@ -38,7 +38,7 @@ type Config<T extends FormValues> = {
     rules: Rules<T>;
     /** Extra fields sent with the form (e.g. the project slug). */
     extra?: () => Record<string, FormDataConvertible>;
-    /** FR-LEAD-003 honeypot + Turnstile; the job application joins in 17.1. Default true. */
+    /** FR-LEAD-003 honeypot + Turnstile; the job application uses them too (17.1). Default true. */
     spam?: boolean;
 };
 

@@ -10,6 +10,8 @@ use App\Listeners\RecordAuthEvents;
 use App\Models\Amenity;
 use App\Models\FacetPage;
 use App\Models\Faq;
+use App\Models\JobApplication;
+use App\Models\JobPost;
 use App\Models\Lead;
 use App\Models\Location;
 use App\Models\MediaAsset;
@@ -127,6 +129,8 @@ class AppServiceProvider extends ServiceProvider
             'faq' => Faq::class,
             'team_member' => TeamMember::class,
             'office' => Office::class,
+            'job_post' => JobPost::class,
+            'job_application' => JobApplication::class,
         ]);
     }
 

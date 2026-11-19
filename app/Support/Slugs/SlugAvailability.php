@@ -2,6 +2,7 @@
 
 namespace App\Support\Slugs;
 
+use App\Models\JobPost;
 use App\Models\Location;
 use App\Models\Page;
 use App\Models\Post;
@@ -37,6 +38,7 @@ final class SlugAvailability
             'location' => [Location::class, 'slug'],
             'page' => [Page::class, 'slug'],
             'post' => [Post::class, 'slug'],
+            'job_post' => [JobPost::class, 'slug'],
             'post_category' => [PostCategory::class, 'slug'],
             'tag' => [Tag::class, 'slug'],
         ];

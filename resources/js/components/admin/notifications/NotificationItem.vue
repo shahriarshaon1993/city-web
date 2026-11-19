@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { Bell, CalendarClock, PhoneCall, UserCheck } from '@lucide/vue';
+import {
+    Bell,
+    CalendarClock,
+    FileUser,
+    PhoneCall,
+    UserCheck,
+} from '@lucide/vue';
 import type { Component } from 'vue';
 import { computed } from 'vue';
 import { formatDateTime, timeAgo } from '@/lib/admin-format';
@@ -20,6 +26,7 @@ const KINDS: Record<string, { icon: Component; tile: string }> = {
         icon: CalendarClock,
         tile: 'bg-warning-50 text-warning-700',
     },
+    new_application: { icon: FileUser, tile: 'bg-primary/10 text-primary' },
 };
 
 const kind = computed(

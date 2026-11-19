@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // 13.1: the demo cities, areas and projects as real rows.
-        $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class, DemoNewsSeeder::class]);
+        $this->call([DemoLocationSeeder::class, DemoProjectSeeder::class, DemoNewsSeeder::class, CareersSeeder::class]);
         // The questions that belong to single areas, project segments and listing pages.
         app(FaqSeeder::class)->attach();
         // Again: pages whose blocks need projects (featured, progress) can be published now.

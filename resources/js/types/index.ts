@@ -14,3 +14,4 @@ export * from './notifications';
 export * from './pages';
 export * from './admin-news';
 export * from './admin-social';
+export * from './admin-careers';

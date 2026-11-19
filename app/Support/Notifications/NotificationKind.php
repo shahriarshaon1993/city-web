@@ -4,6 +4,7 @@ namespace App\Support\Notifications;
 
 use App\Notifications\FollowUpsDueNotification;
 use App\Notifications\LeadAssignedNotification;
+use App\Notifications\NewApplicationNotification;
 use App\Notifications\NewLeadNotification;
 
 /**
@@ -15,6 +16,7 @@ enum NotificationKind: string
     case NewLead = 'new_lead';
     case LeadAssigned = 'lead_assigned';
     case FollowUpsDue = 'follow_up_due';
+    case NewApplication = 'new_application';
 
     public function label(): string
     {
@@ -22,6 +24,7 @@ enum NotificationKind: string
             self::NewLead => 'New lead',
             self::LeadAssigned => 'Assigned to you',
             self::FollowUpsDue => 'Follow-ups due',
+            self::NewApplication => 'New application',
         };
     }
 
@@ -34,6 +37,7 @@ enum NotificationKind: string
             self::NewLead => NewLeadNotification::class,
             self::LeadAssigned => LeadAssignedNotification::class,
             self::FollowUpsDue => FollowUpsDueNotification::class,
+            self::NewApplication => NewApplicationNotification::class,
         };
     }
 
@@ -44,6 +48,7 @@ enum NotificationKind: string
             self::NewLead => 'phone-call',
             self::LeadAssigned => 'user-check',
             self::FollowUpsDue => 'calendar-clock',
+            self::NewApplication => 'file-user',
         };
     }
 

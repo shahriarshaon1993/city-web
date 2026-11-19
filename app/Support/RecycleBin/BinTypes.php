@@ -4,6 +4,8 @@ namespace App\Support\RecycleBin;
 
 use App\Models\Amenity;
 use App\Models\Faq;
+use App\Models\JobApplication;
+use App\Models\JobPost;
 use App\Models\Lead;
 use App\Models\Location;
 use App\Models\MediaAsset;
@@ -46,6 +48,8 @@ final class BinTypes
         Faq::class,
         TeamMember::class,
         Office::class,
+        JobPost::class,
+        JobApplication::class,
     ];
 
     /**

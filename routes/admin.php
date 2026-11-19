@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacetPageController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FeaturedProjectController;
+use App\Http\Controllers\Admin\JobApplicationController;
+use App\Http\Controllers\Admin\JobPostController;
 use App\Http\Controllers\Admin\LeadAttachmentController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\LocationController;
@@ -342,6 +344,32 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('{lead}/attachments/{index}', [LeadAttachmentController::class, 'show'])
             ->whereNumber(['lead', 'index'])
             ->name('attachments.show');
+    });
+
+    // ADM-SCR-10 Careers: job posts. The Policy checks each verb (`jobs.view` reads, `jobs.manage` writes).
+    Route::middleware('admin.can:jobs.view')->prefix('careers')->name('careers.')->group(function () {
+        Route::get('/', [JobPostController::class, 'index'])->name('index');
+        Route::get('create', [JobPostController::class, 'create'])->name('create');
+        Route::post('/', [JobPostController::class, 'store'])->name('store');
+        Route::post('bulk', [JobPostController::class, 'bulk'])->name('bulk');
+        Route::get('{job}/edit', [JobPostController::class, 'edit'])->whereNumber('job')->name('edit');
+        Route::patch('{job}', [JobPostController::class, 'update'])->whereNumber('job')->name('update');
+        Route::patch('{job}/status', [JobPostController::class, 'status'])->whereNumber('job')->name('status');
+        Route::get('{job}/preview', [JobPostController::class, 'preview'])->whereNumber('job')->name('preview');
+        Route::post('{job}/duplicate', [JobPostController::class, 'duplicate'])->whereNumber('job')->name('duplicate');
+        Route::delete('{job}', [JobPostController::class, 'destroy'])->whereNumber('job')->name('destroy');
+    });
+
+    // ADM-SCR-10 Applications: personal data, so every verb needs `applications.manage`.
+    Route::middleware('admin.can:applications.manage')->prefix('applications')->name('applications.')->group(function () {
+        Route::get('/', [JobApplicationController::class, 'index'])->name('index');
+        Route::post('bulk', [JobApplicationController::class, 'bulk'])->name('bulk');
+        Route::get('{application}', [JobApplicationController::class, 'show'])->whereNumber('application')->name('show');
+        Route::patch('{application}/status', [JobApplicationController::class, 'status'])->whereNumber('application')->name('status');
+        Route::patch('{application}/notes', [JobApplicationController::class, 'notes'])->whereNumber('application')->name('notes');
+        // FR-CAR-005: the CV leaves the private disk only through this route.
+        Route::get('{application}/cv', [JobApplicationController::class, 'cv'])->whereNumber('application')->name('cv');
+        Route::delete('{application}', [JobApplicationController::class, 'destroy'])->whereNumber('application')->name('destroy');
     });
 
     // ADM-SCR-12 Subscribers.

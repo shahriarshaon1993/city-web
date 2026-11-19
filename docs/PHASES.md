@@ -50,7 +50,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 16.2 | Page builder admin UI                                                      | 16.1           | ✅     |
 | 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ✅     |
 | 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ✅     |
-| 17.1 | Careers & applications                                                     | 16.4, 15.1     | ⬜     |
+| 17.1 | Careers & applications                                                     | 16.4, 15.1     | ✅     |
 | 17.2 | Site search (Scout database engine)                                        | 16.4           | ⬜     |
 | 17.3 | Import / export wizard, personal-data export & erase                       | 15.2, 16.4, 17.1 | ⬜     |
 | 18.1 | Dashboard home                                                             | 17.1, 15.3     | ⬜     |
@@ -765,6 +765,13 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 16.4, 15.1 · **Read:** spec/careers.md (all); spec/admin.md ADM-SCR-10, careers permission rows; spec/architecture.md ARC-012 (00:05 job); spec/crud.md rows Job posts / Job applications, DEL-07.
 **Build:** job posts + applications (both soft-deleted, applications auto-deleted after 365 days with their CV files); jobs table + editor (duplicate); applications table + drawer (status, notes, authorised CV download); auto-close at 00:05; public careers from the DB.
 **Test:** AC-CAR-01; a job past its deadline closes after running the scheduler; the CV downloads only when signed in with permission.
+
+**Done notes (17.1):**
+- Migration `create_careers_tables`: `job_posts` + `job_applications` (soft-deleted, bin types `job_post` / `job_application`, morph aliases). Models `JobPost` (HasSeo, slug history, `acceptingApplications` scope, `isClosed` / `isGone`), `JobApplication` (CV folder `careers/{reference}` on the private `local` disk); enums `JobStatus`, `EmploymentType`, `ApplicationStatus`; `Support/Careers/{JobDates,CareersCopy,ReviewReasons}`. See DEC-94.
+- Actions `app/Actions/Careers/*`; `SubmitJobApplication` = Turnstile + 20/day/phone + SpamRules (flag, never drop) + CV + `NotifyNewApplication` (new kind `new_application`). Commands `careers:close-expired` (00:05 Dhaka) and `applications:purge` (03:20).
+- Admin `/admin/careers` (list, editor, status verbs, duplicate, signed draft preview) and `/admin/applications` (table, `?application=` drawer, status, notes, authorised CV route, bulk); tables `JobPostsTable`, `JobApplicationsTable` in `AdminTables`; pages `admin/careers/*`, `admin/applications/Index.vue`, `components/admin/careers/ApplicationDrawer.vue`.
+- Public: `Queries/Site/CareersQuery`, `Resources/Site/{JobRow,JobPost}Resource`, `CareerController` on the DB (slug-history 301, 410 after 30 days, signed preview). `DemoCareers` deleted; seed source `database/seeders/Data/CareerSeedData` + `CareersSeeder` (non-production). Check: `docs/checks/17.1-careers.php`.
+- Later: `DemoSiteSearch` (17.2) is the only `Demo*` class left in `app/`; 17.3 erase/export must cover `job_applications` (CV folder + row, activity entry without PII); 18.1 dashboard may count new applications; 19.1 JobPosting JSON-LD uses `published_at`, deadline and the salary min/max columns.
 
 ### 17.2 — Site search (Scout database engine)
 

@@ -32,6 +32,8 @@ final class AdminTables
         FaqsTable::class,
         TeamTable::class,
         OfficesTable::class,
+        JobPostsTable::class,
+        JobApplicationsTable::class,
     ];
 
     /**

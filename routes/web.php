@@ -75,10 +75,10 @@ Route::get('news/{slug}', [NewsController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('site.news.show');
 
-// PG-15 / PG-16 (8.2). Applications and the general CV drop post to one route.
+// PG-15 / PG-16 (8.2). Applications and the general CV drop post to one route; 17.1 adds the honeypot + minimum fill time (FR-CAR-002).
 Route::get('careers', [CareerController::class, 'index'])->name('site.careers.index');
 Route::post('careers/apply', [CareerController::class, 'apply'])
-    ->middleware('throttle:6,1')
+    ->middleware(['throttle:6,1', ProtectAgainstSpam::class])
     ->name('site.careers.apply');
 Route::get('careers/{slug}', [CareerController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')

@@ -2,7 +2,9 @@
 
 namespace App\Support\Admin;
 
+use App\Enums\ApplicationStatus;
 use App\Enums\LeadStatus;
+use App\Models\JobApplication;
 use App\Models\Lead;
 use App\Models\MediaAsset;
 use App\Models\Project;
@@ -38,12 +40,12 @@ final class AdminNavigation
                 new NavItem('faqs', 'FAQs', 'admin/faqs', 'circle-help', ['social.view'], 'Questions and answers, grouped by topic.', '16.4', placeholder: false),
                 new NavItem('team', 'Team', 'admin/team', 'users', ['social.view'], 'Leadership and team profiles.', '16.4', placeholder: false),
                 new NavItem('offices', 'Offices', 'admin/offices', 'map', ['social.view'], 'Office addresses, hours and contact details.', '16.4', placeholder: false),
-                new NavItem('careers', 'Careers', 'admin/careers', 'briefcase', ['jobs.view'], 'Open roles and their descriptions.', '17.1'),
+                new NavItem('careers', 'Careers', 'admin/careers', 'briefcase', ['jobs.view'], 'Open roles and their descriptions.', '17.1', placeholder: false),
             ],
             'Sales' => [
                 new NavItem('leads', 'Leads', 'admin/leads', 'phone-call', ['leads.view-all', 'leads.view-assigned'], 'Enquiries from the website: table, board and follow-ups.', '15.2', placeholder: false),
                 new NavItem('subscribers', 'Subscribers', 'admin/subscribers', 'mail', ['subscribers.manage'], 'Newsletter sign-ups, with export and unsubscribe.', '15.2', placeholder: false),
-                new NavItem('applications', 'Applications', 'admin/applications', 'file-user', ['applications.manage'], 'Job applications and CVs.', '17.1'),
+                new NavItem('applications', 'Applications', 'admin/applications', 'file-user', ['applications.manage'], 'Job applications and CVs.', '17.1', placeholder: false),
             ],
             'Library' => [
                 new NavItem('media', 'Media', 'admin/media', 'images', ['media.view', 'media.upload', 'media.update'], 'Photos, videos and documents, with folders and focal points.', '11.2', placeholder: false),
@@ -126,6 +128,8 @@ final class AdminNavigation
                             'projects' => Project::query()->published()->count() ?: null,
                             // design/admin.md §12.1: leads unread (new, and visible to this user).
                             'leads' => Lead::query()->visibleTo($user)->where('status', LeadStatus::New->value)->count() ?: null,
+                            // 17.1: applications nobody has looked at yet.
+                            'applications' => JobApplication::query()->where('status', ApplicationStatus::New->value)->count() ?: null,
                             default => null,
                         },
                     ];

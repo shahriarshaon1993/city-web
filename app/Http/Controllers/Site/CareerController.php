@@ -3,24 +3,32 @@
 namespace App\Http\Controllers\Site;
 
 use App\Actions\Careers\SubmitJobApplication;
+use App\Enums\EmploymentType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\JobApplicationRequest;
+use App\Http\Resources\Site\JobPostResource;
+use App\Http\Resources\Site\JobRowResource;
+use App\Models\JobPost;
+use App\Queries\Site\CareersQuery;
 use App\Queries\Site\PageContent;
-use App\Support\Demo\DemoCareers;
+use App\Support\Careers\CareersCopy;
+use App\Support\Leads\LeadContext;
 use App\Support\Seo\SeoData;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
- * PG-15 `/careers` (LAY-CAREERS) and PG-16 `/careers/{slug}`
- * (LAY-CAREER-DETAIL). Filters are query links (`?department=…&location=…
- * &type=…`, owner 8.2); a filtered view is `noindex,follow` with its
- * canonical on `/careers`, and an unknown filter value 301s away. A closed
- * job shows "Applications closed" for 30 days, then 410 (FR-CAR-003). The
- * apply form and the CV drop post to `apply` and show their own success
- * state (owner 8.2: no thank-you page, a job application is not a lead).
+ * PG-15 `/careers` (LAY-CAREERS) and PG-16 `/careers/{slug}` (LAY-CAREER-DETAIL), read from `job_posts`.
+ * Filters are query links (`?department=…&location=…&type=…`, owner 8.2); a filtered view is
+ * `noindex,follow` with its canonical on `/careers`, and an unknown filter value 301s away. A closed
+ * job shows "Applications closed" for 30 days, then 410 (FR-CAR-003); a draft is a 404 unless the link
+ * is the signed preview of the admin (HELP-04). The apply form and the CV drop post to `apply` and show
+ * their own success state (owner 8.2: no thank-you page, a job application is not a lead).
  */
 class CareerController extends Controller
 {
@@ -29,7 +37,10 @@ class CareerController extends Controller
 
     public function index(Request $request): Response|RedirectResponse
     {
-        $options = $this->facetOptions();
+        // Local preview of the "no openings" state with the CV drop (FR-CAR-004, owner 8.2).
+        $jobs = app()->isLocal() && $request->query('preview') === 'empty' ? new Collection : CareersQuery::open();
+        $values = $this->valuesOf($jobs);
+        $options = $this->facetOptions($jobs, $values);
         $active = [];
 
         foreach (array_keys(self::FACETS) as $facet) {
@@ -44,10 +55,8 @@ class CareerController extends Controller
             }
         }
 
-        $copy = DemoCareers::copy();
-        // Local preview of the "no openings" state with the CV drop (FR-CAR-004, owner 8.2).
-        $open = app()->isLocal() && $request->query('preview') === 'empty' ? [] : DemoCareers::open();
-        $roles = array_values(array_filter($open, fn (array $job): bool => $this->matches($job, $active)));
+        $copy = CareersCopy::labels();
+        $roles = $jobs->filter(fn (JobPost $job): bool => $this->matches($values[$job->id], $active))->values();
         $blocks = PageContent::blocksOf(PageContent::find('careers'));
 
         $seo = SeoData::page($copy['title'], $copy['description'])->lcpFromBlocks($blocks);
@@ -59,114 +68,177 @@ class CareerController extends Controller
         return Inertia::render('Site/Careers', [
             'blocks' => $blocks,
             'careers' => [
-                'roles' => array_map(DemoCareers::row(...), $roles),
-                'total_open' => count($open),
+                'roles' => JobRowResource::collection($roles)->resolve($request),
+                'total_open' => $jobs->count(),
                 'filtered' => $active !== [],
-                'facets' => $open === [] ? [] : $this->facets($open, $options, $active),
+                'facets' => $jobs->isEmpty() ? [] : $this->facets($jobs, $values, $options, $active),
             ],
             'copy' => $copy,
             'seo' => $seo->toArray($request),
         ]);
     }
 
-    public function show(Request $request, string $slug): Response
+    public function show(Request $request, string $slug): HttpResponse
     {
-        $job = DemoCareers::find($slug) ?? abort(404);
+        // HELP-04: the admin's signed, 60-minute link shows a draft or a gone job. Nothing is written.
+        $preview = $request->hasValidSignature();
+        $job = $preview ? CareersQuery::findAny($slug) : CareersQuery::find($slug);
 
-        abort_if(DemoCareers::isGone($job), 410);
+        if ($job === null) {
+            $moved = JobPost::findBySlugHistory($slug);
 
-        $copy = DemoCareers::copy();
-        $detail = DemoCareers::detail($job);
-        $seo = SeoData::page($job['title'], $job['summary']);
+            abort_unless($moved !== null && $moved->status->value !== 'draft', 404);
 
-        // PG-16: indexable while open only.
-        if (! $detail['is_open']) {
-            $seo->noindex();
+            return redirect($moved->path(), 301);
         }
 
-        $others = array_filter(DemoCareers::open(), fn (array $other): bool => $other['slug'] !== $slug);
+        abort_if(! $preview && $job->isGone(), 410);
 
-        return Inertia::render('Site/CareerJob', [
+        $copy = CareersCopy::labels();
+        $detail = JobPostResource::make($job)->resolve($request);
+        $seo = $this->seoFor($job);
+
+        // PG-16: indexable while open only.
+        if (! $detail['is_open'] || $preview) {
+            $seo->noindex($preview ? false : true);
+        }
+
+        if ($preview) {
+            $request->attributes->set('preview', [
+                'label' => $job->status->label().' job post',
+                'expires' => Carbon::createFromTimestamp((int) $request->query('expires'))->timezone('Asia/Dhaka')->format('H:i'),
+            ]);
+        }
+
+        $response = Inertia::render('Site/CareerJob', [
             'job' => $detail,
-            'other_roles' => $detail['is_open'] ? [] : array_map(DemoCareers::row(...), array_slice(array_values($others), 0, 4)),
+            'other_roles' => $detail['is_open'] ? [] : JobRowResource::collection(CareersQuery::others($job))->resolve($request),
             'copy' => $copy,
             'seo' => $seo->toArray($request),
-        ]);
+        ])->toResponse($request);
+
+        if ($preview) {
+            $response->headers->add(['Cache-Control' => 'private, no-store', 'X-Robots-Tag' => 'noindex, nofollow']);
+        }
+
+        return $response;
     }
 
+    /** FR-CAR-002: the apply form and the CV drop. The route runs the honeypot and the rate limit first. */
     public function apply(JobApplicationRequest $request, SubmitJobApplication $submit): RedirectResponse
     {
-        $submit->handle($request->validated());
+        $submit->handle($request->validated(), LeadContext::fromRequest($request));
 
         return back();
     }
 
-    /**
-     * Allowed values per facet: every department, location and type that
-     * has an open role.
-     *
-     * @return array<string, array<string, string>>
-     */
-    private function facetOptions(): array
+    /** The SEO panel of the job wins over the page template (spec/cms.md §8.5). */
+    private function seoFor(JobPost $job): SeoData
     {
-        $options = ['department' => [], 'location' => [], 'type' => []];
-        $locations = DemoCareers::locations();
+        $meta = $job->seoMeta;
+        $description = filled($meta?->meta_description) ? (string) $meta->meta_description : $job->summary;
+        $seo = filled($meta?->meta_title) ? SeoData::raw((string) $meta->meta_title, $description) : SeoData::page($job->title, $description);
 
-        foreach (DemoCareers::open() as $job) {
-            $options['department'][$job['department']] = DemoCareers::DEPARTMENTS[$job['department']];
-            $options['location'][DemoCareers::locationSlug($job)] = $locations[DemoCareers::locationSlug($job)];
-            $options['type'][$this->typeValue($job['type'])] = DemoCareers::TYPE_LABELS[$job['type']];
+        if (filled($meta?->robots) && $meta->robots !== SeoData::ROBOTS_INDEX) {
+            $seo->robots($meta->robots);
         }
 
-        // Keep the source order of departments, locations and types.
-        $order = [
-            'department' => array_keys(DemoCareers::DEPARTMENTS),
-            'location' => array_keys($locations),
-            'type' => array_map($this->typeValue(...), array_keys(DemoCareers::TYPE_LABELS)),
-        ];
-        $sorted = [];
-
-        foreach ($order as $facet => $values) {
-            $sorted[$facet] = [];
-
-            foreach ($values as $value) {
-                if (isset($options[$facet][$value])) {
-                    $sorted[$facet][$value] = $options[$facet][$value];
-                }
-            }
+        if (filled($meta?->canonical_url)) {
+            $seo->canonical($meta->canonical_url);
         }
 
-        return $sorted;
+        if ($meta?->ogImage !== null) {
+            $seo->image($meta->ogImage->ogUrl());
+        }
+
+        return $seo;
     }
 
     /**
-     * One facet row each (overline label, "All", options with counts): a
-     * count respects the other active facets; options with no match are
-     * shown disabled (FR-SRCH-004 style).
+     * The URL value of each facet for every job.
      *
-     * @param  list<array<string, mixed>>  $open
+     * @param  Collection<int, JobPost>  $jobs
+     * @return array<int, array{department: string, location: string, type: string}>
+     */
+    private function valuesOf(Collection $jobs): array
+    {
+        $offices = CareersQuery::officeSlugs();
+        $values = [];
+
+        foreach ($jobs as $job) {
+            $values[$job->id] = [
+                'department' => CareersQuery::departmentSlug($job->department),
+                'location' => $job->office_id === null ? CareersQuery::SITES_SLUG : ($offices[$job->office_id] ?? CareersQuery::SITES_SLUG),
+                'type' => $job->employment_type->urlValue(),
+            ];
+        }
+
+        return $values;
+    }
+
+    /**
+     * Allowed values per facet (URL value → label): every department, location and type that has an
+     * open role, in a stable order — departments by name, offices in their own order, types as listed.
+     *
+     * @param  Collection<int, JobPost>  $jobs
+     * @param  array<int, array{department: string, location: string, type: string}>  $values
+     * @return array<string, array<string, string>>
+     */
+    private function facetOptions(Collection $jobs, array $values): array
+    {
+        $options = ['department' => [], 'location' => [], 'type' => []];
+
+        foreach ($jobs as $job) {
+            $options['department'][$values[$job->id]['department']] ??= $job->department;
+            $options['location'][$values[$job->id]['location']] ??= $job->office->name ?? CareersQuery::SITES_LABEL;
+            $options['type'][$values[$job->id]['type']] ??= $job->employment_type->label();
+        }
+
+        asort($options['department'], SORT_NATURAL | SORT_FLAG_CASE);
+
+        $sites = $options['location'][CareersQuery::SITES_SLUG] ?? null;
+        unset($options['location'][CareersQuery::SITES_SLUG]);
+        $offices = array_flip(array_values(CareersQuery::officeSlugs()));
+        uksort($options['location'], fn (string $a, string $b): int => ($offices[$a] ?? PHP_INT_MAX) <=> ($offices[$b] ?? PHP_INT_MAX));
+
+        if ($sites !== null) {
+            $options['location'][CareersQuery::SITES_SLUG] = $sites;
+        }
+
+        $order = array_map(fn (EmploymentType $type): string => $type->urlValue(), EmploymentType::cases());
+        uksort($options['type'], fn (string $a, string $b): int => array_search($a, $order, true) <=> array_search($b, $order, true));
+
+        return $options;
+    }
+
+    /**
+     * One facet row each (overline label, "All", options with counts): a count respects the other active
+     * facets; options with no match are shown disabled (FR-SRCH-004 style).
+     *
+     * @param  Collection<int, JobPost>  $jobs
+     * @param  array<int, array{department: string, location: string, type: string}>  $values
      * @param  array<string, array<string, string>>  $options
      * @param  array<string, string>  $active
      * @return list<array<string, mixed>>
      */
-    private function facets(array $open, array $options, array $active): array
+    private function facets(Collection $jobs, array $values, array $options, array $active): array
     {
-        $copy = DemoCareers::copy();
+        $copy = CareersCopy::labels();
         $rows = [];
 
         foreach (array_keys(self::FACETS) as $facet) {
             $others = array_diff_key($active, [$facet => true]);
-            $pool = array_filter($open, fn (array $job): bool => $this->matches($job, $others));
+            $pool = $jobs->filter(fn (JobPost $job): bool => $this->matches($values[$job->id], $others));
 
             $rows[] = [
                 'key' => $facet,
                 'label' => $copy["{$facet}_label"],
-                'all' => ['label' => $copy['all_label'], 'count' => count($pool), 'url' => $this->url($others), 'active' => ! isset($active[$facet])],
+                'all' => ['label' => $copy['all_label'], 'count' => $pool->count(), 'url' => $this->url($others), 'active' => ! isset($active[$facet])],
                 'options' => array_map(
                     fn (string $value, string $label): array => [
                         'value' => $value,
                         'label' => $label,
-                        'count' => count(array_filter($pool, fn (array $job): bool => $this->matches($job, [$facet => $value]))),
+                        'count' => $pool->filter(fn (JobPost $job): bool => $values[$job->id][$facet] === $value)->count(),
                         'url' => $this->url([...$others, $facet => $value]),
                         'active' => ($active[$facet] ?? null) === $value,
                     ],
@@ -180,17 +252,11 @@ class CareerController extends Controller
     }
 
     /**
-     * @param  array<string, mixed>  $job
+     * @param  array{department: string, location: string, type: string}  $values
      * @param  array<string, string>  $filters
      */
-    private function matches(array $job, array $filters): bool
+    private function matches(array $values, array $filters): bool
     {
-        $values = [
-            'department' => $job['department'],
-            'location' => DemoCareers::locationSlug($job),
-            'type' => $this->typeValue($job['type']),
-        ];
-
         foreach ($filters as $facet => $value) {
             if ($values[$facet] !== $value) {
                 return false;
@@ -220,11 +286,5 @@ class CareerController extends Controller
         $query = array_diff_key($request->query(), [$without => true]);
 
         return '/careers'.($query === [] ? '' : '?'.http_build_query($query));
-    }
-
-    /** `full_time` → `full-time` (URL value). */
-    private function typeValue(string $type): string
-    {
-        return str_replace('_', '-', $type);
     }
 }

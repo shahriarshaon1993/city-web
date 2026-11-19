@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Queries\Site\AreaDirectory;
 use App\Queries\Site\NewsQuery;
 use App\Queries\Site\ProjectCards;
+use App\Support\Careers\CareersCopy;
 use App\Support\News\PostBody;
 
 /**
@@ -157,7 +158,7 @@ final class DemoSiteSearch
             $pages[] = ['title' => $page->title, 'description' => (string) $page->seoMeta?->meta_description, 'url' => $page->path()];
         }
 
-        $careers = DemoCareers::copy();
+        $careers = CareersCopy::labels();
         $pages[] = ['title' => $careers['title'], 'description' => $careers['description'], 'url' => '/careers'];
 
         return array_map(fn (array $page): array => [
