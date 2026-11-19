@@ -53,7 +53,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 17.1 | Careers & applications                                                     | 16.4, 15.1     | ✅     |
 | 17.2 | Site search (Scout database engine)                                        | 16.4           | ✅     |
 | 17.3 | Import / export wizard, personal-data export & erase                       | 15.2, 16.4, 17.1 | ✅     |
-| 18.1 | Dashboard home                                                             | 17.1, 15.3     | ⬜     |
+| 18.1 | Dashboard home                                                             | 17.1, 15.3     | ✅     |
 | 18.2 | Command palette, errors view, maintenance screen                           | 18.1           | ⬜     |
 | 19.1 | Structured data (JSON-LD) & OG images                                      | 17.2           | ⬜     |
 | 19.2 | Sitemaps & publish hooks                                                   | 19.1           | ⬜     |
@@ -806,6 +806,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 17.1, 15.3 · **Read:** spec/admin.md §10.3; design/admin.md CMP-ADM-KPI, CMP-ADM-QUICK, CMP-ADM-CHART, §12.2; spec/crud.md HELP-05.
 **Build:** owner approves the chart package (shadcn-vue Chart / Unovis). KPI cards with deltas and "—" zero states, quick actions, leads trend, pipeline, leads by project, lead sources, my follow-ups, recent activity, SEO health, unread enquiries — each widget per permission; "Getting started" checklist card (HELP-05) for Admin+.
 **Test:** a fresh database shows "—" with helper text, not 0, and the Getting started card with every step linking to its screen; completing a step ticks it; a Sales Executive sees only own KPIs; each card links to the filtered list.
+
+**Done notes (2026-11-19):**
+- Data: `Queries\Admin\DashboardData` (one method per widget, permission-gated in `DashboardController`; hidden widget = null prop). Lead figures use `Lead::visibleTo`, spam excluded, Dhaka days via fixed +06:00 `CONVERT_TZ`. Zero KPI = `value: null` + helper ("—"). Decisions: DEC-97.
+- UI: `pages/admin/Dashboard.vue`, `components/admin/dashboard/*` (KpiCard, DashboardWidget, RangeToggle, BarList, LeadsTrendChart async/Unovis, GettingStartedCard), `components/ui/chart/*`, types `types/admin-dashboard.ts`. Chart ranges via `?trend=&projects=&sources=` (partial reload).
+- Getting started: `Support\Admin\GettingStarted` (9 steps ticked from the DB); dismissal = `settings` row `dashboard.getting_started_dismissed` (`Actions\Dashboard\DismissGettingStarted`).
+- Deviations: Pipeline/projects/sources are HTML bar lists, only the trend is Unovis. Snapshot coverage/misses are "—" until 19.3 (wire them to the snapshot tables then).
+- 18.2: the sidebar `/` search button is still disabled; the errors view can add an Errors count to the SEO health card if wanted.
+- shadcn CLI bumps `@lucide/vue`/`reka-ui` and adds a `cn` package: reverted again. `database/seeders/pages/home.json` fails `npm run check` formatting (pre-existing).
 
 ### 18.2 — Command palette, errors view, maintenance screen
 

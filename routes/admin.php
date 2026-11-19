@@ -66,6 +66,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/', DashboardController::class)
         ->middleware('admin.can:dashboard.view')
         ->name('dashboard');
+    Route::post('dashboard/getting-started/dismiss', [DashboardController::class, 'dismissGettingStarted'])
+        ->middleware('admin.can:settings.manage')
+        ->name('dashboard.getting-started.dismiss');
 
     // ADM-SCR-20: every signed-in user, no permission needed.
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
