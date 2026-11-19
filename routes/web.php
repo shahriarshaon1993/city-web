@@ -86,7 +86,7 @@ Route::get('careers/{slug}', [CareerController::class, 'show'])
 
 // PG-18 / PG-19 (8.2).
 Route::get('faq', FaqController::class)->name('site.faq');
-Route::get('search', SearchController::class)->name('site.search');
+Route::get('search', SearchController::class)->middleware('throttle:60,1')->name('site.search');
 
 // PG-20 / PG-21 (8.3): IDs come from the visitor's browser storage.
 Route::get('shortlist', [ShortlistController::class, 'index'])->name('site.shortlist');

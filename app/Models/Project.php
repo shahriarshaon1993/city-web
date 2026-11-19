@@ -12,6 +12,7 @@ use App\Enums\VideoType;
 use App\Models\Concerns\HasRevisions;
 use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSlugHistory;
+use App\Models\Concerns\IsSiteSearchable;
 use App\Models\Concerns\Publishable;
 use App\Models\Contracts\PublishableEntity;
 use App\Support\Media\UsesMedia;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laravel\Scout\Attributes\SearchUsingFullText;
 
 /**
  * DM-PROJ: the listing entity (FR-PROJ). The size, bed and bath ranges and `price_from_bdt` are
@@ -37,6 +39,7 @@ use Illuminate\Support\Carbon;
  * `video_captions`, `documents`, `seo_og`; `SyncProjectMediaUsages` keeps them true.
  *
  * @property int $id
+ * @property string|null $search_text
  * @property string $name
  * @property string $slug
  * @property string|null $tagline
@@ -110,7 +113,7 @@ use Illuminate\Support\Carbon;
 ])]
 class Project extends Model implements PublishableEntity, Trashable, UsesMedia
 {
-    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
+    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, IsSiteSearchable, Publishable, SoftDeletes;
 
     /** FR-PROJ limits. */
     public const int GALLERY_MAX = 60;
@@ -150,6 +153,17 @@ class Project extends Model implements PublishableEntity, Trashable, UsesMedia
                 app(RefreshProjectDerivedFields::class)->handle($project);
             }
         });
+    }
+
+    /**
+     * FR-SRCH-010: matched by one boolean-mode FULLTEXT index over the title and `search_text`.
+     *
+     * @return array<string, mixed>
+     */
+    #[SearchUsingFullText(['name', 'search_text'], ['mode' => 'boolean'])]
+    public function toSearchableArray(): array
+    {
+        return ['name' => $this->name, 'search_text' => $this->search_text];
     }
 
     /**

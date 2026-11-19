@@ -6,6 +6,7 @@ use App\Enums\PublishStatus;
 use App\Models\Concerns\HasRevisions;
 use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSlugHistory;
+use App\Models\Concerns\IsSiteSearchable;
 use App\Models\Concerns\Publishable;
 use App\Models\Contracts\PublishableEntity;
 use App\Support\Media\UsesMedia;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laravel\Scout\Attributes\SearchUsingFullText;
 
 /**
  * DM-POST: a news article (FR-NEWS-001). The body is purified Tiptap HTML whose library images carry
@@ -26,6 +28,7 @@ use Illuminate\Support\Carbon;
  * Delete = Recycle bin (crud.md matrix).
  *
  * @property int $id
+ * @property string|null $search_text
  * @property string $title
  * @property string $slug
  * @property string $excerpt
@@ -46,7 +49,7 @@ use Illuminate\Support\Carbon;
 #[Fillable(['title', 'slug', 'excerpt', 'body', 'cover_asset_id', 'category_id', 'author_user_id', 'is_featured', 'read_minutes', 'publish_status', 'published_at'])]
 class Post extends Model implements PublishableEntity, Trashable, UsesMedia
 {
-    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
+    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, IsSiteSearchable, Publishable, SoftDeletes;
 
     /** FR-NEWS-001 limits. */
     public const int TITLE_MAX = 110;
@@ -64,6 +67,17 @@ class Post extends Model implements PublishableEntity, Trashable, UsesMedia
     {
         static::forceDeleted(MediaUsage::forget(...));
         static::forceDeleted(fn (self $post) => $post->tags()->detach());
+    }
+
+    /**
+     * FR-SRCH-010: matched by one boolean-mode FULLTEXT index over the title and `search_text`.
+     *
+     * @return array<string, mixed>
+     */
+    #[SearchUsingFullText(['title', 'search_text'], ['mode' => 'boolean'])]
+    public function toSearchableArray(): array
+    {
+        return ['title' => $this->title, 'search_text' => $this->search_text];
     }
 
     /**

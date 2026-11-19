@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Search\RefreshSearchText;
 use App\Enums\LocationType;
 use App\Enums\PublishStatus;
 use App\Models\Concerns\HasRevisions;
@@ -67,6 +68,15 @@ class Location extends Model implements PublishableEntity, Trashable, UsesMedia
     protected static function booted(): void
     {
         static::forceDeleted(MediaUsage::forget(...));
+
+        // FR-SRCH-010: projects are searched by their area and city names.
+        static::saved(function (self $location): void {
+            if ($location->wasChanged('name')) {
+                Project::query()->withTrashed()->where(fn ($query) => $query->where('location_id', $location->id)
+                    ->orWhereIn('location_id', self::query()->withTrashed()->where('parent_id', $location->id)->select('id')))
+                    ->each(fn (Project $project) => app(RefreshSearchText::class)->handle($project));
+            }
+        });
     }
 
     /**

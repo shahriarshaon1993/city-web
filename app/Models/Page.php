@@ -6,6 +6,7 @@ use App\Enums\PublishStatus;
 use App\Models\Concerns\HasRevisions;
 use App\Models\Concerns\HasSeo;
 use App\Models\Concerns\HasSlugHistory;
+use App\Models\Concerns\IsSiteSearchable;
 use App\Models\Concerns\Publishable;
 use App\Models\Contracts\PublishableEntity;
 use App\Support\Blocks\MediaPaths;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laravel\Scout\Attributes\SearchUsingFullText;
 
 /**
  * DM-PAGE: a builder page (blocks, CMS-PB-001) or a legal page (one rich-text block and a "last
@@ -24,6 +26,7 @@ use Illuminate\Support\Carbon;
  * (crud.md matrix). Media inside the blocks is recorded against the page (DM-MUSE).
  *
  * @property int $id
+ * @property string|null $search_text
  * @property string $title
  * @property PublishStatus $publish_status
  * @property Carbon|null $published_at
@@ -39,7 +42,7 @@ use Illuminate\Support\Carbon;
 #[Fillable(['title', 'slug', 'template', 'is_system', 'publish_status', 'published_at', 'last_reviewed_at'])]
 class Page extends Model implements PublishableEntity, Trashable, UsesMedia
 {
-    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, Publishable, SoftDeletes;
+    use BinBehaviour, HasRevisions, HasSeo, HasSlugHistory, IsSiteSearchable, Publishable, SoftDeletes;
 
     public const string BUILDER = 'builder';
 
@@ -61,6 +64,17 @@ class Page extends Model implements PublishableEntity, Trashable, UsesMedia
     protected static function booted(): void
     {
         static::forceDeleted(MediaUsage::forget(...));
+    }
+
+    /**
+     * FR-SRCH-010: matched by one boolean-mode FULLTEXT index over the title and `search_text`.
+     *
+     * @return array<string, mixed>
+     */
+    #[SearchUsingFullText(['title', 'search_text'], ['mode' => 'boolean'])]
+    public function toSearchableArray(): array
+    {
+        return ['title' => $this->title, 'search_text' => $this->search_text];
     }
 
     /**

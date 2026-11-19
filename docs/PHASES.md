@@ -51,7 +51,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 16.3 | News admin, rich text editor, RSS                                          | 16.1           | ✅     |
 | 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ✅     |
 | 17.1 | Careers & applications                                                     | 16.4, 15.1     | ✅     |
-| 17.2 | Site search (Scout database engine)                                        | 16.4           | ⬜     |
+| 17.2 | Site search (Scout database engine)                                        | 16.4           | ✅     |
 | 17.3 | Import / export wizard, personal-data export & erase                       | 15.2, 16.4, 17.1 | ⬜     |
 | 18.1 | Dashboard home                                                             | 17.1, 15.3     | ⬜     |
 | 18.2 | Command palette, errors view, maintenance screen                           | 18.1           | ⬜     |
@@ -778,6 +778,12 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 16.4 · **Read:** spec/search.md FR-SRCH-010; spec/pages.md PG-19; spec/nfr-ops.md NFR-SEC-10 (`/search` limit).
 **Build:** owner approves `laravel/scout` 11. FULLTEXT indexes, searchable projects/posts/pages, grouped results (max 10 per group), rate limit 60/min/IP; the demo search is removed.
 **Test:** search a project name, an area, an article word; a 1-character query shows the minimum message; the 61st request in a minute → 429.
+
+**Done notes (17.2):**
+- `laravel/scout` 11.11 on the `database` engine (config default). Migration `add_search_text_columns`: `search_text` + FULLTEXT(title/name, search_text) on `projects`, `posts`, `pages`. Scout's DB engine matches one FULLTEXT over the model's own columns, so related text is denormalised. See DEC-95.
+- `Models/Concerns/IsSiteSearchable` (Project, Post, Page) refreshes `search_text` on save via `Actions/Search/RefreshSearchText` (query-builder update, no events); `Location` rename refreshes its projects, `SeoMeta` meta description refreshes its page. `php artisan search:refresh` rebuilds all (run it after migrating an existing database). Text built by `Support/Search/SearchText`.
+- `Queries/Site/SiteSearch` (boolean-mode `+word*` prefix match, operators stripped, title matches first, 10 per group, careers page is a fixed entry), `Support/Site/SearchCopy`; `SearchController` + `throttle:60,1` on `/search`. `DemoSiteSearch` deleted: no `Demo*` class is left in `app/`.
+- Later: 19.1 sitemap/JSON-LD need no search data; new searchable models must add `IsSiteSearchable`, a `search_text` column and a case in `SearchText::for()`; 17.3 erase does not touch search (no personal data indexed). Check: `docs/checks/17.2-search.php`.
 
 ### 17.3 — Import / export wizard, personal-data export & erase
 

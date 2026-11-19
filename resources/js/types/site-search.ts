@@ -1,5 +1,5 @@
 // PG-19 contract (8.2): App\Http\Controllers\Site\SearchController with
-// App\Support\Demo\DemoSiteSearch now, Scout in 17.2 (same shapes).
+// App\Queries\Site\SiteSearch (Scout database engine).
 
 import type { Breadcrumb, NewsCard, ProjectCard } from '@/types/site';
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Search\RefreshSearchText;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,18 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class SeoMeta extends Model
 {
     protected $table = 'seo_meta';
+
+    protected static function booted(): void
+    {
+        // FR-SRCH-010: a page is searched by its meta description.
+        static::saved(function (self $meta): void {
+            $owner = $meta->seoable;
+
+            if ($owner instanceof Page && $meta->wasChanged('meta_description')) {
+                app(RefreshSearchText::class)->handle($owner);
+            }
+        });
+    }
 
     /** @var list<string> */
     public const array ROBOTS = ['index,follow', 'noindex,follow', 'noindex,nofollow'];
