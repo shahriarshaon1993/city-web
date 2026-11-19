@@ -3,9 +3,11 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ExportDownloadController;
 use App\Http\Controllers\Admin\FacetPageController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FeaturedProjectController;
+use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\JobApplicationController;
 use App\Http\Controllers\Admin\JobPostController;
 use App\Http\Controllers\Admin\LeadAttachmentController;
@@ -22,6 +24,7 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PlaceholderController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\PrivacyController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\PublishingController;
@@ -370,6 +373,33 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         // FR-CAR-005: the CV leaves the private disk only through this route.
         Route::get('{application}/cv', [JobApplicationController::class, 'cv'])->whereNumber('application')->name('cv');
         Route::delete('{application}', [JobApplicationController::class, 'destroy'])->whereNumber('application')->name('destroy');
+    });
+
+    // ADM-IO-001 Import wizard. Each run belongs to the person who started it (ImportRunPolicy); which
+    // kinds of data a person may import is `ImportType::canBeUsedBy`.
+    Route::middleware('admin.can:import.content|import.leads')->prefix('import')->name('import.')->group(function () {
+        Route::get('/', [ImportController::class, 'index'])->name('index');
+        Route::post('/', [ImportController::class, 'store'])->middleware('throttle:20,1')->name('store');
+        Route::get('templates/{type}', [ImportController::class, 'template'])->name('template');
+        Route::get('runs/{run}', [ImportController::class, 'show'])->whereNumber('run')->name('runs.show');
+        Route::put('runs/{run}/mapping', [ImportController::class, 'mapping'])->whereNumber('run')->middleware('throttle:120,1')->name('runs.mapping');
+        Route::post('runs/{run}/start', [ImportController::class, 'start'])->whereNumber('run')->name('runs.start');
+        Route::get('runs/{run}/problems', [ImportController::class, 'errors'])->whereNumber('run')->name('runs.errors');
+        Route::delete('runs/{run}', [ImportController::class, 'destroy'])->whereNumber('run')->name('runs.destroy');
+    });
+
+    // ADM-TBL-012: the signed 24-hour link of a queued export (the signature is a relative one).
+    Route::get('exports/{export}/download', ExportDownloadController::class)
+        ->whereNumber('export')
+        ->middleware('signed:relative')
+        ->name('exports.download');
+
+    // NFR-PRIV-03 Personal data: find, export, erase everything held for a phone and/or an email.
+    Route::middleware('admin.can:privacy.manage')->prefix('privacy')->name('privacy.')->group(function () {
+        Route::get('/', [PrivacyController::class, 'index'])->name('index');
+        Route::post('search', [PrivacyController::class, 'search'])->middleware('throttle:30,1')->name('search');
+        Route::post('export', [PrivacyController::class, 'export'])->middleware('throttle:10,1')->name('export');
+        Route::delete('/', [PrivacyController::class, 'erase'])->middleware('throttle:10,1')->name('erase');
     });
 
     // ADM-SCR-12 Subscribers.

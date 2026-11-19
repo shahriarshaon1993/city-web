@@ -42,6 +42,12 @@ final class PermissionMatrix
         'Activity log' => ['activity.view-all', 'activity.view-own'],
         'Maintenance' => ['maintenance.manage', 'maintenance.caches'],
         'Import' => ['import.content', 'import.leads'],
+        'Personal data' => ['privacy.manage'],
+    ];
+
+    /** Wording for one permission whose ability word would mislead on the roles screen. */
+    private const array NAME_LABELS = [
+        'privacy.manage' => 'Find, export and erase a person\'s data',
     ];
 
     /** Ability (the part after the dot) → wording on the roles screen. */
@@ -81,7 +87,7 @@ final class PermissionMatrix
                 'label' => $label,
                 'permissions' => array_map(fn (string $name): array => [
                     'name' => $name,
-                    'label' => self::ABILITY_LABELS[substr($name, (int) strrpos($name, '.') + 1)] ?? $name,
+                    'label' => self::NAME_LABELS[$name] ?? self::ABILITY_LABELS[substr($name, (int) strrpos($name, '.') + 1)] ?? $name,
                 ], $names),
             ];
         }

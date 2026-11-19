@@ -1,0 +1,5 @@
+id,created_time,ad_name,campaign_name,form_name,platform,full_name,phone_number,email,city
+l:1001,2026-11-02T10:15:00+06:00,Ad 1,Summer launch,Flat enquiry,fb,Rahim Uddin,p:+8801712345678,rahim@example.com,Dhaka
+l:1002,2026-11-02T11:00:00+06:00,Ad 1,Summer launch,Flat enquiry,ig,Karim Ali,p:01898765432,,Dhaka
+l:1003,2026-11-02T12:30:00+06:00,Ad 2,Summer launch,Flat enquiry,fb,Bad Phone,p:12345,bad@example.com,Dhaka
+l:1004,2026-11-03T09:00:00+06:00,Ad 2,Summer launch,Flat enquiry,fb,Nusrat Jahan,p:+447911123456,nusrat@example.com,London

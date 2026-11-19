@@ -153,7 +153,11 @@ final class LeadPresenter
         ]);
         $detail = $notes === [] ? null : implode(' ', $notes);
 
-        return ($payload['type'] ?? null) === Lead::MANUAL_TYPE ? 'Added by hand' : "{$type} form submitted";
+        return match ($payload['type'] ?? null) {
+            Lead::MANUAL_TYPE => 'Added by hand',
+            Lead::IMPORT_TYPE => 'Imported from a file',
+            default => "{$type} form submitted",
+        };
     }
 
     /**

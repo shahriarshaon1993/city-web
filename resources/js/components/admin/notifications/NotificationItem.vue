@@ -2,6 +2,8 @@
 import {
     Bell,
     CalendarClock,
+    FileDown,
+    FileUp,
     FileUser,
     PhoneCall,
     UserCheck,
@@ -27,6 +29,8 @@ const KINDS: Record<string, { icon: Component; tile: string }> = {
         tile: 'bg-warning-50 text-warning-700',
     },
     new_application: { icon: FileUser, tile: 'bg-primary/10 text-primary' },
+    import_finished: { icon: FileUp, tile: 'bg-info-50 text-info-700' },
+    export_ready: { icon: FileDown, tile: 'bg-info-50 text-info-700' },
 };
 
 const kind = computed(

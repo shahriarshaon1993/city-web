@@ -39,3 +39,7 @@ Schedule::command('careers:close-expired')->dailyAt('00:05')->timezone('Asia/Dha
 
 // NFR-PRIV-04: applications not updated for 12 months go, with their CVs.
 Schedule::command('applications:purge')->dailyAt('03:20');
+
+// ADM-IO-001 / ADM-TBL-012: export files whose 24-hour link expired, unconfirmed import uploads and old
+// error files leave the private disk.
+Schedule::command('transfers:purge')->dailyAt('03:50');

@@ -57,6 +57,8 @@ final class AdminNavigation
                 new NavItem('sitemaps', 'Sitemaps & snapshots', 'admin/sitemaps', 'network', ['seo.view', 'seo.manage'], 'Sitemap status and pre-rendered pages.', '19.2'),
             ],
             'System' => [
+                new NavItem('import', 'Import & export', 'admin/import', 'file-up', ['import.content', 'import.leads'], 'Bring leads, subscribers, redirects, locations and FAQs in from a file; find your large exports.', '17.3', placeholder: false),
+                new NavItem('privacy', 'Personal data', 'admin/privacy', 'shield-check', ['privacy.manage'], 'Find, export or erase everything held about one person.', '17.3', placeholder: false),
                 new NavItem('settings', 'Settings', 'admin/settings', 'settings', ['settings.manage', 'settings.integrations'], 'Company details, contact, header, footer, forms and integrations.', '12.1', placeholder: false),
                 new NavItem('users', 'Users & roles', 'admin/users', 'user-cog', ['users.manage', 'roles.manage'], 'Invite people, set their role and see what each role may do.', '10.3', placeholder: false),
                 new NavItem('activity-log', 'Activity log', 'admin/activity-log', 'history', ['activity.view-all', 'activity.view-own'], 'Who changed what, and when.', '10.3', placeholder: false),

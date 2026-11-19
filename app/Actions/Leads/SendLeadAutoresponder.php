@@ -21,7 +21,7 @@ final class SendLeadAutoresponder
     {
         if (! (bool) Settings::get('notifications', 'autoresponder_enabled', false)
             || $lead->email === null
-            || $lead->type === Lead::MANUAL_TYPE
+            || in_array($lead->type, [Lead::MANUAL_TYPE, Lead::IMPORT_TYPE], true)
             || $lead->status !== LeadStatus::New) {
             return false;
         }

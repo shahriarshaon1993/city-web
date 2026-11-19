@@ -455,6 +455,7 @@ function sortAria(id: string): 'ascending' | 'descending' | 'none' | undefined {
                     v-if="exportable"
                     :table-key="tableKey"
                     :parameters="exportParameters"
+                    :total="meta.total"
                 />
                 <!-- CMP-ADM-MEDIA: grid / list segmented control -->
                 <div

@@ -2,14 +2,16 @@
 
 namespace App\Support\Notifications;
 
+use App\Notifications\ExportReadyNotification;
 use App\Notifications\FollowUpsDueNotification;
+use App\Notifications\ImportFinishedNotification;
 use App\Notifications\LeadAssignedNotification;
 use App\Notifications\NewApplicationNotification;
 use App\Notifications\NewLeadNotification;
 
 /**
  * The admin notification types of spec/admin.md §10.8 that exist so far. The value is stored in the
- * notification's `kind` (the inbox filter reads the class); 16.x / 17.x / 18.x add their own.
+ * notification's `kind` (the inbox filter reads the class); 18.x adds the rest.
  */
 enum NotificationKind: string
 {
@@ -17,6 +19,8 @@ enum NotificationKind: string
     case LeadAssigned = 'lead_assigned';
     case FollowUpsDue = 'follow_up_due';
     case NewApplication = 'new_application';
+    case ImportFinished = 'import_finished';
+    case ExportReady = 'export_ready';
 
     public function label(): string
     {
@@ -25,6 +29,8 @@ enum NotificationKind: string
             self::LeadAssigned => 'Assigned to you',
             self::FollowUpsDue => 'Follow-ups due',
             self::NewApplication => 'New application',
+            self::ImportFinished => 'Import finished',
+            self::ExportReady => 'Export ready',
         };
     }
 
@@ -38,6 +44,8 @@ enum NotificationKind: string
             self::LeadAssigned => LeadAssignedNotification::class,
             self::FollowUpsDue => FollowUpsDueNotification::class,
             self::NewApplication => NewApplicationNotification::class,
+            self::ImportFinished => ImportFinishedNotification::class,
+            self::ExportReady => ExportReadyNotification::class,
         };
     }
 
@@ -49,6 +57,8 @@ enum NotificationKind: string
             self::LeadAssigned => 'user-check',
             self::FollowUpsDue => 'calendar-clock',
             self::NewApplication => 'file-user',
+            self::ImportFinished => 'file-up',
+            self::ExportReady => 'file-down',
         };
     }
 

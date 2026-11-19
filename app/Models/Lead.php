@@ -68,6 +68,9 @@ class Lead extends Model implements Trashable
     /** The type of a lead that staff add by hand. */
     public const string MANUAL_TYPE = 'manual';
 
+    /** The type of a lead that came in through the import wizard (ADM-IO-001). */
+    public const string IMPORT_TYPE = 'import';
+
     /**
      * @return array<string, string>
      */

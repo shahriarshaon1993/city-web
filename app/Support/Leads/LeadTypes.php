@@ -20,6 +20,7 @@ final class LeadTypes
         'landowner' => 'Landowner',
         'nrb' => 'NRB',
         Lead::MANUAL_TYPE => 'Added by hand',
+        Lead::IMPORT_TYPE => 'Imported',
     ];
 
     public static function label(string $type): string

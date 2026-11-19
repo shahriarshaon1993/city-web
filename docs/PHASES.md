@@ -52,7 +52,7 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 | 16.4 | Testimonials, partners, FAQs, team, offices admin; remove demo content     | 16.2, 16.3     | ✅     |
 | 17.1 | Careers & applications                                                     | 16.4, 15.1     | ✅     |
 | 17.2 | Site search (Scout database engine)                                        | 16.4           | ✅     |
-| 17.3 | Import / export wizard, personal-data export & erase                       | 15.2, 16.4, 17.1 | ⬜     |
+| 17.3 | Import / export wizard, personal-data export & erase                       | 15.2, 16.4, 17.1 | ✅     |
 | 18.1 | Dashboard home                                                             | 17.1, 15.3     | ⬜     |
 | 18.2 | Command palette, errors view, maintenance screen                           | 18.1           | ⬜     |
 | 19.1 | Structured data (JSON-LD) & OG images                                      | 17.2           | ⬜     |
@@ -790,6 +790,14 @@ Workflow and commands: see `CLAUDE.md`. A session reads this table + ONE card on
 **Deps:** 15.2, 16.4, 17.1 · **Read:** spec/admin.md §10.6, ADM-TBL-012; spec/architecture.md ARC-011 (exports queue); spec/nfr-ops.md NFR-PRIV-03.
 **Build:** upload → column mapping → preview 20 rows → queued import → report + error CSV, for leads, subscribers, redirects, locations, FAQs; exports > 5,000 rows queued with a signed 24 h link + notification; every export logged. Personal data: find everything for a phone or email (leads, applications, subscriptions) → export it, or erase it (hard delete + activity entry without PII).
 **Test:** import a sample Facebook-leads CSV with one bad phone row → report shows created/failed and the error CSV; an export over 5,000 rows arrives as a notification link; erase a test person → their leads, application and subscription are gone and the activity log names no PII.
+
+**Done notes (17.3):**
+- Migration `create_data_transfer_tables` (`import_runs`, `export_runs`); models `ImportRun`, `ExportRun`; files on the private `local` disk under `imports/{id}` / `exports/{id}`, removed by `transfers:purge` (03:50). See DEC-96.
+- Import: `Support/Import/*` (`ImportType`, `ImportDefinition` + `Definitions/{Leads,Subscribers,Redirects,Locations,Faqs}Import`, `ImportFile`, `ImportMapper`), Actions `app/Actions/Imports/*`, `Jobs/RunImport` (slices of ~40 s, `tries = 1`), `ImportController`, pages `admin/import/{Index,Run}.vue`. A new import type = a definition + an `ImportType` case.
+- Export: `ExportTable` queues above `ExportRun::QUEUE_THRESHOLD` (5,000) via `QueueExport` → `RunExport` → `GenerateExport`; signed relative link `admin.exports.download`; `Support/Tables/ExportCell::safe` is the shared CSV-injection guard.
+- Personal data: permission `privacy.manage`, `PrivacyController`, `Queries/Admin/PersonalDataLookup`, Actions `Actions/Privacy/{ExportPersonalData,ErasePersonalData}`; a new model holding personal data must be added to the lookup, export and erase.
+- Notifications `import_finished`, `export_ready`; lead type `import` (`Lead::IMPORT_TYPE`). The SEO screen's own redirects import dialog (`ImportRedirects`) is unchanged.
+- Check: `docs/checks/17.3-import-export.php`, sample file `docs/checks/17.3-facebook-leads-sample.csv`. 18.1 dashboard may count recent imports; 20.1 deploy: the host cron must run `schedule:run` (the queue worker lives there).
 
 ## Phase 18 — Dashboard & system screens
 
